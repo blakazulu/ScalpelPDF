@@ -3,6 +3,11 @@ name: WinGet Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.4.1)'
+        required: true
 
 jobs:
   submit:
@@ -19,8 +24,9 @@ jobs:
 
       - name: Submit to WinGet
         run: |
-          $version = "${{ github.event.release.tag_name }}".TrimStart('v')
-          $url = "https://github.com/SteveTheKiller/KillerPDF/releases/download/${{ github.event.release.tag_name }}/KillerPDF.exe"
+          $releaseTag = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.tag }}" } else { "${{ github.event.release.tag_name }}" }
+          $version = $releaseTag.TrimStart('v')
+          $url = "https://github.com/SteveTheKiller/KillerPDF/releases/download/$releaseTag/KillerPDF.exe"
           komac update SteveTheKiller.KillerPDF --version $version --urls $url --submit
         env:
           GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
