@@ -63,6 +63,46 @@
         <Style x:Key="ToolbarButtonDanger" TargetType="Button" BasedOn="{StaticResource ToolbarButton}">
             <Setter Property="Foreground" Value="{StaticResource DangerRed}"/>
         </Style>
+        <Style x:Key="ToolbarToggleButton" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3"
+                                Padding="{TemplateBinding Padding}"
+                                ToolTip="{TemplateBinding ToolTip}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource AccentGreenDim}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource AccentGreen}"/>
+                                <Setter Property="Foreground" Value="{StaticResource AccentGreen}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BgHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <Style x:Key="ChromeButton" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -479,7 +519,7 @@
                     <Button Content="&#xE7C3;" Style="{StaticResource ToolbarButton}" Click="New_Click" ToolTip="New Blank Document (Ctrl+N)"/>
                     <Button Content="&#xE8DA;" Style="{StaticResource ToolbarButton}" Click="Open_Click" ToolTip="Open (Ctrl+O)"/>
                     <Button x:Name="CloseFileBtn" Content="&#xE711;" Style="{StaticResource ToolbarButton}" Click="CloseFile_Click" ToolTip="Close File (Ctrl+W)" IsEnabled="False"/>
-                    <Button x:Name="SaveAsBtn" Content="&#xE74E;" Style="{StaticResource ToolbarButtonAccent}" Click="SaveAs_Click" ToolTip="Save As"/>
+                    <Button x:Name="SaveAsBtn" Content="&#xE74E;" Style="{StaticResource ToolbarButtonAccent}" Click="SaveAs_Click" ToolTip="Save As (Ctrl+Shift+S)"/>
                     <Button Content="&#xE8B9;" Style="{StaticResource ToolbarButton}" Click="SaveFlattened_Click" ToolTip="Save Flattened PDF (rasterize all pages — fully uneditable)"/>
                     <Button Content="&#xE749;" Style="{StaticResource ToolbarButton}" Click="Print_Click" ToolTip="Print (Ctrl+P)"/>
                     <Rectangle Width="1" Fill="{StaticResource BorderDim}" Margin="4,6"/>
@@ -506,6 +546,14 @@
                     <Button Content="&#xE7A7;" Style="{StaticResource ToolbarButton}" Click="Undo_Click" ToolTip="Undo Last (Ctrl+Z)"/>
                     <Button Content="&#xED62;" Style="{StaticResource ToolbarButtonDanger}" Click="ClearAnnotations_Click" ToolTip="Clear All Annotations"/>
                     <Rectangle Width="1" Fill="{StaticResource BorderDim}" Margin="4,6"/>
+                    <ToggleButton x:Name="GridViewToggle"
+                                  Content="&#xE8A9;"
+                                  Style="{StaticResource ToolbarToggleButton}"
+                                  IsChecked="True"
+                                  IsEnabled="False"
+                                  Click="GridViewToggle_Click"
+                                  ToolTip="Multi-page grid view"
+                                  Margin="0,0,4,0"/>
                     <ComboBox x:Name="ZoomBox" Width="96" Height="24" VerticalAlignment="Center"
                               Margin="0,0,4,0"
                               IsEditable="True" IsReadOnly="True"
@@ -543,14 +591,49 @@
                 <Border x:Name="SidebarBorder" Grid.Column="0"
                         Background="#222222"
                         BorderBrush="{StaticResource BorderDim}" BorderThickness="0,0,0,0">
-                    <ScrollViewer x:Name="SidebarScrollViewer"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <DockPanel VerticalAlignment="Top">
-                            <TextBlock DockPanel.Dock="Top" Text="PAGES"
+                    <DockPanel>
+                        <!-- Sticky header — lives outside the ScrollViewer so it never scrolls away -->
+                        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="12,8,8,4">
+                            <TextBlock Text="PAGES" DockPanel.Dock="Left"
                                        Foreground="{StaticResource TextSecondary}"
                                        FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
-                                       Padding="12,10"/>
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="PageTotalLabel" DockPanel.Dock="Right"
+                                       Text="/ –" VerticalAlignment="Center"
+                                       FontFamily="Consolas" FontSize="11"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Margin="2,0,0,0"/>
+                            <TextBox x:Name="PageJumpBox" DockPanel.Dock="Right"
+                                     Width="30" Height="20" VerticalAlignment="Center"
+                                     TextAlignment="Center" VerticalContentAlignment="Center"
+                                     FontFamily="Consolas" FontSize="11"
+                                     Background="{StaticResource BgPanel}"
+                                     Foreground="{StaticResource TextPrimary}"
+                                     BorderBrush="{StaticResource BorderDim}" BorderThickness="1"
+                                     CaretBrush="{StaticResource AccentGreen}"
+                                     SelectionBrush="{StaticResource AccentGreenDim}"
+                                     IsEnabled="False"
+                                     FocusVisualStyle="{x:Null}"
+                                     KeyDown="PageJumpBox_KeyDown"
+                                     GotFocus="PageJumpBox_GotFocus"
+                                     ToolTip="Go to page (Enter to navigate)"
+                                     Margin="0,0,2,0">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="BorderBrush" Value="{StaticResource BorderDim}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsFocused" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{StaticResource AccentGreen}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                        </DockPanel>
+                        <!-- Scrollable page list -->
+                        <ScrollViewer x:Name="SidebarScrollViewer"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
                             <ListBox x:Name="PageList" Style="{StaticResource PageListBox}"
                                      BorderThickness="0" SelectionMode="Extended"
                                      ScrollViewer.VerticalScrollBarVisibility="Disabled"
@@ -561,8 +644,8 @@
                                      PreviewMouseLeftButtonDown="PageList_PreviewMouseLeftButtonDown"
                                      PreviewMouseMove="PageList_PreviewMouseMove"
                                      MouseRightButtonUp="PageList_MouseRightButtonUp"/>
-                        </DockPanel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </DockPanel>
                 </Border>
 
                 <!-- Toggle strip — always 24px wide, right edge of sidebar column -->
@@ -605,6 +688,10 @@
                                   VerticalScrollBarVisibility="Auto"
                                   Background="Transparent"
                                   PreviewMouseWheel="PagePreview_PreviewMouseWheel"
+                                  SizeChanged="PagePreviewPanel_SizeChanged"
+                                  PreviewMouseDown="PagePreviewPanel_PreviewMouseDown"
+                                  PreviewMouseMove="PagePreviewPanel_PreviewMouseMove"
+                                  PreviewMouseUp="PagePreviewPanel_PreviewMouseUp"
                                   AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver">
                         <Border VerticalAlignment="Top" HorizontalAlignment="Center" Padding="12">
                             <Grid x:Name="PageContentGrid">
@@ -670,7 +757,20 @@
                     </Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock x:Name="VersionLabel" Text="v1.4.0"
+                    <Button Click="ShortcutHelp_Click"
+                            Cursor="Hand" VerticalAlignment="Center"
+                            Margin="0,0,12,0" FocusVisualStyle="{x:Null}"
+                            ToolTip="Keyboard shortcuts (Ctrl+?)">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock Text="?"
+                                           Foreground="#555555"
+                                           FontFamily="Consolas" FontSize="10"
+                                           VerticalAlignment="Center"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <TextBlock x:Name="VersionLabel" Text="v1.4.1"
                                Foreground="#6a6a6a" FontFamily="Consolas"
                                FontSize="10" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock FontSize="10" VerticalAlignment="Center"
@@ -686,7 +786,105 @@
             </Grid>
         </Border>
 
-        <!-- Film grain overlay — main content area only -->
+        <!-- Keyboard shortcut overlay -->
+        <Grid x:Name="ShortcutOverlay"
+              Grid.RowSpan="4"
+              Panel.ZIndex="10000"
+              Visibility="Collapsed"
+              Background="#BB000000"
+              MouseLeftButtonDown="ShortcutOverlay_MouseLeftButtonDown">
+            <Border Background="#1e1e1e"
+                    BorderBrush="{StaticResource AccentGreen}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="28,16,28,22"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MinWidth="480"
+                    MaxWidth="640"
+                    MouseLeftButtonDown="ShortcutOverlayCard_MouseLeftButtonDown">
+                <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Keyboard Shortcuts"
+                                   FontFamily="Segoe UI" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Button Click="ShortcutOverlayClose_Click"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Cursor="Hand" FocusVisualStyle="{x:Null}"
+                                Width="24" Height="24">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <TextBlock Text="&#xE711;"
+                                               FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+
+                    <!-- Column layout -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left column -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="FILE" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+O" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Open" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+W" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Close file" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+N" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="New blank document" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+S" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Save" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Shift+S" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Save As" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+P" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Print" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+
+                            <TextBlock Text="NAVIGATION" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="&#x2190; / &#x2192; or &#x2191; / &#x2193;" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Previous / next page" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Scroll" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Zoom in / out" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="Middle drag" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Pan view" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                        </StackPanel>
+
+                        <!-- Right column -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="EDITING" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Z" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Undo" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Delete" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Delete selected annotation" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Enter / Escape" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Confirm / cancel text or crop" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+
+                            <TextBlock Text="SEARCH &amp; SELECT" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+F" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Find / search" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Enter / Shift+Enter" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Next / previous result" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+A" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Select all text on page" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+C" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="Copy selected text" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+
+                            <TextBlock Text="HELP" Foreground="{StaticResource AccentGreen}"
+                                       FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+?" FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondary}" Width="120"/><TextBlock Text="This shortcut list" FontSize="11" Foreground="{StaticResource TextPrimary}"/></DockPanel>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Film grain overlay - main content area only -->
         <Border x:Name="GrainOverlay"
                 Grid.Row="2"
                 IsHitTestVisible="False"

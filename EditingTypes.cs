@@ -38,7 +38,7 @@ namespace KillerPDF
 
     public class InkAnnotation : PageAnnotation
     {
-        public List<Point> Points { get; set; } = new();
+        public List<Point> Points { get; set; } = [];
         public double StrokeWidth { get; set; } = 2;
         public byte ColorR { get; set; } = 255;
         public byte ColorG { get; set; } = 0;
@@ -79,7 +79,7 @@ namespace KillerPDF
     /// </summary>
     public class SignatureAnnotation : PlacedAnnotation
     {
-        public List<List<Point>> Strokes { get; set; } = new();
+        public List<List<Point>> Strokes { get; set; } = [];
         /// <summary>Base-64 encoded PNG. Non-null = image sig; null = drawn strokes.</summary>
         public string? ImageData { get; set; }
     }
@@ -109,7 +109,7 @@ namespace KillerPDF
     {
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
         public string Name { get; set; } = "Signature";
-        public List<List<SerializablePoint>> Strokes { get; set; } = new();
+        public List<List<SerializablePoint>> Strokes { get; set; } = [];
         public double CanvasWidth { get; set; } = 400;
         public double CanvasHeight { get; set; } = 150;
         /// <summary>Base-64 encoded PNG for imported image signatures. Null = drawn strokes.</summary>

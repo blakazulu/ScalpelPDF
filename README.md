@@ -9,23 +9,26 @@ Part of [killertools.net](https://killertools.net).
 
 ## Features
 
-- High-quality rendering via PDFium (Docnet.Core)
+- High-quality rendering via PDFium
 - Merge multiple PDFs and split out selected pages, drag-and-drop page reordering
 - Inline text editing with font matching against the original document
 - Text boxes, freehand drawing, and highlight overlays with adjustable color, size, and opacity
 - Draw and save reusable signatures or import a PNG/JPG/BMP image as a signature, click to place anywhere on a page
 - Insert images onto any page as resizable annotations — drag the corner handle to scale, burned into the PDF on save
+- Crop tool with corner drag handles; Enter to apply, Escape to cancel, remove crop from one page or all pages
 - Right-click sidebar: insert blank page, rotate CW/CCW, move up/down, extract, or delete — works on multi-page selections
 - Clickable PDF links and internal cross-references, including TOC back-links
-- Multi-page grid view at low zoom levels for context across the whole document
-- Zoom preset dropdown with scroll-wheel sync
+- Multi-page grid view toggle — switch between a scrollable grid of all pages and a focused single-page view
+- Zoom preset dropdown with scroll-wheel sync; Fit to Width and Fit Page re-apply on window resize
+- Page number jump box in the toolbar — type a page number and press Enter to navigate directly
+- Arrow key navigation and middle mouse button panning
+- Ctrl+S saves to the current file; Ctrl+Shift+S opens Save As
+- Keyboard shortcut overlay — press Ctrl+? for a full shortcut reference
 - Full-text search across the entire document with result highlighting, drag-select to copy text
-- Unsaved-changes protection with dirty tracking and title bar indicator
-- Close file without quitting (Ctrl+W)
 - Print with annotations flattened into the output
-- Save Flattened PDF: rasterizes every page at 150 DPI via PDFium into a fully uneditable document
-- Password-protected PDF support: prompts for password instead of erroring, decrypted copy held in temp for the session
-- Self-installing EXE: running from outside the install path shows an Install / Run Portable dialog; running a newer version shows an Update prompt instead. Installs per-user to %LOCALAPPDATA% (no UAC), registers as PDF file handler, adds Start Menu and optional Desktop shortcuts, uninstalls cleanly via Add/Remove Programs
+- Save Flattened PDF: rasterizes every page at 150 DPI into a fully uneditable document
+- Password-protected PDF support: prompts for password instead of erroring
+- Self-installing EXE: installs per-user to %LOCALAPPDATA% (no UAC), registers as PDF file handler, adds Start Menu and optional Desktop shortcuts, uninstalls cleanly via Add/Remove Programs
 
 ## Screenshots
 
@@ -45,7 +48,7 @@ winget install killerpdf
 ```
 
 - Prebuilt binary: <https://github.com/SteveTheKiller/KillerPDF/releases/latest/download/KillerPDF.zip>
-- Source (GPL3 corresponding source for this release): <https://github.com/SteveTheKiller/KillerPDF/releases/download/v1.4.0/KillerPDF-1.4.0-src.zip>
+- Source (GPL3 corresponding source for this release): <https://github.com/SteveTheKiller/KillerPDF/releases/download/v1.4.1/KillerPDF-1.4.1-src.zip>
 
 ## Build from source
 

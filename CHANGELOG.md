@@ -4,7 +4,30 @@ All notable changes to KillerPDF are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — 1.4.0
+## [Unreleased] — 1.4.1
+
+### Added
+- Page number jump box in toolbar. Type a page number and press Enter to navigate directly to that page.
+- Signature auto-selects after placing so you can immediately reposition or resize without switching tools.
+- Zoom to Width / Fit Page now re-applies when the window is resized.
+- Middle mouse button panning. Hold middle mouse and drag to pan the view in any direction.
+- Multi-page grid view toggle (toolbar button left of the zoom dropdown). Switch between seeing all pages in a scrollable grid and a focused single-page view. Defaults to grid view on open.
+- Ctrl+S saves directly to the current file without a dialog. Ctrl+Shift+S opens Save As.
+- Arrow key navigation: Left/Up goes to the previous page, Right/Down goes to the next page.
+- Keyboard shortcut overlay. Press Ctrl+? to show a full shortcut reference. Dismiss with Escape or by clicking outside the panel.
+- Crop tool improvements: corner drag handles to resize the selection after drawing without having to redraw; Enter applies the crop to the current page; Escape cancels; Remove Crop / Remove All buttons in the confirm bar clear an existing CropBox from one page or all pages.
+
+### Fixed
+- Fit to Width and Fit Page zoomed incorrectly on HiDPI (4K) displays.
+- Pages appeared blurry at higher zoom levels on HiDPI displays.
+- Signature position drifted after saving.
+- Memory spike (6+ GB) when opening large PDFs on HiDPI displays.
+- Navigating pages caused multi-second UI lag on documents with many pages.
+- Scroll wheel now navigates to the previous page when scrolled to the top of a page, and to the next page when scrolled to the bottom.
+
+---
+
+## [1.4.0] - 2026-05-16
 
 ### Added
 - Rotate page (Issue #52). Right-click any page in the sidebar to rotate it 90° clockwise or counter-clockwise. Works on multi-page selections.
@@ -102,7 +125,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this
 
 _Historical entries to be backfilled._
 
-[Unreleased]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.0...HEAD
 [1.4.0]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.0...v1.3.1

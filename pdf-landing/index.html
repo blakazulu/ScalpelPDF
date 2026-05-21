@@ -80,8 +80,7 @@ header { border-bottom: 1px solid var(--card-border); padding: 16px 0; backgroun
 .download-btn:hover { background: var(--primary-hover); color: #fff; }
 .download-btn:active { background: var(--primary-pressed); }
 .download-meta { margin-top: 14px; font-size: 13px; color: var(--muted); }
-.download-meta code { background: var(--surface); padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12px; }
-.verify-download { margin-top: 14px; font-size: 13px; color: var(--muted); }
+.download-meta code { background: var(--surface); padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12px; }.verify-download { margin-top: 14px; font-size: 13px; color: var(--muted); }
 .verify-download summary { cursor: pointer; user-select: none; list-style: none; display: inline-flex; align-items: center; gap: 8px; }
 .verify-download summary::-webkit-details-marker { display: none; }
 .verify-download summary::before { content: ""; display: inline-block; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--primary); transform: rotate(-90deg); transition: transform 0.15s; }
@@ -162,7 +161,7 @@ footer a:hover { color: var(--primary-hover); }
 <div class="terminal-dots"><span class="terminal-dot green"></span><span class="terminal-dot yellow"></span><span class="terminal-dot red"></span></div>
 </div>
 <div class="terminal-body">
-<span class="prompt">$</span> <span class="cmd">killerpdf</span> <span class="flag">invoice.pdf</span><br>
+<span class="prompt">$</span> <span class="cmd">winget install killerpdf</span><br>
 <br>
 <span class="out"><span class="label">view</span> high-quality rendering, thumbnails, zoom</span><br>
 <span class="out"><span class="label">edit</span> inline text editing with font matching</span><br>
@@ -229,7 +228,7 @@ footer a:hover { color: var(--primary-hover); }
 </div>
 <div class="feature-card">
 <h3>Install or Run Portable</h3>
-<p>Run the EXE directly from anywhere, or use the built-in installer to put it in Start Menu and register it as a PDF handler. No admin rights needed either way.</p>
+<p>Three ways to get it running: drop the EXE anywhere and run it directly (USB drive, network share, Downloads folder), use the built-in installer to register it in Start Menu as your default PDF handler, or pull it from winget with <code>winget install killerpdf</code>. No admin rights needed for any method.</p>
 </div>
 <div class="feature-card">
 <h3>Password-Protected PDFs</h3>
