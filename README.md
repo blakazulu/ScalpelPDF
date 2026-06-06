@@ -17,6 +17,8 @@ Part of [killertools.net](https://killertools.net).
 - Insert images onto any page as resizable annotations — drag the corner handle to scale, burned into the PDF on save
 - Crop tool with corner drag handles; Enter to apply, Escape to cancel, remove crop from one page or all pages
 - Right-click sidebar: insert blank page, rotate CW/CCW, move up/down, extract, or delete — works on multi-page selections
+- PDF form filling: text inputs, checkboxes, and radio buttons render as live controls — fill and save back to PDF
+- PDF outline (bookmark) navigation: OUTLINES tab in the sidebar displays the bookmark tree; click any entry to jump to that page
 - Clickable PDF links and internal cross-references, including TOC back-links
 - Multi-page grid view toggle — switch between a scrollable grid of all pages and a focused single-page view
 - Zoom preset dropdown with scroll-wheel sync; Fit to Width and Fit Page re-apply on window resize
@@ -32,9 +34,13 @@ Part of [killertools.net](https://killertools.net).
 
 ## Screenshots
 
-![KillerPDF image annotation](screenshots/add_image.png)
+![KillerPDF outlines support](screenshots/outlines.png)
 
-![KillerPDF right-click sidebar](screenshots/right_click_sidebar.png)
+![KillerPDF form fill](screenshots/forms.png)
+
+![KillerPDF broken PDF dialog](screenshots/broken_dialog.png)
+
+![KillerPDF broken PDF fixed](screenshots/broken_fixed.png)
 
 ## Requirements
 
@@ -48,7 +54,7 @@ winget install killerpdf
 ```
 
 - Prebuilt binary: <https://github.com/SteveTheKiller/KillerPDF/releases/latest/download/KillerPDF.exe>
-- Source (GPL3 corresponding source for this release): <https://github.com/SteveTheKiller/KillerPDF/releases/download/v1.4.1/KillerPDF-1.4.1-src.zip>
+- Source (GPL3 corresponding source for this release): <https://github.com/SteveTheKiller/KillerPDF/releases/download/v1.4.1/KillerPDF-1.4.2-src.zip>
 
 ## Build from source
 

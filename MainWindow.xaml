@@ -451,6 +451,55 @@
             </Setter>
         </Style>
 
+        <!-- Sidebar tab buttons (PAGES / OUTLINES) -->
+        <Style x:Key="SidebarTabBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="2,2,8,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dark TreeView for PDF outline/bookmarks -->
+        <Style x:Key="OutlineTreeStyle" TargetType="TreeView">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"                        Color="#0d2a18"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"                    Color="#1ea54c"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"       Color="#0d2a18"/>
+                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}"   Color="#1ea54c"/>
+            </Style.Resources>
+        </Style>
+        <Style x:Key="OutlineItemStyle" TargetType="TreeViewItem">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="IsExpanded" Value="True"/>
+            <Setter Property="Padding" Value="2,3"/>
+        </Style>
+
         <!-- General-purpose dark text button (use on non-icon buttons to bypass WPF default blue hover) -->
         <Style x:Key="DarkButton" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BgPanel}"/>
@@ -577,6 +626,8 @@
             <Grid.ColumnDefinitions>
                 <!-- SidebarCol never collapses to 0 — it shrinks to 24px (the toggle strip width). -->
                 <ColumnDefinition x:Name="SidebarCol" Width="180" MinWidth="24" MaxWidth="260"/>
+                <!-- Dedicated drag handle column — keeps the splitter independent of the sidebar content -->
+                <ColumnDefinition Width="6"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
@@ -593,11 +644,21 @@
                         BorderBrush="{StaticResource BorderDim}" BorderThickness="0,0,0,0">
                     <DockPanel>
                         <!-- Sticky header — lives outside the ScrollViewer so it never scrolls away -->
-                        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="12,8,8,4">
-                            <TextBlock Text="PAGES" DockPanel.Dock="Left"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
-                                       VerticalAlignment="Center"/>
+                        <!-- Tab row: PAGES (left) | OUTLINES (right) -->
+                        <DockPanel DockPanel.Dock="Top" LastChildFill="False" Margin="10,6,8,0">
+                            <Button x:Name="SidebarPagesTab" Content="PAGES"
+                                    DockPanel.Dock="Left"
+                                    Style="{StaticResource SidebarTabBtn}"
+                                    Foreground="{StaticResource AccentGreen}"
+                                    Click="SidebarPagesTab_Click"/>
+                            <Button x:Name="SidebarOutlinesTab" Content="OUTLINES"
+                                    DockPanel.Dock="Right"
+                                    Style="{StaticResource SidebarTabBtn}"
+                                    IsEnabled="False"
+                                    Click="SidebarOutlinesTab_Click"/>
+                        </DockPanel>
+                        <!-- Page controls row (hidden in outlines mode) -->
+                        <DockPanel x:Name="PageControlsRow" DockPanel.Dock="Top" LastChildFill="False" Margin="12,2,8,4">
                             <TextBlock x:Name="PageTotalLabel" DockPanel.Dock="Right"
                                        Text="/ –" VerticalAlignment="Center"
                                        FontFamily="Consolas" FontSize="11"
@@ -629,7 +690,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
-                        </DockPanel>
+                        </DockPanel><!-- /PageControlsRow -->
                         <!-- Scrollable page list -->
                         <ScrollViewer x:Name="SidebarScrollViewer"
                                       VerticalScrollBarVisibility="Auto"
@@ -644,6 +705,18 @@
                                      PreviewMouseLeftButtonDown="PageList_PreviewMouseLeftButtonDown"
                                      PreviewMouseMove="PageList_PreviewMouseMove"
                                      MouseRightButtonUp="PageList_MouseRightButtonUp"/>
+                        </ScrollViewer>
+                        <!-- Outline/bookmark tree (visible when OUTLINES tab is active) -->
+                        <ScrollViewer x:Name="OutlineScrollViewer"
+                                      Visibility="Collapsed"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
+                            <TreeView x:Name="OutlineTree"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Style="{StaticResource OutlineTreeStyle}"
+                                      ItemContainerStyle="{StaticResource OutlineItemStyle}"
+                                      Padding="4,2"/>
                         </ScrollViewer>
                     </DockPanel>
                 </Border>
@@ -662,8 +735,47 @@
                 </Border>
             </Grid>
 
+            <!-- Drag-to-resize splitter (only active in OUTLINES mode) -->
+            <GridSplitter x:Name="SidebarSplitter"
+                          Grid.Column="1"
+                          Width="6"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="{StaticResource BorderDim}"
+                          Cursor="SizeWE"
+                          IsEnabled="False"
+                          ResizeBehavior="PreviousAndNext"
+                          ResizeDirection="Columns">
+                <GridSplitter.Template>
+                    <ControlTemplate TargetType="GridSplitter">
+                        <Border Background="{TemplateBinding Background}">
+                            <!-- three-dot grip, centred vertically -->
+                            <ItemsControl VerticalAlignment="Center" HorizontalAlignment="Center"
+                                          IsHitTestVisible="False">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <Ellipse Width="3" Height="3" Margin="0,2" Fill="#555555"/>
+                                <Ellipse Width="3" Height="3" Margin="0,2" Fill="#555555"/>
+                                <Ellipse Width="3" Height="3" Margin="0,2" Fill="#555555"/>
+                            </ItemsControl>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3a3a3a"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </GridSplitter.Template>
+            </GridSplitter>
+
             <!-- Preview area -->
-            <Border Grid.Column="1" Background="{StaticResource BgDark}">
+            <Border Grid.Column="2" Background="{StaticResource BgDark}">
                 <Grid>
                     <!-- Drop zone -->
                     <Border x:Name="DropZone" Background="Transparent"
@@ -770,7 +882,7 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <TextBlock x:Name="VersionLabel" Text="v1.4.1"
+                    <TextBlock x:Name="VersionLabel" Text="v1.4.2"
                                Foreground="#6a6a6a" FontFamily="Consolas"
                                FontSize="10" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock FontSize="10" VerticalAlignment="Center"

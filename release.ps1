@@ -3,7 +3,7 @@
 .SYNOPSIS
     KillerPDF release script: build → sign → SHA256 → print summary.
 .DESCRIPTION
-    1. Publishes using FolderProfile1 (net48, win-x64) — also runs bundle-source.ps1 to zip the source.
+    1. Publishes using FolderProfile1 (net48, win-x64); also runs bundle-source.ps1 to zip the source.
     2. Signs KillerPDF.exe with your Certum cert via signtool.
     3. Computes and prints the SHA256 for pasting into the landing pages.
 
@@ -89,25 +89,53 @@ if (-not $SkipSign) {
 
 # ── 3. SHA256 ────────────────────────────────────────────────────────────────
 Write-Host "`n==> Computing SHA256..." -ForegroundColor Cyan
-$hash = (Get-FileHash $exe -Algorithm SHA256).Hash
-Write-Host "    SHA256: $hash" -ForegroundColor Green
+
+$exeHash = (Get-FileHash $exe -Algorithm SHA256).Hash
+Write-Host "    KillerPDF.exe : $exeHash" -ForegroundColor Green
+
+# pdfium.dll is embedded into KillerPDF.exe via Costura.Fody (Unmanaged64Assemblies).
+# Costura extracts it to a temp folder at runtime; AppLocker sees it there.
+# Hash the pre-embed copy so AppLocker admins can create a hash rule for it.
+$pdfiumSrc  = Join-Path $PSScriptRoot "bin\Release\net48\win-x64\pdfium.dll"
+$pdfiumHash = $null
+if (Test-Path $pdfiumSrc) {
+    $pdfiumHash = (Get-FileHash $pdfiumSrc -Algorithm SHA256).Hash
+    Write-Host "    pdfium.dll    : $pdfiumHash" -ForegroundColor Green
+} else {
+    Write-Host "    pdfium.dll    : not found at $pdfiumSrc (skipped)" -ForegroundColor Yellow
+}
 
 # ── 4. Source zip ────────────────────────────────────────────────────────────
 $srcZip = Get-ChildItem $publishDir -Filter "*-src.zip" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if ($srcZip) {
     Write-Host "`n==> Source zip: $($srcZip.FullName)" -ForegroundColor Green
 } else {
-    Write-Host "`n    (No source zip found — did bundle-source.ps1 run?)" -ForegroundColor Yellow
+    Write-Host "`n    (No source zip found - did bundle-source.ps1 run?)" -ForegroundColor Yellow
 }
 
-# ── 5. Summary ───────────────────────────────────────────────────────────────
+# ── 5. Write SHA256SUMS.txt ──────────────────────────────────────────────────
+$sumsPath = Join-Path $PSScriptRoot "SHA256SUMS.txt"
+$lines    = [System.Collections.Generic.List[string]]::new()
+$lines.Add("KillerPDF.exe           $exeHash")
+if ($pdfiumHash) { $lines.Add("pdfium.dll              $pdfiumHash") }
+if ($srcZip) {
+    $srcHash = (Get-FileHash $srcZip.FullName -Algorithm SHA256).Hash
+    $lines.Add("$($srcZip.Name.PadRight(24))$srcHash")
+}
+# KillerPDF.zip is created manually before GitHub upload; add its hash separately.
+[System.IO.File]::WriteAllLines($sumsPath, $lines, [System.Text.UTF8Encoding]::new($false))
+Write-Host "`n==> SHA256SUMS.txt written to: $sumsPath" -ForegroundColor Green
+
+# ── 6. Summary ───────────────────────────────────────────────────────────────
 Write-Host "`n╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host   "  KillerPDF v1.4.0 release artifacts" -ForegroundColor White
+Write-Host   "  KillerPDF release artifacts" -ForegroundColor White
 Write-Host   "  EXE  : $exe"
 if ($srcZip) { Write-Host "  SRC  : $($srcZip.FullName)" }
-Write-Host   "  SHA256: $hash" -ForegroundColor Green
+Write-Host   "  SHA256 (EXE): $exeHash" -ForegroundColor Green
+if ($pdfiumHash) {
+Write-Host   "  SHA256 (pdfium.dll, for AppLocker hash rules): $pdfiumHash" -ForegroundColor Green }
 Write-Host   ""
-Write-Host   "  Paste SHA256 into:"
+Write-Host   "  Paste EXE SHA256 into:"
 Write-Host   "    KillerPDF\pdf-landing\index.html (line ~183)"
 Write-Host   "    killer-tools-site\src\tools\killer-pdf\killer-pdf.vue (line ~90)"
 Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan

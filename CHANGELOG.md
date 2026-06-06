@@ -4,6 +4,19 @@ All notable changes to KillerPDF are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-06-06
+
+### Added
+- PDF form filling. Interactive PDF forms now render their fields (text inputs, checkboxes, radio buttons) as live controls. Fill them in directly and save — field values are written back into the PDF.
+- PDF outline (bookmark) support (Issue #63). A new OUTLINES tab in the sidebar displays the document's bookmark tree. Click any entry to jump to that page. The sidebar auto-fits its width to the longest entry on open and can be dragged wider; switching back to PAGES snaps to the pages-mode width.
+
+### Fixed
+- Page rotation no longer reverts after saving. Rotations applied via the sidebar context menu now persist correctly through the save pipeline.
+- Copied text words were out of order on PDFs where glyphs are stored in non-reading order (Issue #66). Text extraction now sorts words by position and uses a dynamic line-grouping threshold so both drag-select and Select All produce correctly ordered output.
+- PDFs with malformed or non-standard XRef tables now open in read-only mode instead of showing "Invalid entry in XRef table" and failing entirely.
+
+---
+
 ## [1.4.1] - 2026-05-21
 
 ### Added
@@ -125,7 +138,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this
 
 _Historical entries to be backfilled._
 
-[Unreleased]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/SteveTheKiller/KillerPDF/compare/v1.3.1...v1.3.2
