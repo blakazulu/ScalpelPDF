@@ -429,6 +429,10 @@ namespace KillerPDF
                 int restoreIdx = PageList.SelectedIndex;
                 SaveTempAndReload();
                 PageList.SelectedIndex = Math.Min(restoreIdx, PageList.Items.Count - 1);
+                // After a rotation the page aspect ratio changes; always fit-to-page so the
+                // full rotated page is visible regardless of the previous zoom level.
+                FitToPage();
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)FitToPage);
                 SetStatus($"Rotated {indices.Count} page(s)");
             }
             catch (Exception ex)
@@ -456,6 +460,25 @@ namespace KillerPDF
             {
                 if (_doc is not null) { _doc.Close(); _doc = null; }
                 _doc = PdfReader.Open(path, PdfDocumentOpenMode.Modify);
+                // PdfSharp cannot save modified encrypted PDFs — it copies unmodified encrypted
+                // stream bytes verbatim but fails when it has to re-serialize a dirty object.
+                // Strip encryption silently at open time via Import so all edits work correctly.
+                if (PdfFileHasEncryption(path))
+                {
+                    // PdfSharp can read encrypted PDFs but cannot re-save them once modified.
+                    // Strip encryption now via PDFium (lossless), falling back to Import mode.
+                    _doc.Close(); _doc = null;
+                    var repairedPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                        $"killerpdf_repaired_{Guid.NewGuid():N}.pdf");
+                    bool ok = TryPdfiumStripEncryption(path, repairedPath)
+                           || TryImportRepairToPath(path, repairedPath);
+                    if (!ok) { TryRepairAndOpen(path); return; }
+                    _doc = PdfReader.Open(repairedPath, PdfDocumentOpenMode.Modify);
+                    _currentFile = repairedPath;
+                    FinishOpenFile(path, repairedPath);
+                    MarkDirty(true);
+                    return;
+                }
                 _currentFile = path;
                 FinishOpenFile(path, path);
             }
@@ -533,7 +556,223 @@ namespace KillerPDF
             ex.Message.IndexOf("cross-reference", StringComparison.OrdinalIgnoreCase) >= 0 ||
             ex.Message.IndexOf("trailer", StringComparison.OrdinalIgnoreCase) >= 0 ||
             ex.Message.IndexOf("Invalid PDF file", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("startxref", StringComparison.OrdinalIgnoreCase) >= 0;
+            ex.Message.IndexOf("startxref", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            ex.Message.IndexOf("Unexpected token", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        /// <summary>
+        /// Imports pages from <paramref name="sourcePath"/> into a fresh PdfDocument and saves it
+        /// to <paramref name="destPath"/>. Returns true on success, false on failure.
+        /// Unlike TryRepairAndOpen this has no UI side-effects and can be used mid-operation.
+        /// </summary>
+        /// <param name="stripRotations">
+        // ── PDFium P/Invoke ──────────────────────────────────────────────────────────
+        // PDFium (pdfium.dll) is already shipped with Docnet. We use it here to strip
+        // encryption from PDFs that PdfSharpCore can read but cannot re-save when modified.
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr FPDF_LoadDocument(
+            [MarshalAs(UnmanagedType.LPStr)] string filePath,
+            [MarshalAs(UnmanagedType.LPStr)] string? password);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void FPDF_CloseDocument(IntPtr document);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool FPDF_SaveWithVersion(
+            IntPtr document, ref FPDF_FILEWRITE fileWrite, uint flags, int fileVersion);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct FPDF_FILEWRITE
+        {
+            public int version;          // must be 1
+            public IntPtr WriteBlock;    // cdecl: int WriteBlock(FPDF_FILEWRITE*, const void*, unsigned long)
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int PdfWriteBlockDelegate(IntPtr pThis, IntPtr pData, uint size);
+
+        private const uint FPDF_REMOVE_SECURITY = 3;
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int FPDF_GetPageCount(IntPtr document);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr FPDF_LoadPage(IntPtr document, int page_index);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void FPDF_ClosePage(IntPtr page);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void FPDFPage_SetRotation(IntPtr page, int rotation);
+
+        [DllImport("pdfium.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern bool FPDFPage_GenerateContent(IntPtr page);
+
+        /// <summary>
+        /// Returns true if the PDF file has an /Encrypt entry in its trailer.
+        /// Scans the last 2 KB so it's fast; works regardless of how PdfSharp
+        /// reports security state after authenticating with an empty password.
+        /// </summary>
+        private static bool PdfFileHasEncryption(string path)
+        {
+            try
+            {
+                using var fs = File.OpenRead(path);
+                long scan = Math.Min(2048, fs.Length);
+                fs.Seek(-scan, SeekOrigin.End);
+                var buf = new byte[scan];
+                _ = fs.Read(buf, 0, buf.Length);
+                // Look for /Encrypt in the raw bytes (Latin-1 safe)
+                var text = System.Text.Encoding.GetEncoding(1252).GetString(buf);
+                return text.Contains("/Encrypt");
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Uses PDFium to save a copy of <paramref name="sourcePath"/> with all security/encryption
+        /// removed. Returns true on success. Falls back gracefully if PDFium is unavailable.
+        /// PDFium is already initialised by Docnet; no separate init call is needed.
+        /// </summary>
+        private static bool TryPdfiumStripEncryption(string sourcePath, string destPath)
+        {
+            try
+            {
+                // Ensure PDFium is initialised — Docnet does this lazily on first use,
+                // so force it now before we call PDFium P/Invoke directly.
+                try { _ = DocLib.Instance; } catch { }
+
+                var doc = FPDF_LoadDocument(sourcePath, null);
+                if (doc == IntPtr.Zero) return false;
+                try
+                {
+                    using var ms = new MemoryStream();
+                    PdfWriteBlockDelegate cb = (_, pData, size) =>
+                    {
+                        var buf = new byte[size];
+                        Marshal.Copy(pData, buf, 0, (int)size);
+                        ms.Write(buf, 0, (int)size);
+                        return 1;
+                    };
+                    var gch = GCHandle.Alloc(cb);
+                    try
+                    {
+                        var fw = new FPDF_FILEWRITE
+                        {
+                            version = 1,
+                            WriteBlock = Marshal.GetFunctionPointerForDelegate(cb)
+                        };
+                        if (!FPDF_SaveWithVersion(doc, ref fw, FPDF_REMOVE_SECURITY, 0))
+                            return false;
+                    }
+                    finally { gch.Free(); }
+                    File.WriteAllBytes(destPath, ms.ToArray());
+                    return true;
+                }
+                finally { FPDF_CloseDocument(doc); }
+            }
+            catch { return false; }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Uses PDFium to load <paramref name="sourcePath"/>, zero-out all page /Rotate values,
+        /// strip encryption, and save to <paramref name="destPath"/>. Returns true on success.
+        /// Called from SaveTempAndReload's xref-error fallback — PDFium is guaranteed to be
+        /// initialised by then because the page preview has already rendered via Docnet.
+        /// </summary>
+        private static bool TryPdfiumSaveWithZeroRotations(string sourcePath, string destPath)
+        {
+            try
+            {
+                var doc = FPDF_LoadDocument(sourcePath, null);
+                if (doc == IntPtr.Zero)
+                {
+                    try { File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "killerpdf_pdfium_debug.txt"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FPDF_LoadDocument returned null for: {sourcePath}\n\n"); } catch { }
+                    return false;
+                }
+                try
+                {
+                    int pageCount = FPDF_GetPageCount(doc);
+                    for (int i = 0; i < pageCount; i++)
+                    {
+                        var page = FPDF_LoadPage(doc, i);
+                        if (page == IntPtr.Zero) continue;
+                        try
+                        {
+                            FPDFPage_SetRotation(page, 0);   // strip /Rotate so Docnet renders cleanly
+                            FPDFPage_GenerateContent(page);
+                        }
+                        finally { FPDF_ClosePage(page); }
+                    }
+
+                    using var ms = new MemoryStream();
+                    PdfWriteBlockDelegate cb = (_, pData, size) =>
+                    {
+                        var buf = new byte[size];
+                        Marshal.Copy(pData, buf, 0, (int)size);
+                        ms.Write(buf, 0, (int)size);
+                        return 1;
+                    };
+                    var gch = GCHandle.Alloc(cb);
+                    try
+                    {
+                        var fw = new FPDF_FILEWRITE
+                        {
+                            version = 1,
+                            WriteBlock = Marshal.GetFunctionPointerForDelegate(cb)
+                        };
+                        if (!FPDF_SaveWithVersion(doc, ref fw, FPDF_REMOVE_SECURITY, 0))
+                            return false;
+                    }
+                    finally { gch.Free(); }
+
+                    File.WriteAllBytes(destPath, ms.ToArray());
+                    return true;
+                }
+                finally { FPDF_CloseDocument(doc); }
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    File.AppendAllText(
+                        System.IO.Path.Combine(System.IO.Path.GetTempPath(), "killerpdf_pdfium_debug.txt"),
+                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TryPdfiumSaveWithZeroRotations failed\n" +
+                        $"  source: {sourcePath}\n" +
+                        $"  type:   {ex.GetType().FullName}\n" +
+                        $"  msg:    {ex.Message}\n" +
+                        $"  stack:  {ex.StackTrace}\n\n");
+                }
+                catch { /* log failure is non-fatal */ }
+                return false;
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        /// <param name="stripRotations">
+        /// Pass true when called from SaveTempAndReload (rotations already stripped in source).
+        /// Pass false for open-time repair so original page rotations are preserved.
+        /// </param>
+        private static bool TryImportRepairToPath(string sourcePath, string destPath, bool stripRotations = false)
+        {
+            try
+            {
+                using var importDoc = PdfReader.Open(sourcePath, PdfDocumentOpenMode.Import);
+                var cleanDoc = new PdfDocument();
+                for (int i = 0; i < importDoc.PageCount; i++)
+                    cleanDoc.Pages.Add(importDoc.Pages[i]);
+                if (stripRotations)
+                    for (int i = 0; i < cleanDoc.PageCount; i++)
+                        cleanDoc.Pages[i].Rotate = 0;
+                cleanDoc.Save(destPath);
+                cleanDoc.Close();
+                return true;
+            }
+            catch { return false; }
+        }
 
         private void TryRepairAndOpen(string path)
         {
@@ -1094,7 +1333,18 @@ namespace KillerPDF
         // PDF Link Annotation Overlays
         // ============================================================
 
-        private readonly record struct LinkInfo(double Cx, double Cy, double Cw, double Ch, object Tag, string Tip);
+        private readonly record struct LinkInfo(double Cx, double Cy, double Cw, double Ch, object Tag, string Tip, int AnnotIndex);
+
+        /// <summary>
+        /// Carries the link target (page index or URI string) plus the annotation's location in
+        /// the PDF so the overlay can be used to remove the native annotation on demand.
+        /// </summary>
+        private sealed class LinkAnnotInfo(object target, int pageIndex, int annotIndex)
+        {
+            public object   Target     { get; } = target;      // int pageIndex or string URI
+            public int      PageIndex  { get; } = pageIndex;   // 0-based page in _doc
+            public int      AnnotIndex { get; } = annotIndex;  // index inside page /Annots array
+        }
 
         /// <summary>
         /// Parses all link annotations from a PDF page and converts them to canvas-space
@@ -1160,7 +1410,7 @@ namespace KillerPDF
 
                     object tag = targetPage.HasValue ? (object)targetPage.Value : uri!;
                     string tip = targetPage.HasValue ? $"Go to page {targetPage.Value + 1}" : uri!;
-                    links.Add(new LinkInfo(cx, cy, cw, ch, tag, tip));
+                    links.Add(new LinkInfo(cx, cy, cw, ch, tag, tip, i));
                 }
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"GetPageLinks: {ex}"); }
@@ -1179,6 +1429,7 @@ namespace KillerPDF
             var links = GetPageLinks(pageIndex, bitmapW, bitmapH);
             foreach (var lnk in links)
             {
+                var info = new LinkAnnotInfo(lnk.Tag, pageIndex, lnk.AnnotIndex);
                 var overlay = new Canvas
                 {
                     Width            = lnk.Cw,
@@ -1186,11 +1437,22 @@ namespace KillerPDF
                     Background       = Brushes.Transparent,
                     Cursor           = Cursors.Hand,
                     ToolTip          = lnk.Tip,
-                    Tag              = lnk.Tag,
+                    Tag              = info,
                     IsHitTestVisible = true,
                 };
                 Canvas.SetLeft(overlay, lnk.Cx);
                 Canvas.SetTop(overlay, lnk.Cy);
+
+                // Right-click context menu: remove the native PDF annotation or copy the URL.
+                var cm = new ContextMenu();
+                if (lnk.Tag is string uriTag && uriTag.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
+                    cm.Items.Add(MakeMenuItem("Copy Email Address", (_, _) =>
+                        Clipboard.SetText(uriTag["mailto:".Length..])));
+                else if (lnk.Tag is string httpTag)
+                    cm.Items.Add(MakeMenuItem("Copy URL", (_, _) => Clipboard.SetText(httpTag)));
+                cm.Items.Add(MakeMenuItem("Remove Link from PDF", (_, _) =>
+                    RemoveLinkAnnotation(info.PageIndex, info.AnnotIndex)));
+                overlay.ContextMenu = cm;
 
                 _annotationCanvas.Children.Add(overlay);
                 _linkOverlays.Add(overlay);
@@ -1198,6 +1460,65 @@ namespace KillerPDF
 
             if (links.Count > 0)
                 SetStatus($"Page {pageIndex + 1} of {_doc.PageCount}  ({links.Count} link{(links.Count == 1 ? "" : "s")})");
+        }
+
+        /// <summary>
+        /// Removes a native PDF link annotation from the page /Annots array and persists the change.
+        /// Called from the "Remove Link from PDF" context-menu item on link overlays.
+        /// </summary>
+        private void RemoveLinkAnnotation(int pageIndex, int annotIndex)
+        {
+            if (_doc is null || pageIndex >= _doc.PageCount) return;
+            try
+            {
+                var pdfPage = _doc.Pages[pageIndex];
+                var annotsArr = pdfPage.Elements.GetArray("/Annots");
+                if (annotsArr is null || annotIndex >= annotsArr.Elements.Count) return;
+                annotsArr.Elements.RemoveAt(annotIndex);
+                MarkDirty();
+                SaveTempAndReload();
+                // Refresh the current page view so the overlay disappears.
+                int sel = PageList.SelectedIndex;
+                PageList.SelectedIndex = -1;
+                PageList.SelectedIndex = sel;
+                SetStatus("Link removed.");
+            }
+            catch (Exception ex)
+            {
+                KillerDialog.Show(this, $"Remove link failed:\n{ex.Message}", "KillerPDF",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Strips visual styling (border, color, appearance stream) from all Link annotations
+        /// in the document so they render as invisible clickable areas rather than colored
+        /// rectangles that can look like strikethroughs in other PDF viewers.
+        /// </summary>
+        private static void StripLinkAnnotationBorders(PdfDocument doc)
+        {
+            foreach (var pdfPage in doc.Pages)
+            {
+                var annotsArr = pdfPage.Elements.GetArray("/Annots");
+                if (annotsArr is null) continue;
+                for (int i = 0; i < annotsArr.Elements.Count; i++)
+                {
+                    PdfItem? elem = annotsArr.Elements[i];
+                    PdfDictionary? ann = elem as PdfDictionary ?? DerefItem(elem) as PdfDictionary;
+                    if (ann is null) continue;
+                    var subtype = ann.Elements["/Subtype"]?.ToString() ?? "";
+                    if (!subtype.Contains("Link")) continue;
+                    // Remove appearance stream and color; set /Border [0 0 0] for invisible border.
+                    ann.Elements.Remove("/AP");
+                    ann.Elements.Remove("/C");
+                    ann.Elements.Remove("/BS");
+                    var borderArr = new PdfArray();
+                    borderArr.Elements.Add(new PdfInteger(0));
+                    borderArr.Elements.Add(new PdfInteger(0));
+                    borderArr.Elements.Add(new PdfInteger(0));
+                    ann.Elements["/Border"] = borderArr;
+                }
+            }
         }
 
         /// <summary>
@@ -3635,9 +3956,10 @@ namespace KillerPDF
                     if (clickPos.X >= lx && clickPos.X <= lx + lo.Width &&
                         clickPos.Y >= ly && clickPos.Y <= ly + lo.Height)
                     {
-                        if (lo.Tag is int tp)
+                        var lTarget = lo.Tag is LinkAnnotInfo lai ? lai.Target : lo.Tag;
+                        if (lTarget is int tp)
                             PageList.SelectedIndex = tp;
-                        else if (lo.Tag is string u)
+                        else if (lTarget is string u)
                             try { Process.Start(new ProcessStartInfo(u) { UseShellExecute = true }); } catch { }
                         e.Handled = true;
                         return;
@@ -6163,6 +6485,10 @@ namespace KillerPDF
         {
             if (_doc is null) return;
 
+            // Strip link annotation borders so they don't render as colored rectangles
+            // (e.g. strikethrough-like lines) in other PDF viewers.
+            StripLinkAnnotationBorders(_doc);
+
             foreach (var kvp in _annotations)
             {
                 int pageIdx = kvp.Key;
@@ -6356,9 +6682,44 @@ namespace KillerPDF
 
             var tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
                 $"killerpdf_temp_{Guid.NewGuid():N}.pdf");
-            doc.Save(tempPath);
-            doc.Close();
-            _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+            try
+            {
+                doc.Save(tempPath);
+                doc.Close();
+            }
+            catch (Exception saveEx) when (IsXRefException(saveEx))
+            {
+                // PdfSharpCore fails to re-save encrypted PDFs (e.g. owner-restricted RC4 files)
+                // because it encounters cross-reference tokens while serialising dirty objects.
+                // Primary fallback: use PDFium (already initialised for the page preview) to
+                // load the source, strip all /Rotate values, remove encryption, and save.
+                // Secondary fallback: PdfSharpCore Import mode (works on some non-encrypted xref
+                // issues but fails on encrypted files; kept as a last resort).
+                doc.Close();
+                _doc = null;
+                if (!TryPdfiumSaveWithZeroRotations(_currentFile!, tempPath) &&
+                    !TryImportRepairToPath(_currentFile!, tempPath, stripRotations: true))
+                    throw; // re-throw original if both fallbacks fail
+            }
+            // PdfSharpCore sometimes saves a file where one object's xref offset points at the
+            // xref table itself (object N offset = xref table position). When PdfSharp then tries
+            // to re-open that file in Modify mode it seeks to the xref table, reads the keyword
+            // "xref" as a token in an object context, and throws "Unexpected token 'xref'".
+            // Fix: catch the reopen failure, pipe the saved file through PDFium (which has
+            // robust error recovery and will rewrite a correct xref), then retry the open.
+            try
+            {
+                _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+            }
+            catch (Exception openEx) when (IsXRefException(openEx))
+            {
+                var fixedPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(),
+                    $"killerpdf_fixed_{Guid.NewGuid():N}.pdf");
+                if (!TryPdfiumSaveWithZeroRotations(tempPath, fixedPath))
+                    throw; // PDFium also failed — re-throw original reopen error
+                tempPath = fixedPath;
+                _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+            }
             _currentFile = tempPath;
 
             // Restore rotations in the reopened in-memory doc so saves, form fields,

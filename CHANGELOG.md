@@ -4,6 +4,17 @@ All notable changes to KillerPDF are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2026-06-08
+
+### Fixed
+- Encrypted PDFs (owner-restricted RC4) no longer fail with "Unexpected token 'xref'" when rotating pages. PdfSharpCore can silently produce a broken cross-reference entry after saving encrypted files; KillerPDF now pipes the file through PDFium to repair the XRef and retries the open automatically.
+- Page view now fits to page after a rotation so the full rotated page is visible without manual rezoom.
+- Mailto and other link annotations with visible borders (e.g. colored rectangles that looked like strikethroughs) no longer render those borders in saved PDFs. KillerPDF strips `/AP`, `/C`, and `/BS` from link annotations and sets an invisible border on save.
+- Right-click a link annotation to remove it from the PDF entirely ("Remove Link from PDF"). Previously, clearing annotations only removed the KillerPDF overlay; the native PDF link remained active.
+- Right-click a mailto link to copy just the email address; right-click an http/https link to copy the URL.
+
+---
+
 ## [1.4.2] - 2026-06-06
 
 ### Added
