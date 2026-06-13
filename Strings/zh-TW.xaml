@@ -1,0 +1,142 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ================================================================
+         KillerPDF  —  Traditional Chinese (zh-TW) strings
+         Stub file — translations to be provided by leox243 (PR #61).
+         All keys fall back to English until filled in.
+         ================================================================ -->
+
+    <!-- ── Toolbar tooltips ─────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Open">開啟 (Ctrl+O)</sys:String>
+    <sys:String x:Key="Str_TT_NewBlank">新增空白文件 (Ctrl+N)</sys:String>
+    <sys:String x:Key="Str_TT_CloseFile">關閉檔案 (Ctrl+W)</sys:String>
+    <sys:String x:Key="Str_TT_SaveAs">另存新檔 (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Str_TT_SaveFlattened">儲存平面化 PDF（點陣化所有頁面，完全不可編輯）</sys:String>
+    <sys:String x:Key="Str_TT_Print">列印 (Ctrl+P)</sys:String>
+    <sys:String x:Key="Str_TT_MergePDFs">合併 PDF（將其他 PDF 加入此文件）</sys:String>
+    <sys:String x:Key="Str_TT_ExtractPages">擷取頁面（將選取的頁面另存為新 PDF）</sys:String>
+    <sys:String x:Key="Str_TT_DeletePages">刪除選取的頁面</sys:String>
+    <sys:String x:Key="Str_TT_MovePageUp">向上移動頁面（重新排序）</sys:String>
+    <sys:String x:Key="Str_TT_MovePageDown">向下移動頁面（重新排序）</sys:String>
+    <sys:String x:Key="Str_TT_SelectTool">選取工具 - 點選注釋、拖曳選取文字、雙擊編輯</sys:String>
+    <sys:String x:Key="Str_TT_TextTool">文字工具 - 點選以新增文字</sys:String>
+    <sys:String x:Key="Str_TT_HighlightTool">螢光筆工具 - 拖曳以螢光標記</sys:String>
+    <sys:String x:Key="Str_TT_DrawTool">繪圖工具 - 自由手繪</sys:String>
+    <sys:String x:Key="Str_TT_SignatureTool">簽名 - 建立並放置簽名</sys:String>
+    <sys:String x:Key="Str_TT_ImageTool">圖片工具 - 點選以插入圖片至頁面</sys:String>
+    <sys:String x:Key="Str_TT_CropTool">裁切工具 - 拖曳設定裁切區域，然後套用至頁面</sys:String>
+    <sys:String x:Key="Str_TT_ClearAnnotations">清除所有注釋</sys:String>
+    <sys:String x:Key="Str_TT_UndoLast">復原上一步 (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Str_TT_MultiPageGrid">多頁格檢視</sys:String>
+    <sys:String x:Key="Str_TT_ZoomOut">縮小 (Ctrl+-)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomLevel">縮放比例 (Ctrl+滾輪 · Ctrl+=/- · Ctrl+0=重設)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomIn">放大 (Ctrl+=)</sys:String>
+    <sys:String x:Key="Str_TT_GoToPage">前往頁面（按 Enter 導航）</sys:String>
+    <sys:String x:Key="Str_TT_CollapseSidebar">收合側邊欄</sys:String>
+    <sys:String x:Key="Str_TT_ExpandSidebar">展開側邊欄</sys:String>
+    <sys:String x:Key="Str_TT_KeyboardShortcuts">鍵盤快速鍵 (Ctrl+?)</sys:String>
+    <sys:String x:Key="Str_TT_Settings">設定</sys:String>
+    <sys:String x:Key="Str_TT_About">關於 KillerPDF</sys:String>
+
+    <!-- ── Sidebar tabs ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TabPages">頁面</sys:String>
+    <sys:String x:Key="Str_TabOutlines">大綱</sys:String>
+
+    <!-- ── Settings panel ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings">設定</sys:String>
+    <sys:String x:Key="Str_Theme">佈景主題</sys:String>
+    <sys:String x:Key="Str_Language">語言</sys:String>
+    <sys:String x:Key="Str_Lang_English">English</sys:String>
+    <sys:String x:Key="Str_Lang_Spanish">Español</sys:String>
+    <sys:String x:Key="Str_Lang_Chinese">中文 (繁體)</sys:String>
+
+    <!-- ── Keyboard shortcuts overlay ───────────────────────────────── -->
+    <sys:String x:Key="Str_KS_Title">鍵盤快速鍵</sys:String>
+    <sys:String x:Key="Str_KS_File">檔案</sys:String>
+    <sys:String x:Key="Str_KS_Open">開啟</sys:String>
+    <sys:String x:Key="Str_KS_CloseFile">關閉檔案</sys:String>
+    <sys:String x:Key="Str_KS_NewBlank">新增空白文件</sys:String>
+    <sys:String x:Key="Str_KS_SaveAs">另存新檔</sys:String>
+    <sys:String x:Key="Str_KS_Print">列印</sys:String>
+    <sys:String x:Key="Str_KS_Navigation">導航</sys:String>
+    <sys:String x:Key="Str_KS_PrevNext">上一頁 / 下一頁</sys:String>
+    <sys:String x:Key="Str_KS_ZoomCursor">放大 / 縮小（以游標為中心）</sys:String>
+    <sys:String x:Key="Str_KS_ZoomInOut">放大 / 縮小</sys:String>
+    <sys:String x:Key="Str_KS_ResetZoom">重設縮放至 100%</sys:String>
+    <sys:String x:Key="Str_KS_PanView">平移檢視</sys:String>
+    <sys:String x:Key="Str_KS_Editing">編輯</sys:String>
+    <sys:String x:Key="Str_KS_Undo">復原</sys:String>
+    <sys:String x:Key="Str_KS_DeleteAnnot">刪除選取的注釋</sys:String>
+    <sys:String x:Key="Str_KS_ConfirmCancel">確認 / 取消文字或裁切</sys:String>
+    <sys:String x:Key="Str_KS_SearchSelect">搜尋與選取</sys:String>
+    <sys:String x:Key="Str_KS_Find">尋找 / 搜尋</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevResult">下一個 / 上一個結果</sys:String>
+    <sys:String x:Key="Str_KS_SelectAll">選取頁面上所有文字</sys:String>
+    <sys:String x:Key="Str_KS_CopyText">複製選取的文字</sys:String>
+    <sys:String x:Key="Str_KS_Help">說明</sys:String>
+    <sys:String x:Key="Str_KS_ThisList">此快速鍵清單</sys:String>
+
+    <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Ready">就緒</sys:String>
+    <sys:String x:Key="Str_Portable">可攜版</sys:String>
+    <sys:String x:Key="Str_InstallBtn">安裝 KillerPDF...</sys:String>
+
+    <!-- ── Status messages (format strings — use string.Format) ─────── -->
+    <sys:String x:Key="Str_Opened">已開啟 {0} - {1} 頁</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnly">已開啟 {0}（唯讀 - 擁有者限制）- {1} 頁</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnlyXRef">已開啟 {0}（唯讀 - 非標準 XRef 表）- {1} 頁</sys:String>
+    <sys:String x:Key="Str_OpenedRepaired">已開啟 {0}（已修復副本 - 請儲存以保留變更）- {1} 頁</sys:String>
+    <sys:String x:Key="Str_OpenedRasterRepair">已開啟 {0}（點陣化修復 - 請儲存以保留變更）- {1} 頁</sys:String>
+    <sys:String x:Key="Str_PageOf">第 {0} 頁，共 {1} 頁</sys:String>
+    <sys:String x:Key="Str_PageOfLinks">第 {0} 頁，共 {1} 頁（{2} 個連結）</sys:String>
+    <sys:String x:Key="Str_PageFormFields">第 {0} 頁，共 {1} 頁 — 此頁面包含可填寫的表單欄位</sys:String>
+    <sys:String x:Key="Str_PageRenderError">第 {0} 頁 - 無法呈現</sys:String>
+    <sys:String x:Key="Str_RenderError">呈現錯誤：{0}</sys:String>
+    <sys:String x:Key="Str_Rotated">已旋轉 {0} 頁</sys:String>
+    <sys:String x:Key="Str_Cropped">已裁切 {0} 頁</sys:String>
+    <sys:String x:Key="Str_CropFailed">裁切失敗：{0}</sys:String>
+    <sys:String x:Key="Str_RemovedCrop">已從 {0} 頁移除 CropBox</sys:String>
+    <sys:String x:Key="Str_RemoveCropFailed">移除裁切失敗：{0}</sys:String>
+    <sys:String x:Key="Str_Extracted">已將 {0} 頁擷取至 {1}</sys:String>
+    <sys:String x:Key="Str_Deleted">已刪除 {0} 頁 - 剩餘 {1} 頁</sys:String>
+    <sys:String x:Key="Str_Printed">已將 {0} 頁傳送至印表機</sys:String>
+    <sys:String x:Key="Str_LinkRemoved">連結已移除。</sys:String>
+    <sys:String x:Key="Str_InvalidRange">範圍無效 — 請使用例如 1-3,5,7</sys:String>
+    <sys:String x:Key="Str_CropNoDoc">裁切：未開啟文件</sys:String>
+    <sys:String x:Key="Str_CropNoPage">裁切：未選取頁面</sys:String>
+    <sys:String x:Key="Str_CropNoDims">裁切：頁面尺寸無法取得</sys:String>
+    <sys:String x:Key="Str_RotateFailed">旋轉失敗：{0}</sys:String>
+
+    <!-- ── Dialog strings ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Dlg_InstallTitle">安裝 KillerPDF</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">要將 KillerPDF 安裝到您的使用者設定檔嗎？
+
+這將把應用程式複製到 %LocalAppData%\KillerPDF 並建立開始功能表捷徑。
+您可以隨時透過新增或移除程式來解除安裝。</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedClose">您有未儲存的變更。要在不儲存的情況下關閉此檔案嗎？</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">您有未儲存的變更。要在不儲存的情況下關閉 KillerPDF 嗎？</sys:String>
+    <sys:String x:Key="Str_Dlg_FailedOpen">無法開啟 PDF：
+{0}</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">KillerPDF</sys:String>
+
+
+    <!-- ── Theme names ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Theme_Dark">深色</sys:String>
+    <sys:String x:Key="Str_Theme_Light">淺色</sys:String>
+    <sys:String x:Key="Str_Theme_HighContrast">高對比</sys:String>
+    <sys:String x:Key="Str_Theme_Blood">血色</sys:String>
+    <sys:String x:Key="Str_Theme_Greed">貪婪</sys:String>
+    <sys:String x:Key="Str_Theme_Cyanotic">青色</sys:String>
+
+    <!-- ── Zoom dropdown ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Zoom_FitWidth">適合寬度</sys:String>
+    <sys:String x:Key="Str_Zoom_FitPage">適合頁面</sys:String>
+    <sys:String x:Key="Str_FitWidth">第 {0} 頁，共 {1} 頁 - 適合寬度 ({2}%)</sys:String>
+    <sys:String x:Key="Str_FitPage">第 {0} 頁，共 {1} 頁 - 適合頁面 ({2}%)</sys:String>
+
+    <!-- ── KS overlay font size (sys:Double) ──────────────────────────── -->
+    <sys:Double x:Key="Str_KS_FontSize">12.5</sys:Double>
+
+</ResourceDictionary>

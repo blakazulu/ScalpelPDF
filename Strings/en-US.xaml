@@ -1,0 +1,141 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ================================================================
+         KillerPDF  —  English (en-US) strings
+         Add new keys here first, then mirror to es.xaml / zh-TW.xaml.
+         ================================================================ -->
+
+    <!-- ── Toolbar tooltips ─────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Open">Open (Ctrl+O)</sys:String>
+    <sys:String x:Key="Str_TT_NewBlank">New Blank Document (Ctrl+N)</sys:String>
+    <sys:String x:Key="Str_TT_CloseFile">Close File (Ctrl+W)</sys:String>
+    <sys:String x:Key="Str_TT_SaveAs">Save As (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Str_TT_SaveFlattened">Save Flattened PDF (rasterize all pages — fully uneditable)</sys:String>
+    <sys:String x:Key="Str_TT_Print">Print (Ctrl+P)</sys:String>
+    <sys:String x:Key="Str_TT_MergePDFs">Merge PDFs (combine additional PDFs into this one)</sys:String>
+    <sys:String x:Key="Str_TT_ExtractPages">Extract Pages (save selected pages to a new PDF)</sys:String>
+    <sys:String x:Key="Str_TT_DeletePages">Delete Selected Pages</sys:String>
+    <sys:String x:Key="Str_TT_MovePageUp">Move Page Up (reorder)</sys:String>
+    <sys:String x:Key="Str_TT_MovePageDown">Move Page Down (reorder)</sys:String>
+    <sys:String x:Key="Str_TT_SelectTool">Select Tool - click annotations, drag to select text, double-click to edit</sys:String>
+    <sys:String x:Key="Str_TT_TextTool">Text Tool - click to add text</sys:String>
+    <sys:String x:Key="Str_TT_HighlightTool">Highlight Tool - drag to highlight</sys:String>
+    <sys:String x:Key="Str_TT_DrawTool">Draw Tool - freehand ink</sys:String>
+    <sys:String x:Key="Str_TT_SignatureTool">Signature - create and place signatures</sys:String>
+    <sys:String x:Key="Str_TT_ImageTool">Image Tool - click to insert an image onto the page</sys:String>
+    <sys:String x:Key="Str_TT_CropTool">Crop Tool - drag to set crop area, then apply to page(s)</sys:String>
+    <sys:String x:Key="Str_TT_ClearAnnotations">Clear All Annotations</sys:String>
+    <sys:String x:Key="Str_TT_UndoLast">Undo Last (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Str_TT_MultiPageGrid">Multi-page grid view</sys:String>
+    <sys:String x:Key="Str_TT_ZoomOut">Zoom out (Ctrl+-)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomLevel">Zoom level (Ctrl+scroll · Ctrl+=/- · Ctrl+0=reset)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomIn">Zoom in (Ctrl+=)</sys:String>
+    <sys:String x:Key="Str_TT_GoToPage">Go to page (Enter to navigate)</sys:String>
+    <sys:String x:Key="Str_TT_CollapseSidebar">Collapse sidebar</sys:String>
+    <sys:String x:Key="Str_TT_ExpandSidebar">Expand sidebar</sys:String>
+    <sys:String x:Key="Str_TT_KeyboardShortcuts">Keyboard shortcuts (Ctrl+?)</sys:String>
+    <sys:String x:Key="Str_TT_Settings">Settings</sys:String>
+    <sys:String x:Key="Str_TT_About">About KillerPDF</sys:String>
+
+    <!-- ── Sidebar tabs ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TabPages">PAGES</sys:String>
+    <sys:String x:Key="Str_TabOutlines">OUTLINES</sys:String>
+
+    <!-- ── Settings panel ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings">Settings</sys:String>
+    <sys:String x:Key="Str_Theme">THEME</sys:String>
+    <sys:String x:Key="Str_Language">LANGUAGE</sys:String>
+    <sys:String x:Key="Str_Lang_English">English</sys:String>
+    <sys:String x:Key="Str_Lang_Spanish">Español</sys:String>
+    <sys:String x:Key="Str_Lang_Chinese">中文 (繁體)</sys:String>
+
+    <!-- ── Keyboard shortcuts overlay ───────────────────────────────── -->
+    <sys:String x:Key="Str_KS_Title">Keyboard Shortcuts</sys:String>
+    <sys:String x:Key="Str_KS_File">FILE</sys:String>
+    <sys:String x:Key="Str_KS_Open">Open</sys:String>
+    <sys:String x:Key="Str_KS_CloseFile">Close file</sys:String>
+    <sys:String x:Key="Str_KS_NewBlank">New blank document</sys:String>
+    <sys:String x:Key="Str_KS_SaveAs">Save As</sys:String>
+    <sys:String x:Key="Str_KS_Print">Print</sys:String>
+    <sys:String x:Key="Str_KS_Navigation">NAVIGATION</sys:String>
+    <sys:String x:Key="Str_KS_PrevNext">Previous / next page</sys:String>
+    <sys:String x:Key="Str_KS_ZoomCursor">Zoom in / out (cursor-anchored)</sys:String>
+    <sys:String x:Key="Str_KS_ZoomInOut">Zoom in / out</sys:String>
+    <sys:String x:Key="Str_KS_ResetZoom">Reset zoom to 100%</sys:String>
+    <sys:String x:Key="Str_KS_PanView">Pan view</sys:String>
+    <sys:String x:Key="Str_KS_Editing">EDITING</sys:String>
+    <sys:String x:Key="Str_KS_Undo">Undo</sys:String>
+    <sys:String x:Key="Str_KS_DeleteAnnot">Delete selected annotation</sys:String>
+    <sys:String x:Key="Str_KS_ConfirmCancel">Confirm / cancel text or crop</sys:String>
+    <sys:String x:Key="Str_KS_SearchSelect">SEARCH &amp; SELECT</sys:String>
+    <sys:String x:Key="Str_KS_Find">Find / search</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevResult">Next / previous result</sys:String>
+    <sys:String x:Key="Str_KS_SelectAll">Select all text on page</sys:String>
+    <sys:String x:Key="Str_KS_CopyText">Copy selected text</sys:String>
+    <sys:String x:Key="Str_KS_Help">HELP</sys:String>
+    <sys:String x:Key="Str_KS_ThisList">This shortcut list</sys:String>
+
+    <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Ready">Ready</sys:String>
+    <sys:String x:Key="Str_Portable">PORTABLE</sys:String>
+    <sys:String x:Key="Str_InstallBtn">Install KillerPDF...</sys:String>
+
+    <!-- ── Status messages (format strings — use string.Format) ─────── -->
+    <sys:String x:Key="Str_Opened">Opened {0} - {1} page(s)</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnly">Opened {0} (read-only - owner restrictions) - {1} page(s)</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnlyXRef">Opened {0} (read-only - non-standard XRef table) - {1} page(s)</sys:String>
+    <sys:String x:Key="Str_OpenedRepaired">Opened {0} (repaired copy - save to keep changes) - {1} page(s)</sys:String>
+    <sys:String x:Key="Str_OpenedRasterRepair">Opened {0} (rasterized repair - save to keep changes) - {1} page(s)</sys:String>
+    <sys:String x:Key="Str_PageOf">Page {0} of {1}</sys:String>
+    <sys:String x:Key="Str_PageOfLinks">Page {0} of {1}  ({2} link(s))</sys:String>
+    <sys:String x:Key="Str_PageFormFields">Page {0} of {1} — this page contains fillable form fields</sys:String>
+    <sys:String x:Key="Str_PageRenderError">Page {0} - could not render</sys:String>
+    <sys:String x:Key="Str_RenderError">Render error: {0}</sys:String>
+    <sys:String x:Key="Str_Rotated">Rotated {0} page(s)</sys:String>
+    <sys:String x:Key="Str_Cropped">Cropped {0} page(s)</sys:String>
+    <sys:String x:Key="Str_CropFailed">Crop failed: {0}</sys:String>
+    <sys:String x:Key="Str_RemovedCrop">Removed CropBox from {0} page(s)</sys:String>
+    <sys:String x:Key="Str_RemoveCropFailed">Remove crop failed: {0}</sys:String>
+    <sys:String x:Key="Str_Extracted">Extracted {0} page(s) to {1}</sys:String>
+    <sys:String x:Key="Str_Deleted">Deleted {0} page(s) - {1} remaining</sys:String>
+    <sys:String x:Key="Str_Printed">Sent {0} page(s) to printer</sys:String>
+    <sys:String x:Key="Str_LinkRemoved">Link removed.</sys:String>
+    <sys:String x:Key="Str_InvalidRange">Invalid range — use e.g. 1-3,5,7</sys:String>
+    <sys:String x:Key="Str_CropNoDoc">Crop: no document open</sys:String>
+    <sys:String x:Key="Str_CropNoPage">Crop: no page selected</sys:String>
+    <sys:String x:Key="Str_CropNoDims">Crop: page dimensions unavailable</sys:String>
+    <sys:String x:Key="Str_RotateFailed">Rotate failed: {0}</sys:String>
+
+    <!-- ── Dialog strings ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Dlg_InstallTitle">Install KillerPDF</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">Install KillerPDF to your user profile?
+
+This will copy the app to %LocalAppData%\KillerPDF and create a Start Menu shortcut.
+You can uninstall via Add/Remove Programs at any time.</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedClose">You have unsaved changes. Close this file without saving?</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">You have unsaved changes. Close KillerPDF without saving?</sys:String>
+    <sys:String x:Key="Str_Dlg_FailedOpen">Failed to open PDF:
+{0}</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">KillerPDF</sys:String>
+
+
+    <!-- ── Theme names ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Theme_Dark">Dark</sys:String>
+    <sys:String x:Key="Str_Theme_Light">Light</sys:String>
+    <sys:String x:Key="Str_Theme_HighContrast">High Contrast</sys:String>
+    <sys:String x:Key="Str_Theme_Blood">Blood</sys:String>
+    <sys:String x:Key="Str_Theme_Greed">Greed</sys:String>
+    <sys:String x:Key="Str_Theme_Cyanotic">Cyanotic</sys:String>
+
+    <!-- ── Zoom dropdown ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Zoom_FitWidth">Fit Width</sys:String>
+    <sys:String x:Key="Str_Zoom_FitPage">Fit Page</sys:String>
+    <sys:String x:Key="Str_FitWidth">Page {0} of {1} - Fit Width ({2}%)</sys:String>
+    <sys:String x:Key="Str_FitPage">Page {0} of {1} - Fit Page ({2}%)</sys:String>
+
+    <!-- ── KS overlay font size (sys:Double) ──────────────────────────── -->
+    <sys:Double x:Key="Str_KS_FontSize">11</sys:Double>
+
+</ResourceDictionary>
