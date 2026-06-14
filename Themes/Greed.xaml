@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Greed: emerald green background, warm cream text, white icons, heavy grain -->
+    <SolidColorBrush x:Key="BgDark"         Color="#003d28" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgPanel"        Color="#004d32" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgHover"        Color="#006644" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgSidebar"      Color="#002819" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgModal"        Color="#00331f" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BorderDim"      Color="#0f4a30" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Accent"         Color="#ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SelectionAccent" Color="#138a42" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentLogo"     Color="#17b85a" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentBorder"   Color="#e0d49a" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentDim"      Color="#44ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextPrimary"    Color="#fffde8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextSecondary"  Color="#e0d49a" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextDim"        Color="#c0aa68" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextFooter"     Color="#52d68a" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerRed"      Color="#ff6666" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgDragHandle"   Color="#1a4d34" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgScrollThumb"  Color="#88ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BgOverlay"      Color="#CC003322" po:Freeze="True"/>
+    <sys:Double x:Key="GrainOpacity">0.30</sys:Double>
+
+    <SolidColorBrush x:Key="BgCanvas"                                                       Color="#00100a" po:Freeze="True"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"                      Color="#44ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"                  Color="#ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"     Color="#44ffffff" po:Freeze="True"/>
+    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#ffffff" po:Freeze="True"/>
+
+</ResourceDictionary>
