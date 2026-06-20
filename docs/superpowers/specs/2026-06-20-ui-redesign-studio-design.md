@@ -1,4 +1,4 @@
-# KillerPDF UI Redesign — "Studio" Design Spec
+# Scalpel UI Redesign — "Studio" Design Spec
 
 **Date:** 2026-06-20
 **Status:** Approved (design) — ready for implementation planning
@@ -8,7 +8,7 @@
 
 ## 1. Goal
 
-Make KillerPDF **as simple as possible to use**, with a distinctive, premium visual identity. The current UI crams ~25 icon-only buttons into a single top row with no labels and no visible structure — high cognitive load, low discoverability. This redesign replaces that with a **task-based mode-tab** layout and a coherent design language ("Studio") applied across all themes.
+Make Scalpel **as simple as possible to use**, with a distinctive, premium visual identity. The current UI crams ~25 icon-only buttons into a single top row with no labels and no visible structure — high cognitive load, low discoverability. This redesign replaces that with a **task-based mode-tab** layout and a coherent design language ("Studio") applied across all themes.
 
 Non-goals: changing what the app *does*, its file formats, its libraries, or its install model. This is a presentation-layer redesign.
 
@@ -97,7 +97,7 @@ Top to bottom:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ ● KillerPDF — report.pdf                      —  ▢  ✕    │  title bar (32)
+│ ● Scalpel — report.pdf                      —  ▢  ✕    │  title bar (32)
 ├─────────────────────────────────────────────────────────┤
 │ View   [Edit]   Pages   Sign                  🔍   ⚙     │  tab strip (40)
 ├─────────────────────────────────────────────────────────┤

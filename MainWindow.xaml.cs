@@ -15,10 +15,10 @@ using Microsoft.Win32;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Pdf.IO;
-using KillerPDF.Services;
+using Scalpel.Services;
 using PdfPigDoc = UglyToad.PdfPig.PdfDocument;
 
-namespace KillerPDF
+namespace Scalpel
 {
     public partial class MainWindow : Window
     {
@@ -280,13 +280,13 @@ namespace KillerPDF
             ThemeGreedRadio.IsChecked    = cur == Theme.Greed;
             ThemeCyanoticRadio.IsChecked = cur == Theme.Cyanotic;
             // Sync language radios
-            var curLoc = KillerPDF.Services.LocaleManager.Current;
-            LangEnRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.EnUS;
-            LangEsRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.Es;
-            LangZhTWRadio.IsChecked = curLoc == KillerPDF.Services.Locale.ZhTW;
-            LangZhCNRadio.IsChecked = curLoc == KillerPDF.Services.Locale.ZhCN;
-            LangBnRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.Bn;
-            LangTrRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.TrTR;
+            var curLoc = Scalpel.Services.LocaleManager.Current;
+            LangEnRadio.IsChecked   = curLoc == Scalpel.Services.Locale.EnUS;
+            LangEsRadio.IsChecked   = curLoc == Scalpel.Services.Locale.Es;
+            LangZhTWRadio.IsChecked = curLoc == Scalpel.Services.Locale.ZhTW;
+            LangZhCNRadio.IsChecked = curLoc == Scalpel.Services.Locale.ZhCN;
+            LangBnRadio.IsChecked   = curLoc == Scalpel.Services.Locale.Bn;
+            LangTrRadio.IsChecked   = curLoc == Scalpel.Services.Locale.TrTR;
             SettingsOverlay.Visibility = Visibility.Visible;
         }
 
@@ -331,22 +331,22 @@ namespace KillerPDF
             => ThemeManager.Apply(Theme.Cyanotic);
 
         private void LangEnRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.EnUS);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.EnUS);
 
         private void LangEsRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.Es);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.Es);
 
         private void LangZhTWRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.ZhTW);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.ZhTW);
 
         private void LangZhCNRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.ZhCN);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.ZhCN);
 
         private void LangBnRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.Bn);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.Bn);
 
         private void LangTrRadio_Checked(object sender, RoutedEventArgs e)
-            => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.TrTR);
+            => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.TrTR);
 
         private void ViewSingle_Click(object sender, RoutedEventArgs e)     { SetViewMode(ViewMode.Single);     UpdateViewModeButtons(); }
         private void ViewContinuous_Click(object sender, RoutedEventArgs e) { SetViewMode(ViewMode.Continuous); UpdateViewModeButtons(); }
@@ -835,14 +835,14 @@ namespace KillerPDF
                     SetStatus(string.Format(Loc("Str_OpenedReadOnlyXRef"), System.IO.Path.GetFileName(path), _doc.PageCount));
                     KillerDialog.Show(this,
                         $"\"{System.IO.Path.GetFileName(path)}\" has a non-standard structure and was opened read-only.\n\nEditing, saving, and some other features may not work correctly.",
-                        "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "Scalpel", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch
                 {
                     // ReadOnly also failed — offer to repair.
                     var result = KillerDialog.Show(this,
-                        $"This PDF has a damaged structure and couldn't be opened.\n\nWould you like KillerPDF to attempt a repair? A repaired copy will be created — the original file will not be changed.\n\nNote: repaired files may be missing bookmarks, forms, and other interactive features.",
-                        "KillerPDF", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        $"This PDF has a damaged structure and couldn't be opened.\n\nWould you like Scalpel to attempt a repair? A repaired copy will be created — the original file will not be changed.\n\nNote: repaired files may be missing bookmarks, forms, and other interactive features.",
+                        "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                         TryRepairAndOpen(srcPath);
                 }
@@ -1055,7 +1055,7 @@ namespace KillerPDF
                 var doc = FPDF_LoadDocument(sourcePath, null);
                 if (doc == IntPtr.Zero)
                 {
-                    try { File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "killerpdf_pdfium_debug.txt"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FPDF_LoadDocument returned null for: {sourcePath}\n\n"); } catch { }
+                    try { File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "scalpel_pdfium_debug.txt"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FPDF_LoadDocument returned null for: {sourcePath}\n\n"); } catch { }
                     return false;
                 }
                 try
@@ -1104,7 +1104,7 @@ namespace KillerPDF
                 try
                 {
                     File.AppendAllText(
-                        System.IO.Path.Combine(System.IO.Path.GetTempPath(), "killerpdf_pdfium_debug.txt"),
+                        System.IO.Path.Combine(System.IO.Path.GetTempPath(), "scalpel_pdfium_debug.txt"),
                         $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TryPdfiumSaveWithZeroRotations failed\n" +
                         $"  source: {sourcePath}\n" +
                         $"  type:   {ex.GetType().FullName}\n" +
@@ -1164,7 +1164,7 @@ namespace KillerPDF
                 SetStatus(string.Format(Loc("Str_OpenedRepaired"), System.IO.Path.GetFileName(path), _doc.PageCount));
                 KillerDialog.Show(this,
                     $"\"{System.IO.Path.GetFileName(path)}\" was repaired successfully.\n\nBookmarks, forms, and other interactive features may have been lost. Use Save As to write the repaired file to a new location.",
-                    "KillerPDF", MessageBoxButton.OK, MessageBoxImage.None);
+                    "Scalpel", MessageBoxButton.OK, MessageBoxImage.None);
                 return;
             }
             catch { }
@@ -1182,7 +1182,7 @@ namespace KillerPDF
 
             KillerDialog.Show(this,
                 "Repair failed — the file is too severely damaged to recover.\n\nTry opening the original in a different application (Adobe Acrobat, browsers) which may have additional recovery options.",
-                "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         /// <summary>
@@ -1252,7 +1252,7 @@ namespace KillerPDF
             SetStatus(string.Format(Loc("Str_OpenedRasterRepair"), System.IO.Path.GetFileName(path), _doc.PageCount));
             KillerDialog.Show(this,
                 $"\"{System.IO.Path.GetFileName(path)}\" was repaired by rasterizing through PDFium.\n\nText is not selectable in the repaired copy. Use Save As to write it to a new location.",
-                "KillerPDF", MessageBoxButton.OK, MessageBoxImage.None);
+                "Scalpel", MessageBoxButton.OK, MessageBoxImage.None);
         }
 
         private static bool IsOwnerPasswordException(Exception ex) =>
@@ -1989,7 +1989,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Remove link failed:\n{ex.Message}", "KillerPDF",
+                KillerDialog.Show(this, $"Remove link failed:\n{ex.Message}", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -4729,7 +4729,7 @@ namespace KillerPDF
             {
                 if (strokes.Count == 0)
                 {
-                    KillerDialog.Show(this, "Draw a signature first.", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    KillerDialog.Show(this, "Draw a signature first.", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -4806,7 +4806,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Failed to import image:\n{ex.Message}", "KillerPDF",
+                KillerDialog.Show(this, $"Failed to import image:\n{ex.Message}", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -7055,7 +7055,7 @@ namespace KillerPDF
             {
                 var res = KillerDialog.Show(this,
                     Loc("Str_Dlg_UnsavedClose"),
-                    "KillerPDF", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (res != MessageBoxResult.Yes) return;
             }
             _doc.Close();
@@ -7121,7 +7121,7 @@ namespace KillerPDF
             {
                 var res = KillerDialog.Show(this,
                     "You have unsaved changes. Discard them and create a new document?",
-                    "KillerPDF", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (res != MessageBoxResult.Yes) return;
             }
 
@@ -7142,7 +7142,7 @@ namespace KillerPDF
             catch (Exception ex)
             {
                 KillerDialog.Show(this, $"Could not create new document:\n{ex.Message}",
-                    "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                    "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7182,7 +7182,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Merge failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Merge failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7383,7 +7383,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Split failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Split failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7393,7 +7393,7 @@ namespace KillerPDF
             var doc = _doc;
             var selected = PageList.SelectedItems;
             if (selected.Count == 0) { KillerDialog.Show(this, "Select pages to delete."); return; }
-            var result = KillerDialog.Show(this, $"Delete {selected.Count} {(selected.Count == 1 ? "page" : "pages")}?", "KillerPDF",
+            var result = KillerDialog.Show(this, $"Delete {selected.Count} {(selected.Count == 1 ? "page" : "pages")}?", "Scalpel",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result != MessageBoxResult.Yes) return;
             try
@@ -7407,7 +7407,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Delete failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Delete failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7426,7 +7426,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Insert failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Insert failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7494,7 +7494,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Save failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Save failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7558,7 +7558,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                KillerDialog.Show(this, $"Save failed:\n{ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                KillerDialog.Show(this, $"Save failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -7670,7 +7670,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                try { KillerDialog.Show(this, $"Flatten failed:\n{ex.GetType().Name}: {ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error); }
+                try { KillerDialog.Show(this, $"Flatten failed:\n{ex.GetType().Name}: {ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error); }
                 catch { /* dialog failed; overlay still removed in finally */ }
             }
             finally
@@ -7779,7 +7779,7 @@ namespace KillerPDF
 
             // Rasterize every page, then hand them to our own preview window. WPF's OS
             // PrintDialog cannot show a preview ("This app doesn't support print preview"),
-            // so KillerPDF renders the preview and drives printing itself.
+            // so Scalpel renders the preview and drives printing itself.
             var overlay = ShowFlattenProgress(pageCount, "Preparing");
             bool overlayHidden = false;
             byte[][]? pngPages = null;
@@ -7827,7 +7827,7 @@ namespace KillerPDF
             }
             catch (Exception ex)
             {
-                try { KillerDialog.Show(this, $"Print failed:\n{ex.GetType().Name}: {ex.Message}", "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error); }
+                try { KillerDialog.Show(this, $"Print failed:\n{ex.GetType().Name}: {ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error); }
                 catch { }
             }
             finally
@@ -8799,13 +8799,13 @@ namespace KillerPDF
 
             // Logo block
             AboutLogoBlock.Inlines.Clear();
-            var logoHl = new System.Windows.Documents.Hyperlink(new System.Windows.Documents.Run("KillerPDF"))
+            var logoHl = new System.Windows.Documents.Hyperlink(new System.Windows.Documents.Run("Scalpel"))
             {
                 Foreground      = (System.Windows.Media.Brush)FindResource("Accent"),
                 TextDecorations = null
             };
             logoHl.Click += (_, _) =>
-                Process.Start(new ProcessStartInfo("https://pdf.killertools.net") { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo("https://scalpel.example.com") { UseShellExecute = true });
             AboutLogoBlock.Inlines.Add(logoHl);
 
             // Tagline block
@@ -8820,7 +8820,7 @@ namespace KillerPDF
                 TextDecorations = null
             };
             ktHl.Click += (_, _) =>
-                Process.Start(new ProcessStartInfo("https://killertools.net") { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo("https://scalpel.example.com") { UseShellExecute = true });
             AboutTaglineBlock.Inlines.Add(ktHl);
             AboutTaglineBlock.Inlines.Add(new System.Windows.Documents.Run(".")
             {
@@ -8836,7 +8836,7 @@ namespace KillerPDF
             };
             verHl.Click += (_, _) =>
                 Process.Start(new ProcessStartInfo(
-                    $"https://github.com/SteveTheKiller/KillerPDF/releases/tag/v{version}")
+                    $"https://github.com/YOUR-GH-USER/Scalpel/releases/tag/v{version}")
                 { UseShellExecute = true });
             AboutVersionBlock.Inlines.Add(verHl);
 
@@ -9166,7 +9166,7 @@ namespace KillerPDF
         public static MessageBoxResult Show(
             Window? owner,
             string message,
-            string title = "KillerPDF",
+            string title = "Scalpel",
             MessageBoxButton buttons = MessageBoxButton.OK,
             MessageBoxImage image = MessageBoxImage.None)
 #pragma warning restore IDE0060

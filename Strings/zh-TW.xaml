@@ -3,7 +3,7 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ================================================================
-         KillerPDF  —  Traditional Chinese (zh-TW) strings
+         Scalpel  —  Traditional Chinese (zh-TW) strings
          Stub file — translations to be provided by leox243 (PR #61).
          All keys fall back to English until filled in.
          ================================================================ -->
@@ -38,7 +38,7 @@
     <sys:String x:Key="Str_TT_ExpandSidebar">展開側邊欄</sys:String>
     <sys:String x:Key="Str_TT_KeyboardShortcuts">鍵盤快速鍵 (Ctrl+?)</sys:String>
     <sys:String x:Key="Str_TT_Settings">設定</sys:String>
-    <sys:String x:Key="Str_TT_About">關於 KillerPDF</sys:String>
+    <sys:String x:Key="Str_TT_About">關於 Scalpel</sys:String>
 
     <!-- ── About overlay ─────────────────────────────────────────────── -->
     <sys:String x:Key="Str_About_Version">版本</sys:String>
@@ -91,7 +91,7 @@
     <!-- ── Status bar ────────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Ready">就緒</sys:String>
     <sys:String x:Key="Str_Portable">可攜版</sys:String>
-    <sys:String x:Key="Str_InstallBtn">安裝 KillerPDF...</sys:String>
+    <sys:String x:Key="Str_InstallBtn">安裝 Scalpel...</sys:String>
 
     <!-- ── Status messages (format strings — use string.Format) ─────── -->
     <sys:String x:Key="Str_Opened">已開啟 {0} - {1} 頁</sys:String>
@@ -120,16 +120,16 @@
     <sys:String x:Key="Str_RotateFailed">旋轉失敗：{0}</sys:String>
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
-    <sys:String x:Key="Str_Dlg_InstallTitle">安裝 KillerPDF</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">要將 KillerPDF 安裝到您的使用者設定檔嗎？
+    <sys:String x:Key="Str_Dlg_InstallTitle">安裝 Scalpel</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">要將 Scalpel 安裝到您的使用者設定檔嗎？
 
-這將把應用程式複製到 %LocalAppData%\KillerPDF 並建立開始功能表捷徑。
+這將把應用程式複製到 %LocalAppData%\Scalpel 並建立開始功能表捷徑。
 您可以隨時透過新增或移除程式來解除安裝。</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">您有未儲存的變更。要在不儲存的情況下關閉此檔案嗎？</sys:String>
-    <sys:String x:Key="Str_Dlg_UnsavedExit">您有未儲存的變更。要在不儲存的情況下關閉 KillerPDF 嗎？</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">您有未儲存的變更。要在不儲存的情況下關閉 Scalpel 嗎？</sys:String>
     <sys:String x:Key="Str_Dlg_FailedOpen">無法開啟 PDF：
 {0}</sys:String>
-    <sys:String x:Key="Str_Dlg_AppTitle">KillerPDF</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
 
     <!-- ── Theme names ────────────────────────────────────────────────── -->

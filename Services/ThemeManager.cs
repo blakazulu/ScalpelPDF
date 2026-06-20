@@ -6,7 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace KillerPDF.Services
+namespace Scalpel.Services
 {
     internal enum Theme { Dark, Light, HighContrast, Blood, Greed, Cyanotic }
 

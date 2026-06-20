@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-    Builds a Microsoft Store / sideload MSIX package for KillerPDF.
+    Builds a Microsoft Store / sideload MSIX package for Scalpel.
 
 .DESCRIPTION
-    1. Publishes the single-file KillerPDF.exe (Release, net48, win-x64).
+    1. Publishes the single-file Scalpel.exe (Release, net48, win-x64).
     2. Stages a package layout (exe + assets + manifest with tokens substituted).
     3. Generates resources.pri.
     4. Packs the layout into an .msix with makeappx.
@@ -22,17 +22,17 @@
 .EXAMPLE
     # Store submission package (unsigned; upload the .msix to Partner Center):
     pwsh -File packaging\build-msix.ps1 -NoSign `
-         -IdentityName "12345Publisher.KillerPDF" `
+         -IdentityName "12345Publisher.Scalpel" `
          -Publisher "CN=ABCD1234-1234-1234-1234-1234567890AB" `
          -PublisherDisplayName "Steve The Killer"
 #>
 [CmdletBinding(DefaultParameterSetName = 'SelfSign')]
 param(
     [string]$Version             = '',                       # defaults to csproj <Version> + .0
-    [string]$IdentityName        = 'KillerPDF',
-    [string]$Publisher           = 'CN=KillerPDF Dev',       # MUST match signing cert subject
-    [string]$PublisherDisplayName= 'KillerPDF',
-    [string]$DisplayName         = 'KillerPDF',
+    [string]$IdentityName        = 'Scalpel',
+    [string]$Publisher           = 'CN=Scalpel Dev',       # MUST match signing cert subject
+    [string]$PublisherDisplayName= 'Scalpel',
+    [string]$DisplayName         = 'Scalpel',
 
     [Parameter(ParameterSetName='SelfSign')][switch]$SelfSign,   # create+use a self-signed cert
     [Parameter(ParameterSetName='Cert')][string]$CertPath,       # sign with an existing .pfx
@@ -44,7 +44,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repo  = Resolve-Path (Join-Path $PSScriptRoot '..')
-$proj  = Join-Path $repo 'KillerPDF.csproj'
+$proj  = Join-Path $repo 'Scalpel.csproj'
 $pkgDir= $PSScriptRoot
 $outDir= Join-Path $pkgDir 'out'
 $layout= Join-Path $outDir 'layout'
@@ -90,18 +90,18 @@ Write-Host "==> makeappx: $makeappx"
 
 # ── 1. Publish the EXE ─────────────────────────────────────────────────────
 if (-not $SkipPublish) {
-    Write-Host "`n==> Publishing KillerPDF.exe (Release, net48, win-x64)..." -ForegroundColor Cyan
+    Write-Host "`n==> Publishing Scalpel.exe (Release, net48, win-x64)..." -ForegroundColor Cyan
     & $dotnet publish $proj -c Release /p:PublishProfile=FolderProfile1
     if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed." }
 }
-$exe = Join-Path $publishDir 'KillerPDF.exe'
+$exe = Join-Path $publishDir 'Scalpel.exe'
 if (-not (Test-Path $exe)) { throw "Published EXE not found at $exe" }
 
 # ── 2. Stage the package layout ────────────────────────────────────────────
 Write-Host "`n==> Staging package layout..." -ForegroundColor Cyan
 if (Test-Path $layout) { Remove-Item $layout -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $layout | Out-Null
-Copy-Item $exe (Join-Path $layout 'KillerPDF.exe')
+Copy-Item $exe (Join-Path $layout 'Scalpel.exe')
 Copy-Item (Join-Path $pkgDir 'Assets') (Join-Path $layout 'Assets') -Recurse
 
 # Substitute manifest tokens
@@ -126,7 +126,7 @@ try {
 } finally { Pop-Location }
 
 # ── 4. Pack ────────────────────────────────────────────────────────────────
-$msix = Join-Path $outDir "KillerPDF_$Version`_x64.msix"
+$msix = Join-Path $outDir "Scalpel_$Version`_x64.msix"
 Write-Host "`n==> Packing $msix ..." -ForegroundColor Cyan
 if (Test-Path $msix) { Remove-Item $msix -Force }
 & $makeappx pack /d $layout /p $msix /o
@@ -151,15 +151,15 @@ switch ($PSCmdlet.ParameterSetName) {
     'SelfSign' {
         Write-Host "`n==> Creating self-signed cert (subject $Publisher) for local testing..." -ForegroundColor Cyan
         $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject $Publisher `
-                    -KeyUsage DigitalSignature -FriendlyName 'KillerPDF Dev Signing' `
+                    -KeyUsage DigitalSignature -FriendlyName 'Scalpel Dev Signing' `
                     -CertStoreLocation 'Cert:\CurrentUser\My' `
                     -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3','2.5.29.19={text}')
-        $pfx = Join-Path $outDir 'killerpdf-dev.pfx'
-        $cer = Join-Path $outDir 'killerpdf-dev.cer'
-        $pw  = ConvertTo-SecureString -String 'killerpdf' -Force -AsPlainText
+        $pfx = Join-Path $outDir 'scalpel-dev.pfx'
+        $cer = Join-Path $outDir 'scalpel-dev.cer'
+        $pw  = ConvertTo-SecureString -String 'scalpel' -Force -AsPlainText
         Export-PfxCertificate -Cert $cert -FilePath $pfx -Password $pw | Out-Null
         Export-Certificate    -Cert $cert -FilePath $cer | Out-Null
-        & $signtool sign /fd SHA256 /f $pfx /p 'killerpdf' $msix
+        & $signtool sign /fd SHA256 /f $pfx /p 'scalpel' $msix
         if ($LASTEXITCODE -ne 0) { throw "signtool sign failed." }
         Write-Host "    Signed with self-signed cert." -ForegroundColor Green
         Write-Host "`n    To install locally, trust the cert ONCE (elevated PowerShell):" -ForegroundColor Yellow

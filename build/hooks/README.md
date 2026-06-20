@@ -4,7 +4,7 @@
 
 When you push commits to `main`, this hook increments the **revision** (4th)
 component of `<Version>`, `<AssemblyVersion>`, and `<FileVersion>` in
-`KillerPDF.csproj` — e.g. `1.5.1` → `1.5.1.1` → `1.5.1.2`.
+`Scalpel.csproj` — e.g. `1.5.1` → `1.5.1.1` → `1.5.1.2`.
 
 Major/minor/patch are still set by hand for real releases; the hook only nudges
 the revision in between.
@@ -24,7 +24,7 @@ That setting lives in `.git/config` (not committed), so each clone runs it once.
 git chooses which commits to send *before* `pre-push` runs, so the bump can't
 ride the push that triggered it. Instead the hook:
 
-1. Bumps the three version fields in `KillerPDF.csproj`.
+1. Bumps the three version fields in `Scalpel.csproj`.
 2. Commits the change as `Bump version to X.Y.Z.N [skip-bump]`.
 3. **Aborts the push.**
 

@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using Docnet.Core;
 using Docnet.Core.Models;
 
-namespace KillerPDF
+namespace Scalpel
 {
     /// <summary>
     /// ViewModel for a single page thumbnail in the sidebar PageList.

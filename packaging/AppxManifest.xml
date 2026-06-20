@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  MSIX package manifest for KillerPDF (Microsoft Store / sideload).
+  MSIX package manifest for Scalpel (Microsoft Store / sideload).
 
   The {TOKENS} below are substituted by packaging\build-msix.ps1 at pack time:
     {IdentityName}          Package identity Name   (Partner Center: "Package/Identity/Name")
@@ -39,7 +39,7 @@
   </Dependencies>
 
   <Resources>
-    <!-- Package default language. KillerPDF localizes itself via internal XAML
+    <!-- Package default language. Scalpel localizes itself via internal XAML
          string dictionaries (switchable in Settings), so the package ships no MRT
          language resources; en-us is the neutral/default language for the listing. -->
     <Resource Language="en-us" />
@@ -51,8 +51,8 @@
   </Capabilities>
 
   <Applications>
-    <Application Id="KillerPDF"
-                 Executable="KillerPDF.exe"
+    <Application Id="Scalpel"
+                 Executable="Scalpel.exe"
                  EntryPoint="Windows.FullTrustApplication">
 
       <uap:VisualElements
@@ -74,7 +74,7 @@
       </uap:VisualElements>
 
       <Extensions>
-        <!-- Register .pdf so KillerPDF appears in "Open with" and can be set default.
+        <!-- Register .pdf so Scalpel appears in "Open with" and can be set default.
              Opening a .pdf launches the app with the file path as argv[1], which the
              existing command-line open path in MainWindow already handles. -->
         <uap3:Extension Category="windows.fileTypeAssociation">

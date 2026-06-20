@@ -1,7 +1,7 @@
 using System;
 using System.Windows;
 
-namespace KillerPDF.Services
+namespace Scalpel.Services
 {
     internal enum Locale { EnUS, Es, ZhTW, ZhCN, Bn, TrTR }
 

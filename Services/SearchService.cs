@@ -1,6 +1,6 @@
 using UglyToad.PdfPig;
 
-namespace KillerPDF.Services
+namespace Scalpel.Services
 {
     internal sealed class SearchResult
     {

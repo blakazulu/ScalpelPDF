@@ -1,4 +1,4 @@
-namespace KillerPDF
+namespace Scalpel
 {
     /// <summary>
     /// Build-time constants written or verified by release.ps1.

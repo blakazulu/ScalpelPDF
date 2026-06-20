@@ -1,4 +1,4 @@
-# KillerPDF — Button & Control Reference
+# Scalpel — Button & Control Reference
 
 Every interactive control in the app, by screen region, with what it does. Tooltips shown are the English (en-US) text; the same controls relabel in other languages. Most actions are **no-ops until a PDF is open** unless noted.
 
@@ -14,7 +14,7 @@ The custom title bar (the app uses a borderless window). Shows the app name and 
 |---|---|---|
 | Minimize (`—`) | — | Minimizes the window to the taskbar. |
 | Maximize/Restore (`▢`) | — | Toggles between maximized and normal window size. |
-| Close (`✕`) | — | Closes the app. If there are unsaved changes, prompts *"You have unsaved changes. Close KillerPDF without saving?"* first. |
+| Close (`✕`) | — | Closes the app. If there are unsaved changes, prompts *"You have unsaved changes. Close Scalpel without saving?"* first. |
 
 ---
 
@@ -50,7 +50,7 @@ A single row beneath the tab strip. The left and right sides are **persistent** 
 |---|---|---|
 | Open | Open (Ctrl+O) | Opens a file picker (PDF only) and loads the chosen file. |
 | Save | Save (Ctrl+S) | Saves changes (amber primary button). Offers to overwrite the original file, or save as a new file (Yes / No / Cancel). |
-| Print | Print (Ctrl+P) | Burns pending annotations, rasterizes pages, and opens KillerPDF's own **Print Preview** dialog (printer, orientation, copies, page range, live preview). |
+| Print | Print (Ctrl+P) | Burns pending annotations, rasterizes pages, and opens Scalpel's own **Print Preview** dialog (printer, orientation, copies, page range, live preview). |
 | **File ▾** (overflow menu) | — | Drops down three additional file commands: |
 | → New | New Blank Document (Ctrl+N) | Creates a new blank one-page PDF. Prompts to discard if the current file has unsaved changes. |
 | → Close File | Close File (Ctrl+W) | Closes the current document (prompts if unsaved). Disabled when nothing is open. |
@@ -215,7 +215,7 @@ Insert Blank Page After · Rotate CW / CCW · Move Page Up / Down · Extract Pag
 
 ## 9. Status bar & overlays
 
-**Status bar** (bottom): shows status messages (e.g. *"Opened … — N page(s)"*, *"Page X of N"*), and on the right a **version label** — click it to open the **About overlay** (version, publisher, Authenticode thumbprint, EXE SHA-256). In portable (non-installed, non-Store) mode it also shows a **PORTABLE** badge and an **Install KillerPDF…** button that installs to your user profile and relaunches. The Install button does **not** appear in the Microsoft Store / MSIX build.
+**Status bar** (bottom): shows status messages (e.g. *"Opened … — N page(s)"*, *"Page X of N"*), and on the right a **version label** — click it to open the **About overlay** (version, publisher, Authenticode thumbprint, EXE SHA-256). In portable (non-installed, non-Store) mode it also shows a **PORTABLE** badge and an **Install Scalpel…** button that installs to your user profile and relaunches. The Install button does **not** appear in the Microsoft Store / MSIX build.
 
 **Overlays** each have a close (✕): **Settings** (§6), **Shortcuts** (§9), and **About**.
 
@@ -246,7 +246,7 @@ Insert Blank Page After · Rotate CW / CCW · Move Page Up / Down · Extract Pag
 
 ## 11. Studio design language
 
-KillerPDF uses the **"Studio"** visual language: a document-first aesthetic where chrome recedes so the page is the focus. Key characteristics:
+Scalpel uses the **"Studio"** visual language: a document-first aesthetic where chrome recedes so the page is the focus. Key characteristics:
 
 - **Geist** — bundled UI font (embedded in the EXE via Costura/WPF resource). Used for all labels, overlays, and status text. Tabular numerals keep zoom percentages and page counts visually aligned. Fallback: `Segoe UI Variable, Segoe UI`.
 - **Tabler Icons** — bundled icon font (embedded). Replaces the legacy Segoe MDL2 Assets set throughout the app. Each icon is referenced by a named resource key (e.g. `Ico_Save`, `Ico_Open`) rather than hardcoded codepoints.

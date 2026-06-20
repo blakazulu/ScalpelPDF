@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Generates the MSIX / Microsoft Store visual assets from Resources\kp-icon.ico.
+    Generates the MSIX / Microsoft Store visual assets from Resources\scalpel.ico.
 
 .DESCRIPTION
     Renders the highest-resolution frame of the app icon into the PNG tile/logo
@@ -13,7 +13,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$IconPath = (Join-Path $PSScriptRoot '..\Resources\kp-icon.ico'),
+    [string]$IconPath = (Join-Path $PSScriptRoot '..\Resources\scalpel.ico'),
     [string]$OutDir   = (Join-Path $PSScriptRoot 'Assets')
 )
 

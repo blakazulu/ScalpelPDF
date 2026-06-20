@@ -4,20 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-KillerPDF is a local-only, portable Windows PDF editor (view, annotate, merge/split, edit text, sign, fill forms, print, flatten). It ships as a single self-installing ~6 MB EXE with no runtime install and no telemetry. GPLv3.
+Scalpel is a local-only, portable Windows PDF editor (view, annotate, merge/split, edit text, sign, fill forms, print, flatten). It ships as a single self-installing ~6 MB EXE with no runtime install and no telemetry. GPLv3.
 
 ## Build / run / test
 
 ```powershell
 dotnet build                      # debug build
 dotnet publish -c Release         # single-file Costura EXE -> bin/Release/net48/publish/
-dotnet test                       # run xUnit tests (KillerPDF.Tests)
+dotnet test                       # run xUnit tests (Scalpel.Tests)
 dotnet test --filter "FullyQualifiedName~SearchService"   # single test class
 ```
 
 - Targets **.NET Framework 4.8** (`net48`) but **requires the .NET 8 SDK or later to build**. Output is x64. `dotnet` may not be on PATH; a user-local SDK at `~/.dotnet/dotnet.exe` works.
 - Build gotcha: after a `dotnet publish` (which pins the `win-x64` RID), a later `dotnet build --no-restore` can fail `NETSDK1047` ("no target for net48/win7-x64"). Re-run **with** restore (drop `--no-restore`) to fix.
-- `dotnet publish` also runs `build/bundle-source.ps1` (the `BundleSource` MSBuild target) to produce a GPL3 `KillerPDF-<version>-src.zip` alongside the EXE.
+- `dotnet publish` also runs `build/bundle-source.ps1` (the `BundleSource` MSBuild target) to produce a GPL3 `Scalpel-<version>-src.zip` alongside the EXE.
 - `release.ps1` is the full release pipeline (build → Authenticode sign → `signtool verify /pa` gate → SHA256 → write `BuildInfo.cs` → summary). Don't run it for ordinary dev work; it expects signing certs/SimplySign.
 
 ### MSIX / Microsoft Store package
@@ -27,7 +27,7 @@ pwsh -File packaging\build-msix.ps1 -SelfSign   # local sideload test package (s
 pwsh -File packaging\build-msix.ps1 -NoSign -IdentityName ... -Publisher ... -PublisherDisplayName ...   # Store submission
 ```
 
-`packaging/build-msix.ps1` publishes the EXE, stages a layout, runs `makepri`/`makeappx`, and signs. Needs the Windows 10/11 SDK (`makeappx`, `signtool`). See `docs/STORE-PUBLISHING.md`. The same `KillerPDF.exe` goes inside the package; only the manifest (`packaging/AppxManifest.xml`, `{token}`-substituted) and assets are added.
+`packaging/build-msix.ps1` publishes the EXE, stages a layout, runs `makepri`/`makeappx`, and signs. Needs the Windows 10/11 SDK (`makeappx`, `signtool`). See `docs/STORE-PUBLISHING.md`. The same `Scalpel.exe` goes inside the package; only the manifest (`packaging/AppxManifest.xml`, `{token}`-substituted) and assets are added.
 
 ## Architecture
 
@@ -35,7 +35,7 @@ WPF desktop app. There is no MVVM framework in play for the main window — it i
 
 - **`MainWindow.xaml.cs` (~9200 lines, 440 KB) is the monolith.** Nearly all editing, rendering, navigation, search, form-filling, signing, cropping, and save logic lives in this one `partial class MainWindow`. When adding UI behavior, expect to work here. `MainWindow.xaml` is the matching layout.
   - **Mode-tab UI ("Studio" redesign):** the toolbar is organized by a `AppMode { View, Edit, Pages, Sign }` enum. `SetMode(AppMode)` toggles the visibility of four `ModePanel{View,Edit,Pages,Sign}` panels and the four mode-tab `IsChecked` states (guarded by `_suppressModeEvents`). The tabs are grouped `RadioButton`s (can't be deselected by clicking the active one). A persistent File group (Open/Save/Print + a "File ▾" overflow menu for New/Close/Save Flattened) and Zoom group flank the swappable mode panels; Search + Settings sit in the tab strip. View modes (Single/Continuous/Two-page/Grid) live in the **View** tab (no longer in Settings). Tool buttons stay plain `Button`s so `SetTool`'s active-tool highlight (`SetResourceReference` on Background/Foreground) keeps working.
-- **`App.xaml.cs`** is the entry point AND the installer. It handles crash dialogs (3 unhandled-exception sinks), `/uninstall`, per-user self-install to `%LOCALAPPDATA%\Programs\KillerPDF` with `.pdf` file-handler registration (no UAC), the pdfium integrity check, settings, and temp-file lifecycle.
+- **`App.xaml.cs`** is the entry point AND the installer. It handles crash dialogs (3 unhandled-exception sinks), `/uninstall`, per-user self-install to `%LOCALAPPDATA%\Programs\Scalpel` with `.pdf` file-handler registration (no UAC), the pdfium integrity check, settings, and temp-file lifecycle.
   - **Packaged-aware:** `App.IsPackaged()` (via `GetCurrentPackageFullName`) detects an MSIX/Store install. In packaged mode the self-installer is suppressed — portable badge hidden (`IsPortable()` returns false), `InstallAndRelaunch()` no-ops, `/uninstall` ignored — because the OS/package owns install, uninstall, and the `.pdf` association (declared in the manifest). Registry/AppData calls still work via MSIX virtualization. Keep new install-side behavior behind this gate.
 
 ### Three PDF libraries, three distinct roles
@@ -62,9 +62,9 @@ Both managers persist the user's choice and restore it at startup (`Initialize()
 
 ### Persistence
 
-- **Settings** → Windows registry under `HKCU\Software\KillerPDF\Settings` (`App.GetSetting` / `SetSetting`). Install/handler state lives under `HKCU\Software\KillerPDF` and the standard Uninstall key.
-- **Saved signatures** → `%LOCALAPPDATA%\KillerPDF\signatures.json` (`Services/SignatureStore.cs`, `System.Text.Json`).
-- **Temp files** → `killerpdf_*.pdf`, registered per-session and swept on startup/exit (`CleanupSessionTemps` / `CleanupStaleTemps`).
+- **Settings** → Windows registry under `HKCU\Software\Scalpel\Settings` (`App.GetSetting` / `SetSetting`). Install/handler state lives under `HKCU\Software\Scalpel` and the standard Uninstall key.
+- **Saved signatures** → `%LOCALAPPDATA%\Scalpel\signatures.json` (`Services/SignatureStore.cs`, `System.Text.Json`).
+- **Temp files** → `scalpel_*.pdf`, registered per-session and swept on startup/exit (`CleanupSessionTemps` / `CleanupStaleTemps`).
 
 ### pdfium integrity check
 
@@ -74,7 +74,7 @@ Both managers persist the user's choice and restore it at startup (`Initialize()
 
 - C# with `Nullable` enabled and `ImplicitUsings` enabled; `LangVersion=latest`. Collection expressions (`[]`), target-typed `new`, and `switch` expressions are used throughout — match that style.
 - I/O and parsing are wrapped in defensive `try { } catch { }` that swallow and fall back (PDFs are untrusted/malformed); follow this pattern rather than letting exceptions reach the user mid-edit.
-- Tests (`KillerPDF.Tests`) are xUnit and **link the source files directly** (`<Compile Include="..\Services\...">`) rather than referencing the WinExe project. If you move a tested file, update the `.csproj` link paths.
+- Tests (`Scalpel.Tests`) are xUnit and **link the source files directly** (`<Compile Include="..\Services\...">`) rather than referencing the WinExe project. If you move a tested file, update the `.csproj` link paths.
 
 ## Further docs
 

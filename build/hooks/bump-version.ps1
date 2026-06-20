@@ -1,9 +1,9 @@
 # Bump the revision (4th) component of <Version>, <AssemblyVersion>, and
-# <FileVersion> in KillerPDF.csproj, then commit. Invoked by build/hooks/pre-push.
+# <FileVersion> in Scalpel.csproj, then commit. Invoked by build/hooks/pre-push.
 $ErrorActionPreference = 'Stop'
 
 $root   = (& git rev-parse --show-toplevel).Trim()
-$csproj = Join-Path $root 'KillerPDF.csproj'
+$csproj = Join-Path $root 'Scalpel.csproj'
 
 # Read raw so existing line endings (CRLF) are preserved untouched.
 $text = Get-Content -LiteralPath $csproj -Raw

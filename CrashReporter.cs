@@ -4,10 +4,10 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace KillerPDF
+namespace Scalpel
 {
     /// <summary>
-    /// Writes structured crash logs to %LOCALAPPDATA%\KillerPDF\Logs\ and maintains
+    /// Writes structured crash logs to %LOCALAPPDATA%\Scalpel\Logs\ and maintains
     /// a rolling buffer of recent status-bar messages for post-mortem context.
     /// </summary>
     internal static class CrashReporter
@@ -21,7 +21,7 @@ namespace KillerPDF
 
         internal static string LogDir { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "KillerPDF", "Logs");
+            "Scalpel", "Logs");
 
         /// <summary>Path of the log file written by the most recent Capture() call.</summary>
         internal static string? LastLogPath { get; private set; }
@@ -55,7 +55,7 @@ namespace KillerPDF
             var sb  = new StringBuilder();
             var ver = Assembly.GetExecutingAssembly().GetName().Version;
 
-            sb.AppendLine($"KillerPDF v{ver?.ToString(3)} crash report");
+            sb.AppendLine($"Scalpel v{ver?.ToString(3)} crash report");
             sb.AppendLine($"Time    : {DateTime.Now:yyyy-MM-dd HH:mm:ss zzz}");
             sb.AppendLine($"OS      : {Environment.OSVersion}");
             sb.AppendLine($"CLR     : {Environment.Version}");

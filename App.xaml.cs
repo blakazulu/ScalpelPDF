@@ -13,10 +13,10 @@ using System.Windows.Input;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
-using KillerPDF.Services;
+using Scalpel.Services;
 using Microsoft.Win32;
 
-namespace KillerPDF
+namespace Scalpel
 {
     public partial class App : Application
     {
@@ -24,8 +24,8 @@ namespace KillerPDF
         // Paths
         // ============================================================
 
-        private static readonly string AppName   = "KillerPDF";
-        private static readonly string ExeName   = "KillerPDF.exe";
+        private static readonly string AppName   = "Scalpel";
+        private static readonly string ExeName   = "Scalpel.exe";
         private static readonly string InstallDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Programs", AppName);
@@ -50,7 +50,7 @@ namespace KillerPDF
         // Packaging identity (MSIX / Microsoft Store)
         // ============================================================
         //
-        // When KillerPDF runs from an MSIX package (Store install or sideload), the
+        // When Scalpel runs from an MSIX package (Store install or sideload), the
         // package — not the app — owns install, uninstall, file associations, and
         // shortcuts. All of the self-installer machinery below is therefore disabled
         // in packaged mode; see IsPackaged() callers.
@@ -191,7 +191,7 @@ namespace KillerPDF
 
             var win = new Window
             {
-                Title                 = "KillerPDF — Unexpected Error",
+                Title                 = "Scalpel — Unexpected Error",
                 Width                 = 680,
                 Height                = 520,
                 MinWidth              = 480,
@@ -224,7 +224,7 @@ namespace KillerPDF
             titleBar.Children.Add(xBtn);
             titleBar.Children.Add(new TextBlock
             {
-                Text              = "KillerPDF — Unexpected Error",
+                Text              = "Scalpel — Unexpected Error",
                 Foreground        = dimText,
                 FontSize          = 12,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -353,7 +353,7 @@ namespace KillerPDF
                         $"```\n{stack}\n```\n\n" +
                         $"_Log folder: `{CrashReporter.LogDir}`_");
                     Process.Start(new ProcessStartInfo(
-                        $"https://github.com/SteveTheKiller/KillerPDF/issues/new?title={title}&body={body}")
+                        $"https://github.com/YOUR-GH-USER/Scalpel/issues/new?title={title}&body={body}")
                         { UseShellExecute = true });
                 }
                 catch { }
@@ -465,7 +465,7 @@ namespace KillerPDF
         {
             var sb  = new StringBuilder();
             var ver = Assembly.GetExecutingAssembly().GetName().Version;
-            sb.AppendLine($"KillerPDF v{ver?.ToString(3)}");
+            sb.AppendLine($"Scalpel v{ver?.ToString(3)}");
             sb.AppendLine($"Time : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine($"OS   : {Environment.OSVersion}");
             sb.AppendLine();
@@ -491,7 +491,7 @@ namespace KillerPDF
         }
 
         /// <summary>
-        /// Installs KillerPDF, offers to set as default PDF handler, then relaunches
+        /// Installs Scalpel, offers to set as default PDF handler, then relaunches
         /// from the installed location. Returns false if installation failed or was
         /// already installed from this path.
         /// </summary>
@@ -507,9 +507,9 @@ namespace KillerPDF
             if (!IsDefaultPdfHandler())
             {
                 var res = KillerDialog.Show(null,
-                    "Would you like to set KillerPDF as your default PDF viewer?\n\n" +
+                    "Would you like to set Scalpel as your default PDF viewer?\n\n" +
                     "Opens Windows Settings → Default Apps.",
-                    "KillerPDF", MessageBoxButton.YesNo);
+                    "Scalpel", MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                     Process.Start(new ProcessStartInfo("ms-settings:defaultapps")
                         { UseShellExecute = true });
@@ -536,19 +536,19 @@ namespace KillerPDF
         /// </summary>
         internal static readonly string TempDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "KillerPDF", "Temp");
+            "Scalpel", "Temp");
 
         private static readonly List<string> _sessionTemps = [];
 
         /// <summary>
-        /// Creates a tracked temp path of the form killerpdf_&lt;tag&gt;_&lt;guid&gt;.pdf
-        /// under %LOCALAPPDATA%\KillerPDF\Temp\.
+        /// Creates a tracked temp path of the form scalpel_&lt;tag&gt;_&lt;guid&gt;.pdf
+        /// under %LOCALAPPDATA%\Scalpel\Temp\.
         /// All registered paths are deleted when CleanupSessionTemps() is called.
         /// </summary>
         internal static string MakeTempFile(string tag)
         {
             try { Directory.CreateDirectory(TempDir); } catch { }
-            var path = Path.Combine(TempDir, $"killerpdf_{tag}_{Guid.NewGuid():N}.pdf");
+            var path = Path.Combine(TempDir, $"scalpel_{tag}_{Guid.NewGuid():N}.pdf");
             lock (_sessionTemps) _sessionTemps.Add(path);
             return path;
         }
@@ -565,7 +565,7 @@ namespace KillerPDF
         }
 
         /// <summary>
-        /// Deletes killerpdf_*.pdf files left over from previous crashed sessions.
+        /// Deletes scalpel_*.pdf files left over from previous crashed sessions.
         /// Sweeps both the current TempDir and the legacy %TEMP% location.
         /// Locked files (still open by another instance) are silently skipped.
         /// </summary>
@@ -575,7 +575,7 @@ namespace KillerPDF
             try
             {
                 if (Directory.Exists(TempDir))
-                    foreach (var f in Directory.GetFiles(TempDir, "killerpdf_*.pdf"))
+                    foreach (var f in Directory.GetFiles(TempDir, "scalpel_*.pdf"))
                         try { File.Delete(f); } catch { }
             }
             catch { }
@@ -583,7 +583,7 @@ namespace KillerPDF
             // Legacy %TEMP% location — sweep once for users upgrading from older builds
             try
             {
-                foreach (var f in Directory.GetFiles(Path.GetTempPath(), "killerpdf_*.pdf"))
+                foreach (var f in Directory.GetFiles(Path.GetTempPath(), "scalpel_*.pdf"))
                     try { File.Delete(f); } catch { }
             }
             catch { }
@@ -593,7 +593,7 @@ namespace KillerPDF
         {
             try
             {
-                using var key = Registry.CurrentUser.OpenSubKey(@"Software\KillerPDF\Settings");
+                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Scalpel\Settings");
                 return key?.GetValue(name) as string;
             }
             catch { return null; }
@@ -603,7 +603,7 @@ namespace KillerPDF
         {
             try
             {
-                using var key = Registry.CurrentUser.CreateSubKey(@"Software\KillerPDF\Settings");
+                using var key = Registry.CurrentUser.CreateSubKey(@"Software\Scalpel\Settings");
                 key.SetValue(name, value);
             }
             catch { /* best-effort */ }
@@ -611,7 +611,7 @@ namespace KillerPDF
 
         private static bool IsInstalled()
         {
-            using var key = Registry.CurrentUser.OpenSubKey(@"Software\KillerPDF");
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Scalpel");
             if (key is null) return false;
             return key.GetValue("Installed") is int i && i == 1;
         }
@@ -621,7 +621,7 @@ namespace KillerPDF
             using var key = Registry.CurrentUser.OpenSubKey(
                 @"Software\Microsoft\Windows\Shell\Associations\FileAssociations\.pdf\UserChoice");
             return key?.GetValue("ProgId") is string progId &&
-                   progId.Equals("KillerPDF.pdf", StringComparison.OrdinalIgnoreCase);
+                   progId.Equals("Scalpel.pdf", StringComparison.OrdinalIgnoreCase);
         }
 
         // ============================================================
@@ -784,7 +784,7 @@ namespace KillerPDF
             {
                 Text         = alreadyInstalled
                     ? "A newer version is available. Install it or run without updating."
-                    : "Install KillerPDF on this computer, or run it without installing.",
+                    : "Install Scalpel on this computer, or run it without installing.",
                 Foreground   = Brushes.White,
                 TextWrapping = TextWrapping.Wrap,
                 Margin       = new Thickness(0, 0, 0, 16)
@@ -1002,7 +1002,7 @@ namespace KillerPDF
 
             var titleText = new TextBlock
             {
-                Text = $"About KillerPDF",
+                Text = $"About Scalpel",
                 Foreground = fg, VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(12, 0, 0, 0), FontSize = 13, FontWeight = FontWeights.SemiBold
             };
@@ -1078,7 +1078,7 @@ namespace KillerPDF
             };
             var cardContent = new StackPanel();
             cardContent.Children.Add(MakeRow("VERSION", $"v{version}", fgDim, accent,
-                onClick: () => OpenUrl($"https://github.com/SteveTheKiller/KillerPDF/releases/tag/v{version}")));
+                onClick: () => OpenUrl($"https://github.com/YOUR-GH-USER/Scalpel/releases/tag/v{version}")));
             cardContent.Children.Add(MakeRow("PUBLISHER", sigInfo,         fgDim, fg));
             cardContent.Children.Add(MakeRow("THUMBPRINT", thumbInfo,      fgDim, fg, mono, wrap: true));
             cardContent.Children.Add(MakeRow("EXE SHA256", sha256,         fgDim, fg, mono, wrap: true));
@@ -1097,14 +1097,14 @@ namespace KillerPDF
             };
             okBtn.Click += (_, __) => dlg!.Close();
 
-            // KillerPDF logo — clickable link to product site
+            // Scalpel logo — clickable link to product site
             var logo = new TextBlock { FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 4) };
-            var logoHl = new Hyperlink(new Run("KillerPDF"))
+            var logoHl = new Hyperlink(new Run("Scalpel"))
             {
                 Foreground = accent,
                 TextDecorations = null
             };
-            logoHl.Click += (_, _) => OpenUrl("https://pdf.killertools.com");
+            logoHl.Click += (_, _) => OpenUrl("https://scalpel.example.com");
             logo.Inlines.Add(logoHl);
 
             // Tagline with Killer Tools link
@@ -1115,7 +1115,7 @@ namespace KillerPDF
                 Foreground = accent,
                 TextDecorations = null
             };
-            ktHl.Click += (_, _) => OpenUrl("https://killertools.net");
+            ktHl.Click += (_, _) => OpenUrl("https://scalpel.example.com");
             tagline.Inlines.Add(ktHl);
             tagline.Inlines.Add(new Run(".") { Foreground = fgDim });
 
@@ -1188,7 +1188,7 @@ namespace KillerPDF
                         "Security check failed: pdfium.dll integrity verification failed.\n\n" +
                         $"Expected: {BuildInfo.PdfiumSha256}\n" +
                         $"Actual  : {actual}\n\n" +
-                        "The bundled PDF engine may have been tampered with. KillerPDF will exit.",
+                        "The bundled PDF engine may have been tampered with. Scalpel will exit.",
                         $"{AppName} — Security", MessageBoxButton.OK, MessageBoxImage.Error);
                     return false;
                 }
@@ -1214,7 +1214,7 @@ namespace KillerPDF
             {
                 MessageBox.Show(
                     "Installation refused: the running EXE does not carry a valid Authenticode " +
-                    "signature.\n\nOnly signed builds of KillerPDF can be installed.",
+                    "signature.\n\nOnly signed builds of Scalpel can be installed.",
                     AppName, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
@@ -1248,7 +1248,7 @@ namespace KillerPDF
                     CreateShortcut(DesktopLnk, InstallExe);
 
                 // Installed marker
-                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\KillerPDF"))
+                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Scalpel"))
                 {
                     key.SetValue("Installed",    1);
                     key.SetValue("InstallPath",  InstallExe);
@@ -1258,12 +1258,12 @@ namespace KillerPDF
 
                 // Add/Remove Programs entry
                 using (var key = Registry.CurrentUser.CreateSubKey(
-                    @"Software\Microsoft\Windows\CurrentVersion\Uninstall\KillerPDF"))
+                    @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Scalpel"))
                 {
                     key.SetValue("DisplayName",          AppName);
                     key.SetValue("DisplayVersion",
                         Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "");
-                    key.SetValue("Publisher",            "Steve / thekiller.net");
+                    key.SetValue("Publisher",            "Your Name");
                     key.SetValue("InstallLocation",      InstallDir);
                     key.SetValue("DisplayIcon",          $"{InstallExe},0");
                     key.SetValue("UninstallString",      $"\"{InstallExe}\" /uninstall");
@@ -1285,35 +1285,35 @@ namespace KillerPDF
         private static void RegisterFileHandler()
         {
             // ProgID definition
-            using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\KillerPDF.pdf"))
+            using (var k = Registry.CurrentUser.CreateSubKey(@"Software\Classes\Scalpel.pdf"))
                 k.SetValue("", "PDF Document");
 
             using (var k = Registry.CurrentUser.CreateSubKey(
-                @"Software\Classes\KillerPDF.pdf\DefaultIcon"))
+                @"Software\Classes\Scalpel.pdf\DefaultIcon"))
                 k.SetValue("", $"{InstallExe},0");
 
             using (var k = Registry.CurrentUser.CreateSubKey(
-                @"Software\Classes\KillerPDF.pdf\shell\open\command"))
+                @"Software\Classes\Scalpel.pdf\shell\open\command"))
                 k.SetValue("", $"\"{InstallExe}\" \"%1\"");
 
-            // Associate .pdf extension — adds KillerPDF to the "Open with" list
+            // Associate .pdf extension — adds Scalpel to the "Open with" list
             using (var k = Registry.CurrentUser.CreateSubKey(
                 @"Software\Classes\.pdf\OpenWithProgids"))
-                k.SetValue("KillerPDF.pdf", new byte[0], RegistryValueKind.None);
+                k.SetValue("Scalpel.pdf", new byte[0], RegistryValueKind.None);
 
             // RegisteredApplications capability (used by Default Programs UI)
             using (var k = Registry.CurrentUser.CreateSubKey(
-                @"Software\KillerPDF\Capabilities"))
+                @"Software\Scalpel\Capabilities"))
             {
                 k.SetValue("ApplicationName",        AppName);
                 k.SetValue("ApplicationDescription", "Lightweight PDF viewer and editor");
             }
             using (var k = Registry.CurrentUser.CreateSubKey(
-                @"Software\KillerPDF\Capabilities\FileAssociations"))
-                k.SetValue(".pdf", "KillerPDF.pdf");
+                @"Software\Scalpel\Capabilities\FileAssociations"))
+                k.SetValue(".pdf", "Scalpel.pdf");
 
             using (var k = Registry.CurrentUser.CreateSubKey(@"Software\RegisteredApplications"))
-                k.SetValue(AppName, @"Software\KillerPDF\Capabilities");
+                k.SetValue(AppName, @"Software\Scalpel\Capabilities");
 
             // Tell the shell file associations have changed
             SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
@@ -1341,7 +1341,7 @@ namespace KillerPDF
         private static void Uninstall()
         {
             var res = MessageBox.Show(
-                "Uninstall KillerPDF from this computer?",
+                "Uninstall Scalpel from this computer?",
                 $"{AppName} Uninstall",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -1353,16 +1353,16 @@ namespace KillerPDF
             try { File.Delete(DesktopLnk); } catch { }
 
             // Registry cleanup
-            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\KillerPDF"); } catch { }
+            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Scalpel"); } catch { }
             try { Registry.CurrentUser.DeleteSubKeyTree(
-                @"Software\Microsoft\Windows\CurrentVersion\Uninstall\KillerPDF"); } catch { }
-            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\KillerPDF.pdf"); } catch { }
+                @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Scalpel"); } catch { }
+            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\Scalpel.pdf"); } catch { }
 
             try
             {
                 using var k = Registry.CurrentUser.OpenSubKey(
                     @"Software\Classes\.pdf\OpenWithProgids", writable: true);
-                k?.DeleteValue("KillerPDF.pdf", throwOnMissingValue: false);
+                k?.DeleteValue("Scalpel.pdf", throwOnMissingValue: false);
             }
             catch { }
 
@@ -1377,7 +1377,7 @@ namespace KillerPDF
             SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
 
             // Self-delete: deferred via cmd batch so the EXE can exit first
-            string bat = Path.Combine(Path.GetTempPath(), "killerpdf_uninstall.bat");
+            string bat = Path.Combine(Path.GetTempPath(), "scalpel_uninstall.bat");
             File.WriteAllText(bat,
                 "@echo off\r\n" +
                 "ping -n 3 127.0.0.1 >nul\r\n" +
@@ -1389,7 +1389,7 @@ namespace KillerPDF
                 UseShellExecute = true
             });
 
-            MessageBox.Show("KillerPDF has been uninstalled.", AppName,
+            MessageBox.Show("Scalpel has been uninstalled.", AppName,
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }

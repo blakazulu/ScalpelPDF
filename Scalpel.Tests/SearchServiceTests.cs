@@ -1,7 +1,7 @@
-using KillerPDF.Services;
+using Scalpel.Services;
 using Xunit;
 
-namespace KillerPDF.Tests
+namespace Scalpel.Tests
 {
     public class SearchServiceTests
     {

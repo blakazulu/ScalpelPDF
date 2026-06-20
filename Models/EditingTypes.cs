@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-namespace KillerPDF
+namespace Scalpel
 {
     public enum EditTool { Select, Text, Highlight, Draw, Signature, Image, Crop }
 

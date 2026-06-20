@@ -1,8 +1,8 @@
-# KillerPDF "Studio" UI Redesign — Implementation Plan
+# Scalpel "Studio" UI Redesign — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace KillerPDF's single-row icon-soup toolbar with a task-based mode-tab layout (View/Edit/Pages/Sign) and apply the "Studio" visual language (Geist font, Tabler icons, amber accent) across all six themes, overlays, and dialogs.
+**Goal:** Replace Scalpel's single-row icon-soup toolbar with a task-based mode-tab layout (View/Edit/Pages/Sign) and apply the "Studio" visual language (Geist font, Tabler icons, amber accent) across all six themes, overlays, and dialogs.
 
 **Architecture:** WPF monolith — `MainWindow.xaml` (~1318 lines) + `MainWindow.xaml.cs` (~9200 lines, one `partial class`). The redesign is concentrated in XAML structure, a new shared style dictionary, rewritten theme dictionaries, two bundled fonts, and **additive** code-behind for mode switching. Existing Click/Checked handlers are reused verbatim — controls are regrouped, not rewritten. PDF pipelines, installer, integrity check, and persistence are untouched.
 
@@ -32,7 +32,7 @@
 - `Themes/_Shared.xaml` — non-color styles (buttons, mode tabs, pills, swatches, scrollbar, context menu, overlay card) + `FontUI`/`FontIcon` `FontFamily` resources + `Ico_*` glyph string map. Merged at index ≥ 2.
 
 **Modified files:**
-- `KillerPDF.csproj` — add font `Resource` items.
+- `Scalpel.csproj` — add font `Resource` items.
 - `App.xaml` — merge `_Shared.xaml` at index 2.
 - `Themes/Dark.xaml`, `Light.xaml`, `HighContrast.xaml`, `Blood.xaml`, `Greed.xaml`, `Cyanotic.xaml` — full Studio token sets.
 - `MainWindow.xaml` — toolbar region (Grid.Row 1) restructured into tab strip + persistent groups + mode panels + contextual host; title/sidebar/status/overlays restyled.
@@ -55,7 +55,7 @@
 
 **Files:**
 - Create: `Resources/Fonts/Geist-Regular.ttf`, `Geist-Medium.ttf`, `Geist-SemiBold.ttf`, `tabler-icons.ttf`
-- Modify: `KillerPDF.csproj`
+- Modify: `Scalpel.csproj`
 - Create: `Themes/_Shared.xaml`
 - Modify: `App.xaml`
 
@@ -66,7 +66,7 @@
 
 - [x] **Step 2: Family names confirmed.** Geist resolves as a single WPF family **`Geist`** with weights 400/500/600 (Medium/SemiBold carry typographic-family nameID 16 = `Geist`), so `#Geist` + `FontWeight="Medium"/"SemiBold"` works. Tabler family name is **`tabler-icons`**. The `pack` URIs below use these exact names.
 
-- [ ] **Step 3: Add fonts as Resource items.** In `KillerPDF.csproj`, inside an `<ItemGroup>`:
+- [ ] **Step 3: Add fonts as Resource items.** In `Scalpel.csproj`, inside an `<ItemGroup>`:
 
 ```xml
 <ItemGroup>
@@ -117,7 +117,7 @@
 - [ ] **Step 8: Commit.**
 
 ```bash
-git add Resources/Fonts KillerPDF.csproj Themes/_Shared.xaml App.xaml
+git add Resources/Fonts Scalpel.csproj Themes/_Shared.xaml App.xaml
 git commit -m "Bundle Geist + Tabler fonts and _Shared resource dictionary"
 ```
 
@@ -246,7 +246,7 @@ git commit -m "Add Tabler icon glyph map to _Shared resources"
 - [ ] **Step 4: Verify key parity.** Run this check — all six files must list the identical key set:
 
 ```bash
-cd "C:/Code/Personal/KillerPDF" && for f in Themes/Dark Themes/Light Themes/HighContrast Themes/Blood Themes/Greed Themes/Cyanotic; do echo "== $f =="; grep -oE 'x:Key="[^"]+"' "$f.xaml" | sort | md5sum; done
+cd "C:/Code/Personal/Scalpel" && for f in Themes/Dark Themes/Light Themes/HighContrast Themes/Blood Themes/Greed Themes/Cyanotic; do echo "== $f =="; grep -oE 'x:Key="[^"]+"' "$f.xaml" | sort | md5sum; done
 ```
 
 Expected: every theme prints the **same md5sum** (identical key sets). If any differs, add the missing keys.
@@ -699,7 +699,7 @@ git commit -m "Restyle overlays, dialogs, Print Preview, and Signature window to
 - [ ] **Step 1: Find leftover Segoe references.** Run:
 
 ```bash
-cd "C:/Code/Personal/KillerPDF" && grep -rn "Segoe MDL2 Assets\|Segoe UI" --include=*.xaml --include=*.cs . | grep -v "_Shared.xaml"
+cd "C:/Code/Personal/Scalpel" && grep -rn "Segoe MDL2 Assets\|Segoe UI" --include=*.xaml --include=*.cs . | grep -v "_Shared.xaml"
 ```
 
 - [ ] **Step 2: Replace each** remaining `FontFamily="Segoe MDL2 Assets"` with `{DynamicResource FontIcon}` (and convert its `&#x....;` content to the matching `Ico_*` resource), and each hardcoded `FontFamily="Segoe UI"` with `{DynamicResource FontUI}`. Set the `Window`-level default `FontFamily="{DynamicResource FontUI}"` on `MainWindow` (`1`–`15`) so all text inherits Geist.

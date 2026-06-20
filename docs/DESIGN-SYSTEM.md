@@ -1,6 +1,6 @@
-# KillerPDF Design System — "Studio"
+# Scalpel Design System — "Studio"
 
-The visual + interaction system for KillerPDF's WPF UI. This is the living reference for how the app looks and how to extend it consistently. It documents what is **actually implemented** (token names, style keys, glyph keys, file locations) — not aspirations.
+The visual + interaction system for Scalpel's WPF UI. This is the living reference for how the app looks and how to extend it consistently. It documents what is **actually implemented** (token names, style keys, glyph keys, file locations) — not aspirations.
 
 - **Pre-build decision record:** `docs/superpowers/specs/2026-06-20-ui-redesign-studio-design.md`
 - **Control-by-control map:** `docs/UI-REFERENCE.md`
@@ -25,7 +25,7 @@ Top to bottom, the main window (`MainWindow.xaml`, a 5-row `Grid`):
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│ ● KillerPDF — report.pdf                      —  ▢  ✕    │  Row 0 · title bar      (h 32)
+│ ● Scalpel — report.pdf                      —  ▢  ✕    │  Row 0 · title bar      (h 32)
 ├─────────────────────────────────────────────────────────┤
 │ View  [Edit]  Pages  Sign                     🔍   ⚙     │  Row 1 · mode tab strip (h 40)
 ├─────────────────────────────────────────────────────────┤
@@ -175,7 +175,7 @@ The contextual settings bars (Text/Highlight/Draw/Crop), the Search bar, the Sig
 - `Themes/*.xaml` — six theme token dicts (identical key sets).
 - `Themes/_Shared.xaml` — the design system (non-color).
 - `Strings/*.xaml` — six locale string dicts (identical key sets).
-- `Resources/Fonts/Geist-{Regular,Medium,SemiBold}.ttf`, `tabler-icons.ttf` — bundled as `Resource` build items in `KillerPDF.csproj`.
+- `Resources/Fonts/Geist-{Regular,Medium,SemiBold}.ttf`, `tabler-icons.ttf` — bundled as `Resource` build items in `Scalpel.csproj`.
 - `Services/ThemeManager.cs` (in-place per-key theme update + DWM title bar) · `Services/LocaleManager.cs` (wholesale strings swap).
 
 ---

@@ -3,7 +3,7 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ================================================================
-         KillerPDF  —  Türkçe (tr-TR) metinleri
+         Scalpel  —  Türkçe (tr-TR) metinleri
          ================================================================ -->
 
     <!-- ── Araç çubuğu ipuçları ─────────────────────────────────────── -->
@@ -36,7 +36,7 @@
     <sys:String x:Key="Str_TT_ExpandSidebar">Kenar çubuğunu genişlet</sys:String>
     <sys:String x:Key="Str_TT_KeyboardShortcuts">Klavye kısayolları (Ctrl+?)</sys:String>
     <sys:String x:Key="Str_TT_Settings">Ayarlar</sys:String>
-    <sys:String x:Key="Str_TT_About">KillerPDF Hakkında</sys:String>
+    <sys:String x:Key="Str_TT_About">Scalpel Hakkında</sys:String>
 
     <!-- ── Hakkında katmanı ──────────────────────────────────────────── -->
     <sys:String x:Key="Str_About_Version">SÜRÜM</sys:String>
@@ -89,7 +89,7 @@
     <!-- ── Durum çubuğu ──────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Ready">Hazır</sys:String>
     <sys:String x:Key="Str_Portable">KURULUMSUZ</sys:String>
-    <sys:String x:Key="Str_InstallBtn">KillerPDF'i yükle...</sys:String>
+    <sys:String x:Key="Str_InstallBtn">Scalpel'i yükle...</sys:String>
 
     <!-- ── Durum mesajları (biçim dizeleri — string.Format kullanır) ── -->
     <sys:String x:Key="Str_Opened">Açıldı {0} - {1} sayfa</sys:String>
@@ -118,16 +118,16 @@
     <sys:String x:Key="Str_RotateFailed">Döndürme başarısız: {0}</sys:String>
 
     <!-- ── İletişim kutusu metinleri ────────────────────────────────── -->
-    <sys:String x:Key="Str_Dlg_InstallTitle">KillerPDF'i Yükle</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">KillerPDF kullanıcı profilinize yüklensin mi?
+    <sys:String x:Key="Str_Dlg_InstallTitle">Scalpel'i Yükle</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">Scalpel kullanıcı profilinize yüklensin mi?
 
-Bu işlem uygulamayı %LocalAppData%\KillerPDF konumuna kopyalar ve bir Başlat Menüsü kısayolu oluşturur.
+Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Menüsü kısayolu oluşturur.
 İstediğiniz zaman Program Ekle/Kaldır üzerinden kaldırabilirsiniz.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">Kaydedilmemiş değişiklikleriniz var. Bu dosya kaydedilmeden kapatılsın mı?</sys:String>
-    <sys:String x:Key="Str_Dlg_UnsavedExit">Kaydedilmemiş değişiklikleriniz var. KillerPDF kaydedilmeden kapatılsın mı?</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">Kaydedilmemiş değişiklikleriniz var. Scalpel kaydedilmeden kapatılsın mı?</sys:String>
     <sys:String x:Key="Str_Dlg_FailedOpen">PDF açılamadı:
 {0}</sys:String>
-    <sys:String x:Key="Str_Dlg_AppTitle">KillerPDF</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
 
     <!-- ── Tema adları ───────────────────────────────────────────────── -->

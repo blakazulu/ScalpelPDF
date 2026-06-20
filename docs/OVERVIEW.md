@@ -1,12 +1,12 @@
-# KillerPDF — Complete Overview
+# Scalpel — Complete Overview
 
-A full reference to what KillerPDF is, what it does, and how it is built. For the short, working-context version aimed at AI assistants, see [`CLAUDE.md`](../CLAUDE.md). For end-user release notes, see [`CHANGELOG.md`](../CHANGELOG.md).
+A full reference to what Scalpel is, what it does, and how it is built. For the short, working-context version aimed at AI assistants, see [`CLAUDE.md`](../CLAUDE.md). For end-user release notes, see [`CHANGELOG.md`](../CHANGELOG.md).
 
 ---
 
 ## 1. What it's for
 
-KillerPDF is a **local-only, portable PDF editor for Windows**, written as a reaction to Adobe Acrobat: no subscription, no account, no telemetry, no cloud, no file-association hijacking. The author's stated goal is "the PDF equivalent of Notepad" — a tool field techs can drop on a machine and use immediately.
+Scalpel is a **local-only, portable PDF editor for Windows**, written as a reaction to Adobe Acrobat: no subscription, no account, no telemetry, no cloud, no file-association hijacking. The author's stated goal is "the PDF equivalent of Notepad" — a tool field techs can drop on a machine and use immediately.
 
 Design pillars:
 
@@ -15,7 +15,7 @@ Design pillars:
 - **Offline and private.** Nothing phones home. All state lives in the registry and `%LOCALAPPDATA%`.
 - **GPLv3.** Forks/redistributions must stay GPLv3 with source available; `dotnet publish` automatically produces a corresponding-source zip.
 
-**Target platform:** Windows 10/11 x64. Landing page: [pdf.killertools.net](https://pdf.killertools.net). Distributed via direct download, `winget install killerpdf`, and Chocolatey.
+**Target platform:** Windows 10/11 x64. Landing page: [scalpel.example.com](https://scalpel.example.com). Distributed via direct download, `winget install scalpel`, and Chocolatey.
 
 ---
 
@@ -57,7 +57,7 @@ Design pillars:
 ### Stack & toolchain
 - **Language/runtime:** C# on **WPF**, targeting **.NET Framework 4.8** (`net48`), x64.
 - **Build SDK:** requires the **.NET 8 SDK or newer** to build, even though output is `net48`. `PolySharp` + `Microsoft.NETFramework.ReferenceAssemblies` backfill modern language features (collection expressions `[]`, target-typed `new`, switch expressions) onto net48.
-- **Single-file packaging:** **Costura.Fody** (+ Fody) embeds all managed and native dependencies into one `KillerPDF.exe`.
+- **Single-file packaging:** **Costura.Fody** (+ Fody) embeds all managed and native dependencies into one `Scalpel.exe`.
 - **Nullable** reference types and **ImplicitUsings** are enabled; `LangVersion=latest`.
 - **MVVM toolkit:** `CommunityToolkit.Mvvm` is referenced but the main window is deliberately code-behind, not a formal MVVM architecture.
 
@@ -73,8 +73,8 @@ Design pillars:
 
 ### Project layout
 ```
-KillerPDF.sln
-├─ KillerPDF.csproj           WinExe, the app
+Scalpel.sln
+├─ Scalpel.csproj           WinExe, the app
 │  ├─ App.xaml(.cs)           Entry point + installer + crash handling + settings/temp lifecycle
 │  ├─ MainWindow.xaml(.cs)    The monolith — almost all UI/editing logic (~9.2k LOC code-behind)
 │  ├─ PrintPreviewWindow.cs   Custom print dialog with preview
@@ -89,7 +89,7 @@ KillerPDF.sln
 │  │   └─ LocaleManager.cs    String dictionaries
 │  ├─ Themes/*.xaml           6 theme ResourceDictionaries
 │  └─ Strings/*.xaml          Per-locale string ResourceDictionaries
-├─ KillerPDF.Tests/           xUnit tests (link source files directly)
+├─ Scalpel.Tests/           xUnit tests (link source files directly)
 ├─ build/bundle-source.ps1    GPL3 source-zip bundler (runs after Publish)
 └─ release.ps1                Build → sign → verify → hash → release pipeline
 ```
@@ -106,7 +106,7 @@ KillerPDF.sln
 
 **5. Hot-swappable theme/locale via merged dictionaries.** `Application.Current.Resources.MergedDictionaries` is a fixed two-slot array: **index 0 = theme**, **index 1 = strings**. `ThemeManager` updates the theme dict **in place per key** (not structural add/remove) specifically to avoid a synchronous `ResourcesChanged` firing `FindResource` before the new dict is settled (`ResourceReferenceKeyNotFoundException`). It also sets the native dark title bar through `DwmSetWindowAttribute` P/Invoke, and force-refreshes icon colors. Adding a language = add `Strings/<locale>.xaml`, a `Locale` enum case, and a `pack://` URI case in `LocaleManager`.
 
-**6. App.xaml.cs is also the installer.** Beyond being the entry point, it: registers three unhandled-exception sinks (Dispatcher, AppDomain, unobserved Task — note `AccessViolationException` is intentionally **not** caught on net48), handles the `/uninstall` flag from Add/Remove Programs, performs per-user self-install to `%LOCALAPPDATA%\Programs\KillerPDF` with `.pdf` ProgId registration and Start-Menu/Desktop shortcuts (no UAC), and verifies pdfium integrity at startup.
+**6. App.xaml.cs is also the installer.** Beyond being the entry point, it: registers three unhandled-exception sinks (Dispatcher, AppDomain, unobserved Task — note `AccessViolationException` is intentionally **not** caught on net48), handles the `/uninstall` flag from Add/Remove Programs, performs per-user self-install to `%LOCALAPPDATA%\Programs\Scalpel` with `.pdf` ProgId registration and Start-Menu/Desktop shortcuts (no UAC), and verifies pdfium integrity at startup.
 
 **7. pdfium integrity gate.** `BuildInfo.PdfiumSha256` holds the expected hash. At startup `CheckPdfiumIntegrity()` decompresses the Costura-embedded pdfium resource and compares; a mismatch aborts the process (`Shutdown(2)`). All-zeros (`PdfiumSha256Disabled`) or a non-Costura dev build skips the check. `release.ps1` writes the real hash before each signed build.
 
@@ -115,11 +115,11 @@ KillerPDF.sln
 ### Persistence map
 | Data | Location |
 |---|---|
-| Settings (theme, locale, view mode, window size, zoom, fit mode) | Registry `HKCU\Software\KillerPDF\Settings` |
-| Install / file-handler state | Registry `HKCU\Software\KillerPDF` + standard Uninstall key |
-| Saved signatures | `%LOCALAPPDATA%\KillerPDF\signatures.json` |
-| Crash logs (rolling, 20 MB cap) | `%LOCALAPPDATA%\KillerPDF\Logs\crash_*.log` |
-| Session temp PDFs | `killerpdf_*.pdf`, swept on startup/exit |
+| Settings (theme, locale, view mode, window size, zoom, fit mode) | Registry `HKCU\Software\Scalpel\Settings` |
+| Install / file-handler state | Registry `HKCU\Software\Scalpel` + standard Uninstall key |
+| Saved signatures | `%LOCALAPPDATA%\Scalpel\signatures.json` |
+| Crash logs (rolling, 20 MB cap) | `%LOCALAPPDATA%\Scalpel\Logs\crash_*.log` |
+| Session temp PDFs | `scalpel_*.pdf`, swept on startup/exit |
 
 ---
 
@@ -132,8 +132,8 @@ dotnet test                       # xUnit tests
 dotnet test --filter "FullyQualifiedName~SearchService"   # a single test class
 ```
 
-- **Publish** triggers the `BundleSource` MSBuild target (`build/bundle-source.ps1`) → `KillerPDF-<version>-src.zip` for GPL3 corresponding source.
-- **Tests** (`KillerPDF.Tests`, xUnit) link the source files directly into the test project (`<Compile Include="..\Services\..">`) rather than referencing the WinExe. Moving a tested file means updating those link paths. Covered today: `SearchService`, `SignatureStore`.
+- **Publish** triggers the `BundleSource` MSBuild target (`build/bundle-source.ps1`) → `Scalpel-<version>-src.zip` for GPL3 corresponding source.
+- **Tests** (`Scalpel.Tests`, xUnit) link the source files directly into the test project (`<Compile Include="..\Services\..">`) rather than referencing the WinExe. Moving a tested file means updating those link paths. Covered today: `SearchService`, `SignatureStore`.
 - **`release.ps1`** is the production pipeline: locate/pre-hash `pdfium.dll` → write `BuildInfo.cs` → build (Release/net48/x64) → Authenticode sign (SimplySign/signtool) → **`signtool verify /pa` gate that aborts the release on failure** → SHA256 → summary. Not for everyday dev.
 - **Distribution automation:** `.github/workflows/chocolatey-release.yml` and `winget-release.yml`; packaging metadata under `choco/`.
 

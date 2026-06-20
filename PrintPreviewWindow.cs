@@ -12,10 +12,10 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace KillerPDF
+namespace Scalpel
 {
     /// <summary>
-    /// KillerPDF's own print dialog with a working preview. WPF's built-in PrintDialog
+    /// Scalpel's own print dialog with a working preview. WPF's built-in PrintDialog
     /// reports "This app doesn't support print preview", so we render the rasterized
     /// pages ourselves, expose printer / orientation / copies / page-range settings,
     /// and drive the spooler via a non-UI PrintDialog when the user clicks Print.
@@ -51,7 +51,7 @@ namespace KillerPDF
             _rasterW = rasterW;
             _rasterH = rasterH;
 
-            Title  = "KillerPDF - Print";
+            Title  = "Scalpel - Print";
             Width  = 920;
             Height = 700;
             MinWidth  = 720;
@@ -154,7 +154,7 @@ namespace KillerPDF
             titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var titleText = new TextBlock
             {
-                Text       = "KillerPDF – Print",
+                Text       = "Scalpel – Print",
                 Foreground = R("TextPrimary"),
                 FontWeight = FontWeights.SemiBold,
                 FontSize   = (double)Application.Current.FindResource("FsDialogTitle"),
@@ -421,7 +421,7 @@ namespace KillerPDF
         {
             if (_queue == null)
             {
-                KillerDialog.Show(this, "No printer is available.", "KillerPDF",
+                KillerDialog.Show(this, "No printer is available.", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -429,7 +429,7 @@ namespace KillerPDF
             var indices = ParseRange(_pagesBox.Text, _pages.Length);
             if (indices.Count == 0)
             {
-                KillerDialog.Show(this, "No valid pages in that range.", "KillerPDF",
+                KillerDialog.Show(this, "No valid pages in that range.", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
@@ -471,7 +471,7 @@ namespace KillerPDF
                     fixedDoc.Pages.Add(pc);
                 }
 
-                pd.PrintDocument(fixedDoc.DocumentPaginator, "KillerPDF");
+                pd.PrintDocument(fixedDoc.DocumentPaginator, "Scalpel");
                 PrintedPageCount = indices.Count;
                 DialogResult = true;
                 Close();
@@ -479,7 +479,7 @@ namespace KillerPDF
             catch (Exception ex)
             {
                 KillerDialog.Show(this, $"Print failed:\n{ex.GetType().Name}: {ex.Message}",
-                    "KillerPDF", MessageBoxButton.OK, MessageBoxImage.Error);
+                    "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

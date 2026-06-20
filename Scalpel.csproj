@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Resources\kp-icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\scalpel.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Version>1.5.1.3</Version>
     <AssemblyVersion>1.5.1.3</AssemblyVersion>
@@ -47,11 +47,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="KillerPDF.Tests\**" />
+    <Compile Remove="Scalpel.Tests\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\kp-icon.ico" />
+    <Resource Include="Resources\scalpel.ico" />
     <Resource Include="Resources\Fonts\Geist-Regular.ttf" />
     <Resource Include="Resources\Fonts\Geist-Medium.ttf" />
     <Resource Include="Resources\Fonts\Geist-SemiBold.ttf" />

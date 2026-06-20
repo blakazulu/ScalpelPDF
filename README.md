@@ -1,17 +1,14 @@
-# KillerPDF
-
-[![oosmetrics](https://api.oosmetrics.com/api/v1/badge/achievement/bf0a2893-0ce5-4fc8-a6cc-084ad0722ed2.svg)](https://oosmetrics.com/repo/SteveTheKiller/KillerPDF)
-[![oosmetrics](https://api.oosmetrics.com/api/v1/badge/achievement/dd592456-00ad-445d-b97b-21e44ee4b44e.svg)](https://oosmetrics.com/repo/SteveTheKiller/KillerPDF)
+# Scalpel
 
 PDF editor for field techs. View, annotate, merge, split, edit text, draw, sign, print, flatten, and open password-protected PDFs without an Adobe subscription or a phone-home. Install or run portable. Single Windows EXE, ~6 MB zipped, no runtime install required.
 
-Landing page is hosted at [pdf.killertools.net](https://pdf.killertools.net)
+Landing page is hosted at [scalpel.example.com](https://scalpel.example.com)
 
 ## Why this exists
 
 I hate Adobe. Acrobat is bloated, tries to hijack file associations, wants a subscription to do basic things, and phones home constantly. Most of the "free" alternatives are either ad-riddled, cloud-based, or rebrands of the same PDF engine sold under three different names.
 
-KillerPDF is what I wanted: local-only, portable, no account, no telemetry. The PDF equivalent of Notepad.
+Scalpel is what I wanted: local-only, portable, no account, no telemetry. The PDF equivalent of Notepad.
 
 ## Features
 
@@ -43,22 +40,22 @@ KillerPDF is what I wanted: local-only, portable, no account, no telemetry. The 
 Six themes to choose from:
 
 **Dark**
-![KillerPDF - Dark theme](screenshots/6_Dark.png)
+![Scalpel - Dark theme](screenshots/6_Dark.png)
 
 **Blood**
-![KillerPDF - Blood theme](screenshots/1_Blood.png)
+![Scalpel - Blood theme](screenshots/1_Blood.png)
 
 **Greed**
-![KillerPDF - Greed theme](screenshots/2_Greed.png)
+![Scalpel - Greed theme](screenshots/2_Greed.png)
 
 **Cyanotic**
-![KillerPDF - Cyanotic theme](screenshots/3_Cyanotic.png)
+![Scalpel - Cyanotic theme](screenshots/3_Cyanotic.png)
 
 **High Contrast**
-![KillerPDF - High Contrast theme](screenshots/4_High_Contrast.png)
+![Scalpel - High Contrast theme](screenshots/4_High_Contrast.png)
 
 **Light**
-![KillerPDF - Light theme](screenshots/5_Light.png)
+![Scalpel - Light theme](screenshots/5_Light.png)
 
 ## Requirements
 
@@ -68,27 +65,27 @@ Six themes to choose from:
 ## Download
 
 ```powershell
-winget install killerpdf
+winget install scalpel
 ```
 
-- Prebuilt binary: <https://github.com/SteveTheKiller/KillerPDF/releases/latest/download/KillerPDF.exe>
-- Source (GPL3 corresponding source for this release): <https://github.com/SteveTheKiller/KillerPDF/releases/download/v1.5.1/KillerPDF-1.5.1-src.zip>
+- Prebuilt binary: <https://github.com/YOUR-GH-USER/Scalpel/releases/latest/download/Scalpel.exe>
+- Source (GPL3 corresponding source for this release): <https://github.com/YOUR-GH-USER/Scalpel/releases/download/v1.5.1/Scalpel-1.5.1-src.zip>
 
 ## Build from source
 
 ```powershell
-git clone https://github.com/SteveTheKiller/KillerPDF.git
-cd KillerPDF
+git clone https://github.com/YOUR-GH-USER/Scalpel.git
+cd Scalpel
 dotnet publish -c Release
 ```
 
-Output lands in `bin/Release/net48/publish/`. The publish step produces a single Costura-bundled `KillerPDF.exe` plus a versioned `KillerPDF-<version>-src.zip` for GPL3 source distribution.
+Output lands in `bin/Release/net48/publish/`. The publish step produces a single Costura-bundled `Scalpel.exe` plus a versioned `Scalpel-<version>-src.zip` for GPL3 source distribution.
 
 Requires the .NET 8 SDK or later to build (even though the output targets .NET Framework 4.8).
 
 ### Microsoft Store / MSIX package
 
-The same `KillerPDF.exe` can be wrapped into an MSIX for the Microsoft Store. When run from a package, the app detects MSIX and disables its self-installer (the OS/package owns install, uninstall, and the `.pdf` association). Build a local test package with:
+The same `Scalpel.exe` can be wrapped into an MSIX for the Microsoft Store. When run from a package, the app detects MSIX and disables its self-installer (the OS/package owns install, uninstall, and the `.pdf` association). Build a local test package with:
 
 ```powershell
 pwsh -File packaging\build-msix.ps1 -SelfSign
@@ -102,4 +99,4 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-GPLv3. See [LICENSE](LICENSE). If you fork, modify, or redistribute KillerPDF, your version must also be released under GPLv3 with source available. No exceptions for commercial rebrands.
+GPLv3. See [LICENSE](LICENSE). If you fork, modify, or redistribute Scalpel, your version must also be released under GPLv3 with source available. No exceptions for commercial rebrands.
