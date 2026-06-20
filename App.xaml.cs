@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -109,9 +110,48 @@ namespace Scalpel
 
             ShutdownMode = ShutdownMode.OnLastWindowClose;
             CleanupStaleTemps();
+
+            // Logging is on by default; "0" disables it.
+            bool loggingEnabled = GetSetting("LoggingEnabled") != "0";
+            Scalpel.Services.Logger.Init(enabled: loggingEnabled);
+            RegisterGlobalClickLogging();
+            var ver = typeof(App).Assembly.GetName().Version?.ToString() ?? "?";
+            Scalpel.Services.Logger.Info("App", "app.start", $"Scalpel {ver} starting",
+                new { packaged = IsPackaged() });
+
             ThemeManager.Initialize();
             LocaleManager.Initialize();
             new MainWindow().Show();
+        }
+
+        // ============================================================
+        // Global click logging  (one handler for every button/menu click)
+        // ============================================================
+
+        private static bool _clickLoggingRegistered;
+
+        private static void RegisterGlobalClickLogging()
+        {
+            if (_clickLoggingRegistered) return;
+            _clickLoggingRegistered = true;
+            EventManager.RegisterClassHandler(typeof(ButtonBase), ButtonBase.ClickEvent,
+                new RoutedEventHandler(OnAnyControlClicked), handledEventsToo: true);
+            EventManager.RegisterClassHandler(typeof(MenuItem), MenuItem.ClickEvent,
+                new RoutedEventHandler(OnAnyControlClicked), handledEventsToo: true);
+        }
+
+        private static void OnAnyControlClicked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var src = (e.OriginalSource as FrameworkElement) ?? sender as FrameworkElement;
+                string name = !string.IsNullOrEmpty(src?.Name) ? src!.Name : src?.GetType().Name ?? "?";
+                string? label = (src as ContentControl)?.Content as string
+                                ?? (src as ContentControl)?.Content?.ToString();
+                Scalpel.Services.Logger.Info("UI", "click", name,
+                    new { label, type = src?.GetType().Name });
+            }
+            catch { }
         }
 
         // ============================================================
@@ -123,6 +163,8 @@ namespace Scalpel
 
         private void OnDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
+            Scalpel.Services.Logger.Error("Error", "crash.dispatcher", e.Exception.Message, e.Exception);
+            Scalpel.Services.Logger.Flush();
             var logPath = CrashReporter.Capture(e.Exception, "Dispatcher");
             bool cont   = ShowCrashDialog(e.Exception, logPath, isFatal: false);
             e.Handled   = true; // always handle; we manage the exit ourselves
@@ -137,6 +179,8 @@ namespace Scalpel
         {
             var ex = e.ExceptionObject as Exception
                      ?? new Exception(e.ExceptionObject?.ToString() ?? "Unknown error");
+            Scalpel.Services.Logger.Error("Error", "crash.appdomain", ex.Message, ex);
+            Scalpel.Services.Logger.Flush();
             var logPath = CrashReporter.Capture(ex, "AppDomain");
 
             try
@@ -155,6 +199,8 @@ namespace Scalpel
         private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
         {
             e.SetObserved(); // prevent process teardown
+            Scalpel.Services.Logger.Error("Error", "crash.task", e.Exception.Message, e.Exception);
+            Scalpel.Services.Logger.Flush();
             var logPath = CrashReporter.Capture(e.Exception, "TaskScheduler");
 
             try
@@ -471,6 +517,17 @@ namespace Scalpel
             sb.AppendLine();
             sb.Append(FormatExceptionChain(ex));
             return sb.ToString();
+        }
+
+        // ============================================================
+        // App exit
+        // ============================================================
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Scalpel.Services.Logger.Info("App", "app.exit", "Shutting down");
+            Scalpel.Services.Logger.Shutdown();
+            base.OnExit(e);
         }
 
         // ============================================================
