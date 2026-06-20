@@ -1339,6 +1339,7 @@ namespace Scalpel
                     }));
             }
             SetStatus(string.Format(Loc("Str_Opened"), System.IO.Path.GetFileName(displayPath), _doc.PageCount));
+            Scalpel.Services.Logger.Info("File", "open.success", "PDF opened", new { path = displayPath, pages = _doc.PageCount });
         }
 
         private static bool IsPasswordException(Exception ex) =>
@@ -1931,7 +1932,7 @@ namespace Scalpel
                     links.Add(new LinkInfo(cx, cy, cw, ch, tag, tip, i));
                 }
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"GetPageLinks: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "GetPageLinks", "GetPageLinks failed", ex); }
             return links;
         }
 
@@ -2457,7 +2458,7 @@ namespace Scalpel
                         name, curVal, onValue, isReadOnly, cx, cy, cw, ch, options));
                 }
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"GetPageFormFields: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "GetPageFormFields", "GetPageFormFields failed", ex); }
 
             return result;
         }
@@ -2594,7 +2595,7 @@ namespace Scalpel
                 }
                 catch { }
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"WriteFormValuesToDocument: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "WriteFormValuesToDocument", "WriteFormValuesToDocument failed", ex); }
         }
 
         /// <summary>
@@ -2624,7 +2625,7 @@ namespace Scalpel
 
                 AttachAppearance(widgetAnn, xobj);
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"GenerateTextFieldAppearance: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "GenerateTextFieldAppearance", "GenerateTextFieldAppearance failed", ex); }
         }
 
         /// <summary>
@@ -2666,7 +2667,7 @@ namespace Scalpel
 
                 widgetAnn.Elements["/AP"] = apDict;
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"GenerateCheckBoxAppearance: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "GenerateCheckBoxAppearance", "GenerateCheckBoxAppearance failed", ex); }
         }
 
         /// <summary>
@@ -4873,6 +4874,7 @@ namespace Scalpel
             double sigH = sig.CanvasHeight * scale;
             SelectAnnotation(annot, new Rect(pos.X, pos.Y, sigW, sigH));
             SetStatus("Signature placed — drag to reposition, use the corner handle to resize");
+            Scalpel.Services.Logger.Info("Sign", "sign.success", "Signature placed", new { page = pageIdx + 1 });
         }
 
         private void PlaceImageFromDialog(Point pos, int pageIdx)
@@ -7208,9 +7210,11 @@ namespace Scalpel
                 }
                 SaveTempAndReload();
                 SetStatus($"Merged {dlg.FileNames.Length} file(s) - {_doc?.PageCount} total pages");
+                Scalpel.Services.Logger.Info("File", "merge.success", "PDFs merged", new { added = dlg.FileNames.Length });
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("File", "merge.fail", "Merge failed", ex);
                 ScalpelDialog.Show(this, $"Merge failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -7244,7 +7248,7 @@ namespace Scalpel
                 if (destTree != null)
                     WalkNameTree(src, destTree, map);
             }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"BuildNamedDestMap: {ex}"); }
+            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "BuildNamedDestMap", "BuildNamedDestMap failed", ex); }
             return map;
         }
 
@@ -7361,7 +7365,7 @@ namespace Scalpel
                         }
                     }
                 }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"RewriteNamedDestLinks p{pi}: {ex}"); }
+                catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "RewriteNamedDestLinks", "RewriteNamedDestLinks failed", ex); }
             }
         }
 
@@ -7409,9 +7413,11 @@ namespace Scalpel
                     newDoc.AddPage(importDoc.Pages[idx]);
                 newDoc.Save(dlg.FileName);
                 SetStatus(string.Format(Loc("Str_Extracted"), indices.Count, System.IO.Path.GetFileName(dlg.FileName)));
+                Scalpel.Services.Logger.Info("File", "extract.success", "Pages extracted", new { count = indices.Count });
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("File", "extract.fail", "Extract failed", ex);
                 ScalpelDialog.Show(this, $"Split failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -7584,9 +7590,11 @@ namespace Scalpel
                     MarkDirty(false);
                     SetStatus($"Saved to {System.IO.Path.GetFileName(dlg.FileName)}");
                 }
+                Scalpel.Services.Logger.Info("File", "save.success", "PDF saved", new { path = dlg.FileName });
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("File", "save.fail", "Save failed", ex);
                 ScalpelDialog.Show(this, $"Save failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -7696,9 +7704,11 @@ namespace Scalpel
 
                 MarkDirty(false);
                 SetStatus($"Flattened PDF saved to {System.IO.Path.GetFileName(outputPath)}");
+                Scalpel.Services.Logger.Info("File", "flatten.success", "PDF flattened", new { path = outputPath, pages = pageCount });
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("File", "flatten.fail", "Flatten failed", ex);
                 try { ScalpelDialog.Show(this, $"Flatten failed:\n{ex.GetType().Name}: {ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error); }
                 catch { /* dialog failed; overlay still removed in finally */ }
             }
@@ -7852,10 +7862,14 @@ namespace Scalpel
 
                 var preview = new PrintPreviewWindow(this, sources, rasterW!, rasterH!);
                 if (preview.ShowDialog() == true)
+                {
                     SetStatus(string.Format(Loc("Str_Printed"), preview.PrintedPageCount));
+                    Scalpel.Services.Logger.Info("Print", "print.success", "Document printed", new { pages = preview.PrintedPageCount });
+                }
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("Print", "print.fail", "Print failed", ex);
                 try { ScalpelDialog.Show(this, $"Print failed:\n{ex.GetType().Name}: {ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error); }
                 catch { }
             }
