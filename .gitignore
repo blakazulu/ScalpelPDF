@@ -11,6 +11,12 @@ obj/
 publish/
 *.pubxml.user
 
+# MSIX packaging output (staged layout, .msix, dev signing cert/key)
+packaging/out/
+*.msix
+*.pfx
+*.cer
+
 # Local notes / scratch
 *.odt
 

@@ -47,6 +47,42 @@ namespace KillerPDF
         private const uint SHCNF_IDLIST       = 0x0000;
 
         // ============================================================
+        // Packaging identity (MSIX / Microsoft Store)
+        // ============================================================
+        //
+        // When KillerPDF runs from an MSIX package (Store install or sideload), the
+        // package — not the app — owns install, uninstall, file associations, and
+        // shortcuts. All of the self-installer machinery below is therefore disabled
+        // in packaged mode; see IsPackaged() callers.
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int GetCurrentPackageFullName(ref int packageFullNameLength, char[]? packageFullName);
+
+        private const int APPMODEL_ERROR_NO_PACKAGE = 15700;
+
+        private static readonly Lazy<bool> _isPackaged = new(() =>
+        {
+            try
+            {
+                int len = 0;
+                // GetCurrentPackageFullName is only present on Windows 8+; P/Invoke
+                // resolves lazily, so a missing export throws here and we treat it as
+                // unpackaged. A return of APPMODEL_ERROR_NO_PACKAGE means no package.
+                int rc = GetCurrentPackageFullName(ref len, null);
+                return rc != APPMODEL_ERROR_NO_PACKAGE;
+            }
+            catch { return false; }
+        });
+
+        /// <summary>
+        /// True when running from an MSIX package (Microsoft Store or sideload).
+        /// In this mode the self-installer, portable badge, file-association
+        /// registration, and self-uninstall are all suppressed — the package
+        /// manifest and the OS handle those concerns.
+        /// </summary>
+        internal static bool IsPackaged() => _isPackaged.Value;
+
+        // ============================================================
         // Startup
         // ============================================================
 
@@ -60,8 +96,10 @@ namespace KillerPDF
 
             if (!CheckPdfiumIntegrity()) { Shutdown(2); return; }
 
-            // Handle uninstall flag (called by Add/Remove Programs)
-            if (e.Args.Length > 0 &&
+            // Handle uninstall flag (called by Add/Remove Programs). Ignored in
+            // packaged mode — the Store/OS removes MSIX packages, and the desktop
+            // self-uninstall would target a non-existent per-user install dir.
+            if (!IsPackaged() && e.Args.Length > 0 &&
                 string.Equals(e.Args[0], "/uninstall", StringComparison.OrdinalIgnoreCase))
             {
                 Uninstall();
@@ -444,6 +482,10 @@ namespace KillerPDF
         /// </summary>
         internal static bool IsPortable()
         {
+            // A Store/MSIX build is never "portable": the package owns install state,
+            // so the portable badge and the in-app installer must stay hidden.
+            if (IsPackaged()) return false;
+
             string currentExe = Process.GetCurrentProcess().MainModule!.FileName;
             return !string.Equals(currentExe, InstallExe, StringComparison.OrdinalIgnoreCase);
         }
@@ -455,6 +497,11 @@ namespace KillerPDF
         /// </summary>
         internal static void InstallAndRelaunch(string? fileToOpen, bool wantDesktop)
         {
+            // Packaged (Store/MSIX) builds never self-install; the package owns
+            // install state. This path is already unreachable because IsPortable()
+            // hides the badge, but guard defensively.
+            if (IsPackaged()) return;
+
             DoInstall(wantDesktop);
 
             if (!IsDefaultPdfHandler())

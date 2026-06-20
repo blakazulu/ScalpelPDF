@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX package manifest for KillerPDF (Microsoft Store / sideload).
+
+  The {TOKENS} below are substituted by packaging\build-msix.ps1 at pack time:
+    {IdentityName}          Package identity Name   (Partner Center: "Package/Identity/Name")
+    {Publisher}             Publisher subject       (must match the signing cert subject)
+    {PublisherDisplayName}  Human-readable publisher
+    {DisplayName}           App display name
+    {Version}               4-part version, e.g. 1.5.1.0
+
+  For a Store submission, take IdentityName / Publisher / PublisherDisplayName
+  verbatim from Partner Center → Product Identity. For local sideload testing the
+  build script supplies dev defaults and signs with a matching self-signed cert.
+-->
+<Package
+    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+    xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+    IgnorableNamespaces="uap uap3 rescap">
+
+  <Identity
+      Name="{IdentityName}"
+      Publisher="{Publisher}"
+      Version="{Version}"
+      ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>{DisplayName}</DisplayName>
+    <PublisherDisplayName>{PublisherDisplayName}</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Local, portable PDF editor: view, annotate, merge, split, edit text, sign, fill forms, and flatten PDFs. No account, no cloud, no telemetry.</Description>
+  </Properties>
+
+  <Dependencies>
+    <!-- Windows 10 1809 baseline gives a broad install base for a full-trust desktop app. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <!-- Package default language. KillerPDF localizes itself via internal XAML
+         string dictionaries (switchable in Settings), so the package ships no MRT
+         language resources; en-us is the neutral/default language for the listing. -->
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Capabilities>
+    <!-- Full-trust Win32 app: needs no broker capabilities beyond runFullTrust. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+  <Applications>
+    <Application Id="KillerPDF"
+                 Executable="KillerPDF.exe"
+                 EntryPoint="Windows.FullTrustApplication">
+
+      <uap:VisualElements
+          DisplayName="{DisplayName}"
+          Description="Local, portable PDF editor with no account, cloud, or telemetry."
+          BackgroundColor="transparent"
+          Square150x150Logo="Assets\Square150x150Logo.png"
+          Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile
+            Square71x71Logo="Assets\Square71x71Logo.png"
+            Square310x310Logo="Assets\Square310x310Logo.png"
+            Wide310x150Logo="Assets\Wide310x150Logo.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+            <uap:ShowOn Tile="wide310x150Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="transparent" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- Register .pdf so KillerPDF appears in "Open with" and can be set default.
+             Opening a .pdf launches the app with the file path as argv[1], which the
+             existing command-line open path in MainWindow already handles. -->
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="pdf" Parameters="&quot;%1&quot;">
+            <uap:DisplayName>PDF Document</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="application/pdf">.pdf</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+</Package>

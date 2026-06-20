@@ -86,6 +86,16 @@ Output lands in `bin/Release/net48/publish/`. The publish step produces a single
 
 Requires the .NET 8 SDK or later to build (even though the output targets .NET Framework 4.8).
 
+### Microsoft Store / MSIX package
+
+The same `KillerPDF.exe` can be wrapped into an MSIX for the Microsoft Store. When run from a package, the app detects MSIX and disables its self-installer (the OS/package owns install, uninstall, and the `.pdf` association). Build a local test package with:
+
+```powershell
+pwsh -File packaging\build-msix.ps1 -SelfSign
+```
+
+See [`docs/STORE-PUBLISHING.md`](docs/STORE-PUBLISHING.md) for sideload testing and Store submission (including the GPLv3-on-the-Store licensing note).
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
