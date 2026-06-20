@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -3425,7 +3425,7 @@ namespace KillerPDF
             var bar = new Border
             {
                 BorderThickness = new Thickness(1),
-                CornerRadius    = new CornerRadius(4),
+                CornerRadius    = new CornerRadius(8),
                 Padding         = new Thickness(8, 6, 8, 6)
             };
             bar.SetResourceReference(Border.BackgroundProperty,  "BgModal");
@@ -3443,7 +3443,7 @@ namespace KillerPDF
             var headerLbl = new TextBlock
             {
                 Text              = "CropBox (pts):",
-                FontFamily        = new FontFamily("Segoe UI"),
+                FontFamily        = (FontFamily)FindResource("FontUI"),
                 FontSize          = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin            = new Thickness(0, 0, 6, 0)
@@ -3457,7 +3457,7 @@ namespace KillerPDF
                 var fieldLbl = new TextBlock
                 {
                     Text              = lbl,
-                    FontFamily        = new FontFamily("Segoe UI"),
+                    FontFamily        = (FontFamily)FindResource("FontUI"),
                     FontSize          = 11,
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin            = new Thickness(0, 0, 2, 0)
@@ -3468,7 +3468,7 @@ namespace KillerPDF
                 {
                     Width             = 52,
                     Height            = 22,
-                    FontFamily        = new FontFamily("Segoe UI"),
+                    FontFamily        = (FontFamily)FindResource("FontUI"),
                     FontSize          = 11,
                     BorderThickness   = new Thickness(1),
                     Padding           = new Thickness(3, 1, 3, 1),
@@ -3501,7 +3501,7 @@ namespace KillerPDF
             btnStyle.Setters.Add(new Setter(Button.PaddingProperty,   new Thickness(8, 3, 8, 3)));
             btnStyle.Setters.Add(new Setter(Button.MarginProperty,    new Thickness(0, 0, 5, 0)));
             btnStyle.Setters.Add(new Setter(Button.CursorProperty,    Cursors.Hand));
-            btnStyle.Setters.Add(new Setter(Button.FontFamilyProperty, new FontFamily("Segoe UI")));
+            btnStyle.Setters.Add(new Setter(Button.FontFamilyProperty, (FontFamily)FindResource("FontUI")));
             btnStyle.Setters.Add(new Setter(Button.FontSizeProperty,   12.0));
 
             // Wire up DynamicResource-equivalent bindings on a crop button.
@@ -3524,7 +3524,7 @@ namespace KillerPDF
             {
                 Width             = 68,
                 Height            = 22,
-                FontFamily        = new FontFamily("Segoe UI"),
+                FontFamily        = (FontFamily)FindResource("FontUI"),
                 FontSize          = 11,
                 BorderThickness   = new Thickness(1),
                 Padding           = new Thickness(3, 1, 3, 1),
@@ -3930,7 +3930,7 @@ namespace KillerPDF
             var colorLbl = new TextBlock
             {
                 Text = "Color:",
-                FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0)
             };
             colorLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -3954,7 +3954,7 @@ namespace KillerPDF
                 if (isActive)
                     swatch.SetResourceReference(Border.BorderBrushProperty, "Accent");
                 else
-                    swatch.BorderBrush = _swatchDimBorder;
+                    swatch.SetResourceReference(Border.BorderBrushProperty, "BorderDim");
                 swatch.MouseLeftButtonDown += (s, e) =>
                 {
                     var c = (Color)((Border)s!).Tag;
@@ -3978,7 +3978,7 @@ namespace KillerPDF
                 var sizeLbl = new TextBlock
                 {
                     Text = "Size:",
-                    FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                    FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                     VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0)
                 };
                 sizeLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -3996,7 +3996,7 @@ namespace KillerPDF
                 var sizeLabel = new TextBlock
                 {
                     Text = $"{_drawWidth:F0}px",
-                    FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                    FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                     VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 0, 0)
                 };
                 sizeLabel.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -4012,7 +4012,7 @@ namespace KillerPDF
             var opacityLbl = new TextBlock
             {
                 Text = "Opacity:",
-                FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0)
             };
             opacityLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -4027,7 +4027,7 @@ namespace KillerPDF
             var opacityLabel = new TextBlock
             {
                 Text = $"{(int)(currentOpacity / 255.0 * 100)}%",
-                FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(4, 0, 0, 0)
             };
             opacityLabel.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -4053,7 +4053,7 @@ namespace KillerPDF
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                CornerRadius = new CornerRadius(0, 0, 4, 4),
+                CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(4),
                 Child = panel,
                 Margin = new Thickness(0, 0, 8, 0)
@@ -4109,7 +4109,7 @@ namespace KillerPDF
             var sizeLbl = new TextBlock
             {
                 Text = "Size:",
-                FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0)
             };
             sizeLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -4153,7 +4153,7 @@ namespace KillerPDF
             var colorLbl = new TextBlock
             {
                 Text = "Color:",
-                FontFamily = new FontFamily("Segoe UI"), FontSize = 11,
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0)
             };
             colorLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
@@ -4176,7 +4176,7 @@ namespace KillerPDF
                 if (isActive)
                     swatch.SetResourceReference(Border.BorderBrushProperty, "Accent");
                 else
-                    swatch.BorderBrush = _swatchDimBorder;
+                    swatch.SetResourceReference(Border.BorderBrushProperty, "BorderDim");
                 swatch.MouseLeftButtonDown += (_, _) => { _textColor = c; ApplyTextStyleToActiveBox(); ShowTextSettings(); };
                 panel.Children.Add(swatch);
             }
@@ -4186,7 +4186,7 @@ namespace KillerPDF
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Top,
-                CornerRadius = new CornerRadius(0, 0, 4, 4),
+                CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(4),
                 Child = panel,
                 Margin = new Thickness(0, 0, 8, 0)
@@ -5797,22 +5797,22 @@ namespace KillerPDF
                 {
                     Width = 260,
                     Height = 28,
-                    FontFamily = new FontFamily("Segoe UI"),
+                    FontFamily = (FontFamily)FindResource("FontUI"),
                     FontSize = 13,
-                    Background = new SolidColorBrush(Color.FromRgb(0x2a, 0x2a, 0x2a)),
-                    Foreground = new SolidColorBrush(Color.FromRgb(0xe0, 0xe0, 0xe0)),
                     BorderBrush = (SolidColorBrush)FindResource("Accent"), SelectionBrush = AccentBrush(),
                     BorderThickness = new Thickness(1),
                     Padding = new Thickness(6, 2, 6, 2),
                     VerticalContentAlignment = VerticalAlignment.Center
                 };
+                _searchBox.SetResourceReference(TextBox.BackgroundProperty, "BgControl");
+                _searchBox.SetResourceReference(TextBox.ForegroundProperty, "TextPrimary");
                 _searchBox.KeyDown += SearchBox_KeyDown;
                 _searchBox.TextChanged += SearchBox_TextChanged;
 
                 _searchStatus = new TextBlock
                 {
                     Foreground = (SolidColorBrush)FindResource("TextSecondary"),
-                    FontFamily = new FontFamily("Segoe UI"),
+                    FontFamily = (FontFamily)FindResource("FontUI"),
                     FontSize = 11,
                     VerticalAlignment = VerticalAlignment.Center,
                     Margin = new Thickness(8, 0, 0, 0)
@@ -5820,17 +5820,18 @@ namespace KillerPDF
 
                 var closeBtn = new Button
                 {
-                    Content = "\ue711",  // MDL2 Cancel glyph \u2014 matches ToolbarButton font
+                    Content = (string)FindResource("Ico_WinClose"),
                     Margin = new Thickness(4, 0, 0, 0),
                     Style = (Style)FindResource("ToolbarButton"),
+                    FontFamily = (FontFamily)FindResource("FontIcon"),
                     ToolTip = "Close search (Esc)"
                 };
                 closeBtn.Click += (s, e) => CloseSearchBar();
 
                 var searchIcon = new TextBlock
                 {
-                    Text = "",  // Segoe MDL2 Search / magnifying glass
-                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    Text = (string)FindResource("Ico_Search"),
+                    FontFamily = (FontFamily)FindResource("FontIcon"),
                     FontSize = 12,
                     Foreground = (SolidColorBrush)FindResource("TextSecondary"),
                     VerticalAlignment = VerticalAlignment.Center,
@@ -5850,16 +5851,16 @@ namespace KillerPDF
 
                 _searchBar = new Border
                 {
-                    Background = new SolidColorBrush(Color.FromRgb(0x1a, 0x1a, 0x1a)),
-                    BorderBrush = (SolidColorBrush)FindResource("BorderDim"),
                     BorderThickness = new Thickness(0, 0, 0, 1),
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Top,
-                    CornerRadius = new CornerRadius(0, 0, 4, 4),
+                    CornerRadius = new CornerRadius(8),
                     Padding = new Thickness(4),
                     Child = panel,
                     Margin = new Thickness(0, 0, 16, 0)
                 };
+                _searchBar.SetResourceReference(Border.BackgroundProperty, "BgPanel");
+                _searchBar.SetResourceReference(Border.BorderBrushProperty, "BorderDim");
 
                 // Add to the preview area grid (parent of ScrollViewer)
                 var previewGrid = PagePreviewPanel.Parent as Grid;
