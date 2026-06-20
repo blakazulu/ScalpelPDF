@@ -10,9 +10,9 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\kp-icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.5.1.1</Version>
-    <AssemblyVersion>1.5.1.1</AssemblyVersion>
-    <FileVersion>1.5.1.1</FileVersion>
+    <Version>1.5.1.2</Version>
+    <AssemblyVersion>1.5.1.2</AssemblyVersion>
+    <FileVersion>1.5.1.2</FileVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
