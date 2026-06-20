@@ -222,6 +222,7 @@ namespace KillerPDF
             BuildContextMenu();
             SetTool(EditTool.Select);
             SetMode(AppMode.View);
+            UpdateViewModeButtons();
             ApplyGrainTexture();
             SourceInitialized += MainWindow_SourceInitialized;
             Closed += (_, _) => { _doc?.Close(); App.CleanupSessionTemps(); };
@@ -286,11 +287,6 @@ namespace KillerPDF
             LangZhCNRadio.IsChecked = curLoc == KillerPDF.Services.Locale.ZhCN;
             LangBnRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.Bn;
             LangTrRadio.IsChecked   = curLoc == KillerPDF.Services.Locale.TrTR;
-            // Sync view mode radios
-            ViewSingleRadio.IsChecked     = _viewMode == ViewMode.Single;
-            ViewContinuousRadio.IsChecked = _viewMode == ViewMode.Continuous;
-            ViewTwoPageRadio.IsChecked    = _viewMode == ViewMode.TwoPage;
-            ViewGridRadio.IsChecked       = _viewMode == ViewMode.Grid;
             SettingsOverlay.Visibility = Visibility.Visible;
         }
 
@@ -352,10 +348,19 @@ namespace KillerPDF
         private void LangTrRadio_Checked(object sender, RoutedEventArgs e)
             => KillerPDF.Services.LocaleManager.Apply(KillerPDF.Services.Locale.TrTR);
 
-        private void ViewSingleRadio_Checked(object sender, RoutedEventArgs e)     { SetViewMode(ViewMode.Single);     SettingsOverlay.Visibility = Visibility.Collapsed; }
-        private void ViewContinuousRadio_Checked(object sender, RoutedEventArgs e) { SetViewMode(ViewMode.Continuous); SettingsOverlay.Visibility = Visibility.Collapsed; }
-        private void ViewTwoPageRadio_Checked(object sender, RoutedEventArgs e)    { SetViewMode(ViewMode.TwoPage);    SettingsOverlay.Visibility = Visibility.Collapsed; }
-        private void ViewGridRadio_Checked(object sender, RoutedEventArgs e)       { SetViewMode(ViewMode.Grid);       SettingsOverlay.Visibility = Visibility.Collapsed; }
+        private void ViewSingle_Click(object sender, RoutedEventArgs e)     { SetViewMode(ViewMode.Single);     UpdateViewModeButtons(); }
+        private void ViewContinuous_Click(object sender, RoutedEventArgs e) { SetViewMode(ViewMode.Continuous); UpdateViewModeButtons(); }
+        private void ViewTwoPage_Click(object sender, RoutedEventArgs e)    { SetViewMode(ViewMode.TwoPage);    UpdateViewModeButtons(); }
+        private void ViewGrid_Click(object sender, RoutedEventArgs e)       { SetViewMode(ViewMode.Grid);       UpdateViewModeButtons(); }
+        private void ViewFit_Click(object sender, RoutedEventArgs e)        => FitToWidth();
+
+        private void UpdateViewModeButtons()
+        {
+            ViewSingleBtn.IsChecked     = _viewMode == ViewMode.Single;
+            ViewContinuousBtn.IsChecked = _viewMode == ViewMode.Continuous;
+            ViewTwoPageBtn.IsChecked    = _viewMode == ViewMode.TwoPage;
+            ViewGridBtn.IsChecked       = _viewMode == ViewMode.Grid;
+        }
 
         private const int  WM_GETMINMAXINFO   = 0x0024;
         private const int  WM_DPICHANGED      = 0x02E0;
@@ -8817,6 +8822,7 @@ namespace KillerPDF
                 _continuousCanvases.Clear();
             }
 
+            UpdateViewModeButtons();
             if (_doc is null) return;
             int idx = PageList.SelectedIndex;
             if (mode == ViewMode.Continuous)

@@ -178,10 +178,10 @@
     <sys:String x:Key="Str_Lbl_MoveUp">向上移動</sys:String>
     <sys:String x:Key="Str_Lbl_MoveDown">向下移動</sys:String>
     <sys:String x:Key="Str_Lbl_Rotate">旋轉</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">適合寬度</sys:String>
     <sys:String x:Key="Str_Lbl_Signature">簽名</sys:String>
 
     <!-- ── View mode ──────────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_ViewMode">檢視模式</sys:String>
     <sys:String x:Key="Str_View_Single">單頁</sys:String>
     <sys:String x:Key="Str_View_Continuous">連續捲動</sys:String>
     <sys:String x:Key="Str_View_TwoPage">雙頁</sys:String>

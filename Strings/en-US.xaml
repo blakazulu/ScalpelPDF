@@ -183,10 +183,10 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Lbl_MoveUp">Move Up</sys:String>
     <sys:String x:Key="Str_Lbl_MoveDown">Move Down</sys:String>
     <sys:String x:Key="Str_Lbl_Rotate">Rotate</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">Fit Width</sys:String>
     <sys:String x:Key="Str_Lbl_Signature">Signature</sys:String>
 
     <!-- ── View mode ──────────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_ViewMode">VIEW MODE</sys:String>
     <sys:String x:Key="Str_View_Single">Single Page</sys:String>
     <sys:String x:Key="Str_View_Continuous">Continuous</sys:String>
     <sys:String x:Key="Str_View_TwoPage">Two Page</sys:String>

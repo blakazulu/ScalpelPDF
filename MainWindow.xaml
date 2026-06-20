@@ -525,8 +525,27 @@
 
             <!-- Mode panels (only one visible at a time) -->
             <Grid Margin="10,0,0,0" VerticalAlignment="Center">
-              <!-- View panel: empty — filled in Task 7 -->
-              <StackPanel x:Name="ModePanelView" Orientation="Horizontal" Visibility="Visible"/>
+              <!-- View panel: view-mode toggles + Fit + Rotate -->
+              <StackPanel x:Name="ModePanelView" Orientation="Horizontal" Visibility="Visible">
+                <ToggleButton x:Name="ViewSingleBtn" Style="{StaticResource StudioToolToggle}" Click="ViewSingle_Click" ToolTip="{DynamicResource Str_View_Single}">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Single}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_View_Single}" VerticalAlignment="Center"/></StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="ViewContinuousBtn" Style="{StaticResource StudioToolToggle}" Click="ViewContinuous_Click" ToolTip="{DynamicResource Str_View_Continuous}" Margin="4,0,0,0">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Continuous}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_View_Continuous}" VerticalAlignment="Center"/></StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="ViewTwoPageBtn" Style="{StaticResource StudioToolToggle}" Click="ViewTwoPage_Click" ToolTip="{DynamicResource Str_View_TwoPage}" Margin="4,0,0,0">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_TwoPage}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_View_TwoPage}" VerticalAlignment="Center"/></StackPanel>
+                </ToggleButton>
+                <ToggleButton x:Name="ViewGridBtn" Style="{StaticResource StudioToolToggle}" Click="ViewGrid_Click" ToolTip="{DynamicResource Str_View_Grid}" Margin="4,0,0,0">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Grid}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_View_Grid}" VerticalAlignment="Center"/></StackPanel>
+                </ToggleButton>
+                <Button x:Name="ViewFitBtn" Style="{StaticResource StudioToolButton}" Click="ViewFit_Click" ToolTip="{DynamicResource Str_Lbl_Fit}" Margin="4,0,0,0">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Fit}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_Lbl_Fit}" VerticalAlignment="Center"/></StackPanel>
+                </Button>
+                <Button Style="{StaticResource StudioToolButton}" Click="RotatePagesToolbar_Click" ToolTip="{DynamicResource Str_TT_Rotate}" Margin="4,0,0,0">
+                  <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Rotate}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_Lbl_Rotate}" VerticalAlignment="Center"/></StackPanel>
+                </Button>
+              </StackPanel>
 
               <!-- Edit panel: tool buttons + Undo + Clear -->
               <StackPanel x:Name="ModePanelEdit" Orientation="Horizontal" Visibility="Collapsed">
@@ -1064,29 +1083,6 @@
                                   GroupName="LangGroup"
                                   Style="{StaticResource ThemeRadio}"
                                   Checked="LangTrRadio_Checked"/>
-                     <TextBlock Text="{DynamicResource Str_ViewMode}" Foreground="{DynamicResource Accent}"
-                               FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
-                               Margin="0,12,0,8"/>
-                    <RadioButton x:Name="ViewContinuousRadio"
-                                 Content="{DynamicResource Str_View_Continuous}"
-                                 GroupName="ViewGroup"
-                                 Style="{StaticResource ThemeRadio}"
-                                 Checked="ViewContinuousRadio_Checked"/>
-                    <RadioButton x:Name="ViewSingleRadio"
-                                 Content="{DynamicResource Str_View_Single}"
-                                 GroupName="ViewGroup"
-                                 Style="{StaticResource ThemeRadio}"
-                                 Checked="ViewSingleRadio_Checked"/>
-                    <RadioButton x:Name="ViewTwoPageRadio"
-                                 Content="{DynamicResource Str_View_TwoPage}"
-                                 GroupName="ViewGroup"
-                                 Style="{StaticResource ThemeRadio}"
-                                 Checked="ViewTwoPageRadio_Checked"/>
-                    <RadioButton x:Name="ViewGridRadio"
-                                 Content="{DynamicResource Str_View_Grid}"
-                                 GroupName="ViewGroup"
-                                 Style="{StaticResource ThemeRadio}"
-                                 Checked="ViewGridRadio_Checked"/>
                 </StackPanel>
             </Border>
         </Grid>

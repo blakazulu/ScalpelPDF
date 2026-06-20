@@ -176,10 +176,10 @@
     <sys:String x:Key="Str_Lbl_MoveUp">উপরে</sys:String>
     <sys:String x:Key="Str_Lbl_MoveDown">নিচে</sys:String>
     <sys:String x:Key="Str_Lbl_Rotate">ঘোরান</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">প্রস্থ মেলান</sys:String>
     <sys:String x:Key="Str_Lbl_Signature">স্বাক্ষর</sys:String>
 
     <!-- ── View mode ──────────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_ViewMode">ভিউ মোড</sys:String>
     <sys:String x:Key="Str_View_Single">একক পৃষ্ঠা</sys:String>
     <sys:String x:Key="Str_View_Continuous">ধারাবাহিক</sys:String>
     <sys:String x:Key="Str_View_TwoPage">দুই পৃষ্ঠা</sys:String>

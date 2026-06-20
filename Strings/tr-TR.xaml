@@ -176,10 +176,10 @@ Bu işlem uygulamayı %LocalAppData%\KillerPDF konumuna kopyalar ve bir Başlat 
     <sys:String x:Key="Str_Lbl_MoveUp">Yukarı Taşı</sys:String>
     <sys:String x:Key="Str_Lbl_MoveDown">Aşağı Taşı</sys:String>
     <sys:String x:Key="Str_Lbl_Rotate">Döndür</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">Genişliğe Sığdır</sys:String>
     <sys:String x:Key="Str_Lbl_Signature">İmza</sys:String>
 
     <!-- ── Görünüm modu ──────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_ViewMode">GÖRÜNÜM MODU</sys:String>
     <sys:String x:Key="Str_View_Single">Tek Sayfa</sys:String>
     <sys:String x:Key="Str_View_Continuous">Sürekli</sys:String>
     <sys:String x:Key="Str_View_TwoPage">İki Sayfa</sys:String>

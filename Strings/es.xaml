@@ -176,10 +176,10 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Lbl_MoveUp">Subir</sys:String>
     <sys:String x:Key="Str_Lbl_MoveDown">Bajar</sys:String>
     <sys:String x:Key="Str_Lbl_Rotate">Rotar</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">Ajustar ancho</sys:String>
     <sys:String x:Key="Str_Lbl_Signature">Firma</sys:String>
 
     <!-- ── View mode ──────────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_ViewMode">MODO DE VISTA</sys:String>
     <sys:String x:Key="Str_View_Single">Página Individual</sys:String>
     <sys:String x:Key="Str_View_Continuous">Continuo</sys:String>
     <sys:String x:Key="Str_View_TwoPage">Dos Páginas</sys:String>
