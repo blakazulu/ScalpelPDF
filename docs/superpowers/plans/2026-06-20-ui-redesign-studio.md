@@ -62,9 +62,9 @@
 **Interfaces:**
 - Produces: `FontFamily` resources `FontUI` and `FontIcon`; `ResourceDictionary` `Themes/_Shared.xaml` merged at app index 2.
 
-- [ ] **Step 1: Download the fonts** (free, OFL). Geist from https://github.com/vercel/geist-font (releases → `Geist/ttf/Geist-Regular.ttf`, `-Medium`, `-SemiBold`). Tabler from https://github.com/tabler/tabler-icons (releases → `webfont/fonts/tabler-icons.ttf`). Place the four `.ttf` files in `Resources/Fonts/`.
+- [x] **Step 1: Fonts are already downloaded** (done during planning, committed). `Resources/Fonts/` contains `Geist-Regular.ttf` (~126 KB), `Geist-Medium.ttf` (~127 KB), `Geist-SemiBold.ttf` (~128 KB), and `tabler-icons.ttf` (**12 KB — already subset** to the 36 glyphs in Task 2's map via `fontTools.subset`, GSUB/GPOS dropped). If you re-subset, the unicode list is in the Task 2 map. Just verify the four files exist.
 
-- [ ] **Step 2: Confirm the embedded family names.** Open each TTF (Windows: double-click → title shows family name). Geist family name is `Geist`; Tabler family name is `tabler-icons`. Record exact names — the `pack` URIs below depend on them.
+- [x] **Step 2: Family names confirmed.** Geist resolves as a single WPF family **`Geist`** with weights 400/500/600 (Medium/SemiBold carry typographic-family nameID 16 = `Geist`), so `#Geist` + `FontWeight="Medium"/"SemiBold"` works. Tabler family name is **`tabler-icons`**. The `pack` URIs below use these exact names.
 
 - [ ] **Step 3: Add fonts as Resource items.** In `KillerPDF.csproj`, inside an `<ItemGroup>`:
 
@@ -131,53 +131,51 @@ git commit -m "Bundle Geist + Tabler fonts and _Shared resource dictionary"
 **Interfaces:**
 - Produces: `x:String` resources keyed `Ico_<Name>` holding Tabler codepoints, used by XAML (`Content="{StaticResource Ico_Save}"`) and code-behind (`(string)FindResource("Ico_Save")`).
 
-- [ ] **Step 1: Look up Tabler codepoints.** Open `tabler-icons` glyph list (https://tabler.io/icons — each icon page shows the unicode, or use the `tabler-icons.css` from the webfont download: entries like `.ti-folder:before{content:"\ea9d"}`). Record the codepoint for each name below.
+- [x] **Step 1: Codepoints verified** against `tabler-icons.css` 3.7.0 during planning. The values in Step 2 are the real, verified codepoints and exactly match the glyphs kept in the subset `tabler-icons.ttf`. Do not change them without re-subsetting.
 
-- [ ] **Step 2: Add the glyph map to `_Shared.xaml`** (use the actual codepoints found; the `&#x..;` values below are placeholders to replace with the verified ones from the CSS):
+- [ ] **Step 2: Add the glyph map to `_Shared.xaml`** (verified Tabler 3.7.0 codepoints — these are the 36 glyphs the subset font contains):
 
 ```xml
-<!-- Icon glyph map (Tabler). Codepoints verified against tabler-icons.css. -->
-<sys:String x:Key="Ico_New">&#xea0f;</sys:String>          <!-- file-plus -->
-<sys:String x:Key="Ico_Open">&#xea9d;</sys:String>         <!-- folder -->
-<sys:String x:Key="Ico_Close">&#xeb55;</sys:String>        <!-- x / file-x -->
-<sys:String x:Key="Ico_Save">&#xea9a;</sys:String>         <!-- device-floppy -->
-<sys:String x:Key="Ico_Flatten">&#xea7a;</sys:String>      <!-- stack -->
-<sys:String x:Key="Ico_Print">&#xeb27;</sys:String>        <!-- printer -->
-<sys:String x:Key="Ico_Merge">&#xeae6;</sys:String>        <!-- arrows-join -->
-<sys:String x:Key="Ico_Extract">&#xea9e;</sys:String>      <!-- file-export -->
-<sys:String x:Key="Ico_InsertPage">&#xea0f;</sys:String>   <!-- file-plus -->
+<!-- Icon glyph map (Tabler 3.7.0, verified). These 36 codepoints == the subset tabler-icons.ttf. -->
+<sys:String x:Key="Ico_New">&#xeaa0;</sys:String>          <!-- file-plus -->
+<sys:String x:Key="Ico_Open">&#xeaad;</sys:String>         <!-- folder -->
+<sys:String x:Key="Ico_Close">&#xeaa3;</sys:String>        <!-- file-x -->
+<sys:String x:Key="Ico_Save">&#xeb62;</sys:String>         <!-- device-floppy -->
+<sys:String x:Key="Ico_Flatten">&#xeb2d;</sys:String>      <!-- stack -->
+<sys:String x:Key="Ico_Print">&#xeb0e;</sys:String>        <!-- printer -->
+<sys:String x:Key="Ico_Merge">&#xedaf;</sys:String>        <!-- arrows-join -->
+<sys:String x:Key="Ico_Extract">&#xede9;</sys:String>      <!-- file-export -->
+<sys:String x:Key="Ico_InsertPage">&#xeaa0;</sys:String>   <!-- file-plus -->
 <sys:String x:Key="Ico_Delete">&#xeb41;</sys:String>       <!-- trash -->
-<sys:String x:Key="Ico_MoveUp">&#xea5e;</sys:String>       <!-- arrow-up -->
-<sys:String x:Key="Ico_MoveDown">&#xea58;</sys:String>     <!-- arrow-down -->
-<sys:String x:Key="Ico_Rotate">&#xebb5;</sys:String>       <!-- rotate-clockwise -->
-<sys:String x:Key="Ico_Select">&#xeb6c;</sys:String>       <!-- pointer -->
-<sys:String x:Key="Ico_Text">&#xeb50;</sys:String>        <!-- typography -->
-<sys:String x:Key="Ico_Highlight">&#xed3f;</sys:String>    <!-- highlight -->
+<sys:String x:Key="Ico_MoveUp">&#xea25;</sys:String>       <!-- arrow-up -->
+<sys:String x:Key="Ico_MoveDown">&#xea16;</sys:String>     <!-- arrow-down -->
+<sys:String x:Key="Ico_Rotate">&#xeb15;</sys:String>       <!-- rotate-clockwise -->
+<sys:String x:Key="Ico_Select">&#xf265;</sys:String>       <!-- pointer -->
+<sys:String x:Key="Ico_Text">&#xebc5;</sys:String>        <!-- typography -->
+<sys:String x:Key="Ico_Highlight">&#xef3f;</sys:String>    <!-- highlight -->
 <sys:String x:Key="Ico_Draw">&#xeb04;</sys:String>        <!-- pencil -->
-<sys:String x:Key="Ico_Image">&#xeb1c;</sys:String>       <!-- photo -->
-<sys:String x:Key="Ico_Crop">&#xed46;</sys:String>        <!-- crop -->
-<sys:String x:Key="Ico_Signature">&#xefb3;</sys:String>   <!-- signature -->
-<sys:String x:Key="Ico_FillForm">&#xea88;</sys:String>    <!-- forms -->
-<sys:String x:Key="Ico_Undo">&#xeb13;</sys:String>        <!-- arrow-back-up -->
-<sys:String x:Key="Ico_Clear">&#xed62;</sys:String>       <!-- eraser -->
-<sys:String x:Key="Ico_ZoomIn">&#xeb45;</sys:String>      <!-- zoom-in -->
-<sys:String x:Key="Ico_ZoomOut">&#xeb44;</sys:String>     <!-- zoom-out -->
+<sys:String x:Key="Ico_Image">&#xeb0a;</sys:String>       <!-- photo -->
+<sys:String x:Key="Ico_Crop">&#xea85;</sys:String>        <!-- crop -->
+<sys:String x:Key="Ico_Signature">&#xeee0;</sys:String>   <!-- signature -->
+<sys:String x:Key="Ico_FillForm">&#xee8f;</sys:String>    <!-- forms -->
+<sys:String x:Key="Ico_Undo">&#xeb77;</sys:String>        <!-- arrow-back-up -->
+<sys:String x:Key="Ico_Clear">&#xeb8b;</sys:String>       <!-- eraser -->
+<sys:String x:Key="Ico_ZoomIn">&#xeb56;</sys:String>      <!-- zoom-in -->
+<sys:String x:Key="Ico_ZoomOut">&#xeb57;</sys:String>     <!-- zoom-out -->
 <sys:String x:Key="Ico_Search">&#xeb1c;</sys:String>      <!-- search -->
 <sys:String x:Key="Ico_Settings">&#xeb20;</sys:String>    <!-- settings -->
-<sys:String x:Key="Ico_Shortcuts">&#xebca;</sys:String>   <!-- keyboard -->
+<sys:String x:Key="Ico_Shortcuts">&#xebd6;</sys:String>   <!-- keyboard -->
 <sys:String x:Key="Ico_View">&#xea9a;</sys:String>        <!-- eye -->
-<sys:String x:Key="Ico_Single">&#xec1c;</sys:String>      <!-- file -->
-<sys:String x:Key="Ico_Continuous">&#xec8f;</sys:String>  <!-- layout-rows -->
-<sys:String x:Key="Ico_TwoPage">&#xed2f;</sys:String>     <!-- columns -->
-<sys:String x:Key="Ico_Grid">&#xeb85;</sys:String>       <!-- layout-grid -->
-<sys:String x:Key="Ico_Fit">&#xeb40;</sys:String>        <!-- arrows-maximize -->
+<sys:String x:Key="Ico_Single">&#xeaa4;</sys:String>      <!-- file -->
+<sys:String x:Key="Ico_Continuous">&#xead8;</sys:String>  <!-- layout-rows -->
+<sys:String x:Key="Ico_TwoPage">&#xeb83;</sys:String>     <!-- columns -->
+<sys:String x:Key="Ico_Grid">&#xedba;</sys:String>       <!-- layout-grid -->
+<sys:String x:Key="Ico_Fit">&#xea28;</sys:String>        <!-- arrows-maximize -->
 <sys:String x:Key="Ico_Chevron">&#xea5f;</sys:String>    <!-- chevron-down -->
-<sys:String x:Key="Ico_Min">&#xeaf8;</sys:String>        <!-- minus -->
-<sys:String x:Key="Ico_Max">&#xed1d;</sys:String>        <!-- square -->
-<sys:String x:Key="Ico_WinClose">&#xeb55;</sys:String>   <!-- x -->
+<sys:String x:Key="Ico_Min">&#xeaf2;</sys:String>        <!-- minus -->
+<sys:String x:Key="Ico_Max">&#xeb2c;</sys:String>        <!-- square -->
+<sys:String x:Key="Ico_WinClose">&#xeaa3;</sys:String>   <!-- file-x (reuse) -->
 ```
-
-(Every codepoint MUST be verified against `tabler-icons.css`; a wrong codepoint renders the wrong/blank glyph.)
 
 - [ ] **Step 3: Build + tests.** Run: `dotnet build` → succeeds. `dotnet test` → green.
 
