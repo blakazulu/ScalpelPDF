@@ -18,7 +18,7 @@
     <!-- Icon glyph map (Tabler 3.7.0, verified). These 36 codepoints == the subset tabler-icons.ttf. -->
     <sys:String x:Key="Ico_New">&#xeaa0;</sys:String>          <!-- file-plus -->
     <sys:String x:Key="Ico_Open">&#xeaad;</sys:String>         <!-- folder -->
-    <sys:String x:Key="Ico_Close">&#xeaa3;</sys:String>        <!-- file-x -->
+    <sys:String x:Key="Ico_Close">&#xeb55;</sys:String>        <!-- x -->
     <sys:String x:Key="Ico_Save">&#xeb62;</sys:String>         <!-- device-floppy -->
     <sys:String x:Key="Ico_Flatten">&#xeb2d;</sys:String>      <!-- stack -->
     <sys:String x:Key="Ico_Print">&#xeb0e;</sys:String>        <!-- printer -->
@@ -51,9 +51,12 @@
     <sys:String x:Key="Ico_Grid">&#xedba;</sys:String>       <!-- layout-grid -->
     <sys:String x:Key="Ico_Fit">&#xea28;</sys:String>        <!-- arrows-maximize -->
     <sys:String x:Key="Ico_Chevron">&#xea5f;</sys:String>    <!-- chevron-down -->
+    <sys:String x:Key="Ico_ChevronLeft">&#xea60;</sys:String>  <!-- chevron-left -->
+    <sys:String x:Key="Ico_ChevronRight">&#xea61;</sys:String> <!-- chevron-right -->
     <sys:String x:Key="Ico_Min">&#xeaf2;</sys:String>        <!-- minus -->
     <sys:String x:Key="Ico_Max">&#xeb2c;</sys:String>        <!-- square -->
-    <sys:String x:Key="Ico_WinClose">&#xeaa3;</sys:String>   <!-- file-x (reuse) -->
+    <sys:String x:Key="Ico_X">&#xeb55;</sys:String>          <!-- x -->
+    <sys:String x:Key="Ico_WinClose">&#xeb55;</sys:String>   <!-- x -->
 
     <!-- ============================================================ -->
     <!-- Studio control styles                                        -->
