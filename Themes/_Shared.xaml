@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Bundled fonts. The "#FamilyName" suffix must match the TTF's internal family name. -->
+    <FontFamily x:Key="FontUI">pack://application:,,,/Resources/Fonts/#Geist, Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="FontIcon">pack://application:,,,/Resources/Fonts/#tabler-icons, Segoe MDL2 Assets</FontFamily>
+
+    <!-- Type scale (Studio) -->
+    <sys:Double x:Key="FsDialogTitle">16</sys:Double>
+    <sys:Double x:Key="FsTab">13</sys:Double>
+    <sys:Double x:Key="FsButton">12.5</sys:Double>
+    <sys:Double x:Key="FsBody">13</sys:Double>
+    <sys:Double x:Key="FsContext">11.5</sys:Double>
+    <sys:Double x:Key="FsSidebarLabel">10</sys:Double>
+    <sys:Double x:Key="FsStatus">10.5</sys:Double>
+
+</ResourceDictionary>

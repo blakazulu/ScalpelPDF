@@ -9,6 +9,8 @@
                 <ResourceDictionary Source="Themes/Dark.xaml"/>
                 <!-- [1] Strings (overridden at startup by LocaleManager.Initialize) -->
                 <ResourceDictionary Source="Strings/en-US.xaml"/>
+                <!-- [2] Shared fonts + type scale -->
+                <ResourceDictionary Source="Themes/_Shared.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

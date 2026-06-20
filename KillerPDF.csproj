@@ -52,6 +52,10 @@
 
   <ItemGroup>
     <Resource Include="Resources\kp-icon.ico" />
+    <Resource Include="Resources\Fonts\Geist-Regular.ttf" />
+    <Resource Include="Resources\Fonts\Geist-Medium.ttf" />
+    <Resource Include="Resources\Fonts\Geist-SemiBold.ttf" />
+    <Resource Include="Resources\Fonts\tabler-icons.ttf" />
   </ItemGroup>
 
   <!-- GPL3 source bundle: produces <AppName>-<Version>-src.zip in the publish folder every time you Publish. -->
