@@ -145,6 +145,9 @@ namespace Scalpel
             try
             {
                 var src = (e.OriginalSource as FrameworkElement) ?? sender as FrameworkElement;
+                // Skip ScrollBar repeat-buttons / thumbs — they auto-fire on the hot path and are not meaningful clicks.
+                if (src is System.Windows.Controls.Primitives.RepeatButton ||
+                    src is System.Windows.Controls.Primitives.Thumb) return;
                 string name = !string.IsNullOrEmpty(src?.Name) ? src!.Name : src?.GetType().Name ?? "?";
                 string? label = (src as ContentControl)?.Content as string
                                 ?? (src as ContentControl)?.Content?.ToString();
