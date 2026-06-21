@@ -107,9 +107,17 @@ namespace Scalpel.Services
             string bat = Path.Combine(Path.GetTempPath(), "scalpel_uninstall.bat");
             File.WriteAllText(bat,
                 "@echo off\r\n" +
-                "ping -n 3 127.0.0.1 >nul\r\n" +
-                $"rmdir /s /q \"{InstallDir}\"\r\n" +
-                $"rmdir /s /q \"{DataDir}\"\r\n" +
+                "setlocal\r\n" +
+                "set /a tries=0\r\n" +
+                ":retry\r\n" +
+                $"rmdir /s /q \"{InstallDir}\" 2>nul\r\n" +
+                $"if not exist \"{InstallExe}\" goto wipedata\r\n" +
+                "set /a tries+=1\r\n" +
+                "if %tries% geq 20 goto wipedata\r\n" +
+                "ping -n 2 127.0.0.1 >nul\r\n" +
+                "goto retry\r\n" +
+                ":wipedata\r\n" +
+                $"rmdir /s /q \"{DataDir}\" 2>nul\r\n" +
                 "del \"%~f0\"\r\n");
             return bat;
         }

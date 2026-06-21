@@ -45,5 +45,21 @@ namespace Scalpel.Tests
             // so signatures.json + logs + Temp are all removed.
             Assert.Equal(Path.Combine(Local, "Scalpel"), Installer.DataDir);
         }
+
+        [Fact]
+        public void WriteDeferredDirWipeScript_targets_both_dirs_and_retries()
+        {
+            var bat = Installer.WriteDeferredDirWipeScript();
+            try
+            {
+                Assert.True(File.Exists(bat));
+                var text = File.ReadAllText(bat);
+                Assert.Contains(Installer.InstallDir, text);
+                Assert.Contains(Installer.DataDir, text);
+                Assert.Contains(":retry", text);
+                Assert.Contains("del \"%~f0\"", text);
+            }
+            finally { try { File.Delete(bat); } catch { } }
+        }
     }
 }
