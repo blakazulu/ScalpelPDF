@@ -235,6 +235,16 @@ namespace Scalpel
 
             Loaded += (_, _) =>
             {
+#if DEBUG
+                // Dev-only screenshot capture: `Scalpel.exe /shoot` renders the store
+                // screenshot set and exits. Compiled out of release builds entirely.
+                if (Environment.GetCommandLineArgs()
+                        .Any(a => string.Equals(a, "/shoot", StringComparison.OrdinalIgnoreCase)))
+                {
+                    RunScreenshotHarness();
+                    return;
+                }
+#endif
                 RestoreWindowSettings();
 
                 var args = Environment.GetCommandLineArgs();
