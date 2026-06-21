@@ -8,8 +8,6 @@ using System.Windows.Threading;
 
 namespace Scalpel.Services
 {
-    internal enum Theme { Dark, Light, HighContrast, Blood, Greed, Cyanotic }
-
     internal static class ThemeManager
     {
         // ── P/Invoke ──────────────────────────────────────────────────────
@@ -85,9 +83,6 @@ namespace Scalpel.Services
             {
                 Theme.Light        => new Uri("pack://application:,,,/Themes/Light.xaml"),
                 Theme.HighContrast => new Uri("pack://application:,,,/Themes/HighContrast.xaml"),
-                Theme.Blood        => new Uri("pack://application:,,,/Themes/Blood.xaml"),
-                Theme.Greed        => new Uri("pack://application:,,,/Themes/Greed.xaml"),
-                Theme.Cyanotic     => new Uri("pack://application:,,,/Themes/Cyanotic.xaml"),
                 _                  => new Uri("pack://application:,,,/Themes/Dark.xaml"),
             };
 

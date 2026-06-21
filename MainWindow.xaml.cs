@@ -277,9 +277,9 @@ namespace Scalpel
             ThemeDarkRadio.IsChecked  = cur == Theme.Dark;
             ThemeLightRadio.IsChecked = cur == Theme.Light;
             ThemeHCRadio.IsChecked    = cur == Theme.HighContrast;
-            ThemeBloodRadio.IsChecked = cur == Theme.Blood;
-            ThemeGreedRadio.IsChecked    = cur == Theme.Greed;
-            ThemeCyanoticRadio.IsChecked = cur == Theme.Cyanotic;
+            ThemeBloodRadio.IsChecked    = false; // legacy: replaced by Dark + Red accent (Task 2/3)
+            ThemeGreedRadio.IsChecked    = false; // legacy: replaced by Dark + Green accent (Task 2/3)
+            ThemeCyanoticRadio.IsChecked = false; // legacy: replaced by Dark + Cyan accent (Task 2/3)
             // Sync language radios
             var curLoc = Scalpel.Services.LocaleManager.Current;
             LangEnRadio.IsChecked   = curLoc == Scalpel.Services.Locale.EnUS;
@@ -356,13 +356,13 @@ namespace Scalpel
             => ThemeManager.Apply(Theme.HighContrast);
 
         private void ThemeBloodRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Blood);
+            => ThemeManager.Apply(Theme.Dark);   // legacy Blood → Dark + Red accent (wired in Task 2/3)
 
         private void ThemeGreedRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Greed);
+            => ThemeManager.Apply(Theme.Dark);   // legacy Greed → Dark + Green accent (wired in Task 2/3)
 
         private void ThemeCyanoticRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Cyanotic);
+            => ThemeManager.Apply(Theme.Dark);   // legacy Cyanotic → Dark + Cyan accent (wired in Task 2/3)
 
         private void LangEnRadio_Checked(object sender, RoutedEventArgs e)
             => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.EnUS);

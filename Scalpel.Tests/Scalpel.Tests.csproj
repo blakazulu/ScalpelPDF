@@ -29,6 +29,7 @@
     <Compile Include="..\Models\EditingTypes.cs" Link="Models\EditingTypes.cs" />
     <Compile Include="..\Services\SignatureStore.cs" Link="Services\SignatureStore.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
+    <Compile Include="..\Services\ThemeMigration.cs" Link="Services\ThemeMigration.cs" />
     <Compile Include="..\Services\Logger.cs" Link="Services\Logger.cs" />
     <Compile Include="..\Scalpel.E2E\Model\LogEntry.cs" Link="E2E\LogEntry.cs" />
     <Compile Include="..\Scalpel.E2E\Verify\LogReader.cs" Link="E2E\LogReader.cs" />
