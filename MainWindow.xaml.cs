@@ -272,14 +272,18 @@ namespace Scalpel
 
         private void SettingsBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Sync radio buttons to current theme before showing
-            var cur = ThemeManager.Current;
-            ThemeDarkRadio.IsChecked  = cur == Theme.Dark;
-            ThemeLightRadio.IsChecked = cur == Theme.Light;
-            ThemeHCRadio.IsChecked    = cur == Theme.HighContrast;
-            ThemeBloodRadio.IsChecked    = false; // legacy: replaced by Dark + Red accent (Task 2/3)
-            ThemeGreedRadio.IsChecked    = false; // legacy: replaced by Dark + Green accent (Task 2/3)
-            ThemeCyanoticRadio.IsChecked = false; // legacy: replaced by Dark + Cyan accent (Task 2/3)
+            // Sync radio buttons to current theme/accent before showing
+            var curTheme  = ThemeManager.CurrentTheme;
+            ThemeDarkRadio.IsChecked  = curTheme == Theme.Dark;
+            ThemeLightRadio.IsChecked = curTheme == Theme.Light;
+            ThemeHCRadio.IsChecked    = curTheme == Theme.HighContrast;
+
+            var curAccent = ThemeManager.CurrentAccent;
+            AccentAmberRadio.IsChecked = curAccent == Accent.Amber;
+            AccentRedRadio.IsChecked   = curAccent == Accent.Red;
+            AccentGreenRadio.IsChecked = curAccent == Accent.Green;
+            AccentCyanRadio.IsChecked  = curAccent == Accent.Cyan;
+            UpdateAccentRadioState();
             // Sync language radios
             var curLoc = Scalpel.Services.LocaleManager.Current;
             LangEnRadio.IsChecked   = curLoc == Scalpel.Services.Locale.EnUS;
@@ -347,22 +351,44 @@ namespace Scalpel
         }
 
         private void ThemeDarkRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Dark);
+        {
+            ThemeManager.ApplyTheme(Theme.Dark);
+            UpdateAccentRadioState();
+        }
 
         private void ThemeLightRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Light);
+        {
+            ThemeManager.ApplyTheme(Theme.Light);
+            UpdateAccentRadioState();
+        }
 
         private void ThemeHCRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.HighContrast);
+        {
+            ThemeManager.ApplyTheme(Theme.HighContrast);
+            UpdateAccentRadioState();
+        }
 
-        private void ThemeBloodRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Dark);   // legacy Blood → Dark + Red accent (wired in Task 2/3)
+        private void AccentAmberRadio_Checked(object sender, RoutedEventArgs e)
+            => ThemeManager.ApplyAccent(Accent.Amber);
 
-        private void ThemeGreedRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Dark);   // legacy Greed → Dark + Green accent (wired in Task 2/3)
+        private void AccentRedRadio_Checked(object sender, RoutedEventArgs e)
+            => ThemeManager.ApplyAccent(Accent.Red);
 
-        private void ThemeCyanoticRadio_Checked(object sender, RoutedEventArgs e)
-            => ThemeManager.Apply(Theme.Dark);   // legacy Cyanotic → Dark + Cyan accent (wired in Task 2/3)
+        private void AccentGreenRadio_Checked(object sender, RoutedEventArgs e)
+            => ThemeManager.ApplyAccent(Accent.Green);
+
+        private void AccentCyanRadio_Checked(object sender, RoutedEventArgs e)
+            => ThemeManager.ApplyAccent(Accent.Cyan);
+
+        // High Contrast owns its accent; the accent picker is inert while it is active.
+        private void UpdateAccentRadioState()
+        {
+            bool enabled = ThemeManager.CurrentTheme != Theme.HighContrast;
+            AccentAmberRadio.IsEnabled = enabled;
+            AccentRedRadio.IsEnabled   = enabled;
+            AccentGreenRadio.IsEnabled = enabled;
+            AccentCyanRadio.IsEnabled  = enabled;
+        }
 
         private void LangEnRadio_Checked(object sender, RoutedEventArgs e)
             => Scalpel.Services.LocaleManager.Apply(Scalpel.Services.Locale.EnUS);

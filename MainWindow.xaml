@@ -972,8 +972,8 @@
                                 Content="{StaticResource Ico_WinClose}"/>
                     </Grid>
                     <TextBlock Text="{DynamicResource Str_Theme}" Foreground="{DynamicResource Accent}"
-                               FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold"
-                               Margin="0,0,0,8"/>
+                               FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsLabel}"
+                               FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <RadioButton x:Name="ThemeDarkRadio"
                                  Content="{DynamicResource Str_Theme_Dark}"
                                  GroupName="ThemeGroup"
@@ -989,21 +989,30 @@
                                  GroupName="ThemeGroup"
                                  Style="{StaticResource ThemeRadio}"
                                  Checked="ThemeHCRadio_Checked"/>
-                    <RadioButton x:Name="ThemeBloodRadio"
-                                 Content="{DynamicResource Str_Theme_Blood}"
-                                 GroupName="ThemeGroup"
+
+                    <TextBlock Text="{DynamicResource Str_Accent}" Foreground="{DynamicResource Accent}"
+                               FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsLabel}"
+                               FontWeight="SemiBold" Margin="0,16,0,8"/>
+                    <RadioButton x:Name="AccentAmberRadio"
+                                 Content="{DynamicResource Str_Accent_Amber}"
+                                 GroupName="AccentGroup"
                                  Style="{StaticResource ThemeRadio}"
-                                 Checked="ThemeBloodRadio_Checked"/>
-                    <RadioButton x:Name="ThemeGreedRadio"
-                                 Content="{DynamicResource Str_Theme_Greed}"
-                                 GroupName="ThemeGroup"
+                                 Checked="AccentAmberRadio_Checked"/>
+                    <RadioButton x:Name="AccentRedRadio"
+                                 Content="{DynamicResource Str_Accent_Red}"
+                                 GroupName="AccentGroup"
                                  Style="{StaticResource ThemeRadio}"
-                                 Checked="ThemeGreedRadio_Checked"/>
-                    <RadioButton x:Name="ThemeCyanoticRadio"
-                                 Content="{DynamicResource Str_Theme_Cyanotic}"
-                                 GroupName="ThemeGroup"
+                                 Checked="AccentRedRadio_Checked"/>
+                    <RadioButton x:Name="AccentGreenRadio"
+                                 Content="{DynamicResource Str_Accent_Green}"
+                                 GroupName="AccentGroup"
                                  Style="{StaticResource ThemeRadio}"
-                                 Checked="ThemeCyanoticRadio_Checked"/>
+                                 Checked="AccentGreenRadio_Checked"/>
+                    <RadioButton x:Name="AccentCyanRadio"
+                                 Content="{DynamicResource Str_Accent_Cyan}"
+                                 GroupName="AccentGroup"
+                                 Style="{StaticResource ThemeRadio}"
+                                 Checked="AccentCyanRadio_Checked"/>
                     <TextBlock Text="{DynamicResource Str_Language}" Foreground="{DynamicResource Accent}"
                                FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold"
                                Margin="0,12,0,8"/>
