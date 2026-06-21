@@ -119,15 +119,37 @@ public sealed class AppDriver : IDisposable
     /// <summary>
     /// Close any unexpected modal/dialog windows that are not the main window.
     /// FlaUI 4.x: Window.IsModal is a direct property (not a pattern call).
+    /// Uses native window handles (IntPtr) for stable identity comparison instead of object equality.
     /// </summary>
     public void DismissModals()
     {
         try
         {
+            // Defensively read the main window's native handle once.
+            IntPtr mainWindowHandle = IntPtr.Zero;
+            try
+            {
+                var mainWindow = MainWindow;
+                if (mainWindow != null)
+                {
+                    mainWindowHandle = mainWindow.Properties.NativeWindowHandle;
+                }
+            }
+            catch { }
+
+            // Close all top-level windows except the main window (by handle).
             foreach (var w in _app.GetAllTopLevelWindows(_automation))
             {
-                if (w.Equals(MainWindow)) continue;
-                w.AsWindow()?.Close();
+                try
+                {
+                    // If we have the main window's handle and this window matches it, skip.
+                    if (mainWindowHandle != IntPtr.Zero && w.Properties.NativeWindowHandle == mainWindowHandle)
+                    {
+                        continue;
+                    }
+                    w.AsWindow()?.Close();
+                }
+                catch { }
             }
         }
         catch { }
