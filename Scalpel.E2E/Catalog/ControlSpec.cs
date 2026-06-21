@@ -8,5 +8,4 @@ public enum Surface
 public sealed record ControlSpec(
     string AutomationId,
     Surface Surface,
-    bool RequiresOpenFile,
     string? AssertionKey);

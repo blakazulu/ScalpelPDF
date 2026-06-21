@@ -83,13 +83,28 @@ internal static class Program
 
     private static string? FindDefaultApp()
     {
-        // Newest published Scalpel.exe under bin/.
+        // Newest Scalpel.exe under a bin output dir, preferring a published build.
+        // Match path SEGMENTS (not raw substrings) so an unrelated folder that merely
+        // contains "release" in its name can't be picked up.
         try
         {
             var root = Directory.GetCurrentDirectory();
+            char sep = Path.DirectorySeparatorChar;
+            string[] wanted = ["publish", "Release", "Debug"];
+
+            bool InBinOutput(string p)
+            {
+                var segs = p.Split(sep, Path.AltDirectorySeparatorChar);
+                return segs.Contains("bin") && segs.Any(s => wanted.Contains(s));
+            }
+
+            int Rank(string p) => p.Contains($"{sep}publish{sep}") ? 0
+                                : p.Contains($"{sep}Release{sep}") ? 1 : 2;
+
             return Directory.GetFiles(root, "Scalpel.exe", SearchOption.AllDirectories)
-                .Where(p => p.Contains("publish") || p.Contains("Release") || p.Contains("Debug"))
-                .OrderByDescending(File.GetLastWriteTimeUtc)
+                .Where(InBinOutput)
+                .OrderBy(Rank)
+                .ThenByDescending(File.GetLastWriteTimeUtc)
                 .FirstOrDefault();
         }
         catch { return null; }
