@@ -586,15 +586,13 @@ namespace Scalpel
 
         private void Install_Click(object sender, RoutedEventArgs e)
         {
-            var res = ScalpelDialog.Show(this,
-                Loc("Str_Dlg_InstallMsg"),
-                Loc("Str_Dlg_InstallTitle"), MessageBoxButton.OKCancel);
-            if (res != MessageBoxResult.OK) return;
+            var (proceed, wantDesktop) = Scalpel.Services.InstallerUI.ShowInstallConfirm(alreadyInstalled: false);
+            if (!proceed) return;
 
             // Hide the badge immediately so it doesn't flash if relaunch is slow
             _portableBadge.Visibility = Visibility.Collapsed;
 
-            App.InstallAndRelaunch(_currentFile, wantDesktop: true);
+            App.InstallAndRelaunch(_currentFile, wantDesktop);
         }
 
         private void MinimizeBtn_Click(object sender, RoutedEventArgs e) =>

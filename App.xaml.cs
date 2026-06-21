@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -26,17 +26,6 @@ namespace Scalpel
         // ============================================================
 
         private static readonly string AppName   = "Scalpel";
-        private static readonly string ExeName   = "Scalpel.exe";
-        private static readonly string InstallDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Programs", AppName);
-        private static readonly string InstallExe = Path.Combine(InstallDir, ExeName);
-
-        private static readonly string StartMenuDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.Programs), AppName);
-        private static readonly string StartMenuLnk = Path.Combine(StartMenuDir, $"{AppName}.lnk");
-        private static readonly string DesktopLnk   = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), $"{AppName}.lnk");
 
         // ============================================================
         // Shell interop
@@ -103,7 +92,17 @@ namespace Scalpel
             if (!IsPackaged() && e.Args.Length > 0 &&
                 string.Equals(e.Args[0], "/uninstall", StringComparison.OrdinalIgnoreCase))
             {
-                Uninstall();
+                InstallerUI.RunUninstallFlow(
+                    Scalpel.Services.Installer.WipeAllData,
+                    Scalpel.Services.Installer.WriteDeferredDirWipeScript,
+                    () =>
+                    {
+                        var bat = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "scalpel_uninstall.bat");
+                        Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{bat}\"")
+                        {
+                            WindowStyle = ProcessWindowStyle.Hidden, UseShellExecute = true,
+                        });
+                    });
                 Shutdown();
                 return;
             }
@@ -547,7 +546,7 @@ namespace Scalpel
             if (IsPackaged()) return false;
 
             string currentExe = Process.GetCurrentProcess().MainModule!.FileName;
-            return !string.Equals(currentExe, InstallExe, StringComparison.OrdinalIgnoreCase);
+            return !string.Equals(currentExe, Installer.InstallExe, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -575,7 +574,7 @@ namespace Scalpel
                         { UseShellExecute = true });
             }
 
-            var psi = new ProcessStartInfo(InstallExe);
+            var psi = new ProcessStartInfo(Installer.InstallExe);
             if (fileToOpen != null)
                 psi.Arguments = $"\"{fileToOpen}\"";
             Process.Start(psi);
@@ -594,9 +593,7 @@ namespace Scalpel
         /// User-private temp directory for session working files (encrypted PDFs, etc.).
         /// %LOCALAPPDATA% is user-private and not indexed by Windows Search.
         /// </summary>
-        internal static readonly string TempDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Scalpel", "Temp");
+        internal static readonly string TempDir = Path.Combine(Installer.DataDir, "Temp");
 
         private static readonly List<string> _sessionTemps = [];
 
@@ -725,188 +722,6 @@ namespace Scalpel
             return style;
         }
 
-        /// <summary>
-        /// Shows the Install / Run dialog.
-        /// Returns (cancelled, install, wantDesktopShortcut).
-        /// </summary>
-        private static (bool cancelled, bool install, bool desktop) ShowLauncher(bool alreadyInstalled)
-        {
-            bool cancelled = true;
-            bool install   = false;
-            bool desktop   = true;
-
-            var bg       = new SolidColorBrush(Color.FromRgb(0x1a, 0x1a, 0x1a));
-            var dimBg    = new SolidColorBrush(Color.FromRgb(0x25, 0x25, 0x25));
-            var accent   = new SolidColorBrush(Color.FromRgb(0x4a, 0xde, 0x80));
-            var dimText  = new SolidColorBrush(Color.FromRgb(0x77, 0x77, 0x77));
-
-            var win = new Window
-            {
-                Title                 = AppName,
-                Width                 = 400,
-                Height                = 280,
-                WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                ResizeMode            = ResizeMode.NoResize,
-                WindowStyle           = WindowStyle.None,
-                Background            = bg
-            };
-
-            // ── Root grid: title bar row + content row ──────────────────
-            var root = new Grid();
-            root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(36) });
-            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            // ── Title bar ───────────────────────────────────────────────
-            var titleBar = new DockPanel { Background = dimBg };
-            Grid.SetRow(titleBar, 0);
-
-            // Drag anywhere on the title bar
-            titleBar.MouseLeftButtonDown += (_, e) =>
-            {
-                if (e.ButtonState == MouseButtonState.Pressed) win.DragMove();
-            };
-
-            // Close button — custom template so Background trigger actually renders
-            var closeBtnTemplate = new ControlTemplate(typeof(Button));
-            var closeBorder = new FrameworkElementFactory(typeof(Border));
-            closeBorder.SetBinding(Border.BackgroundProperty,
-                new System.Windows.Data.Binding("Background")
-                {
-                    RelativeSource = new System.Windows.Data.RelativeSource(
-                        System.Windows.Data.RelativeSourceMode.TemplatedParent)
-                });
-            var closeContent = new FrameworkElementFactory(typeof(ContentPresenter));
-            closeContent.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-            closeContent.SetValue(ContentPresenter.VerticalAlignmentProperty,   VerticalAlignment.Center);
-            closeBorder.AppendChild(closeContent);
-            closeBtnTemplate.VisualTree = closeBorder;
-
-            var redHover = new SolidColorBrush(Color.FromRgb(0xc4, 0x2b, 0x1c));
-            var closeBtnStyle = new Style(typeof(Button));
-            closeBtnStyle.Setters.Add(new Setter(Button.BackgroundProperty,      Brushes.Transparent));
-            closeBtnStyle.Setters.Add(new Setter(Button.ForegroundProperty,      dimText));
-            closeBtnStyle.Setters.Add(new Setter(Button.TemplateProperty,        closeBtnTemplate));
-            var hoverTrigger = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
-            hoverTrigger.Setters.Add(new Setter(Button.BackgroundProperty, redHover));
-            hoverTrigger.Setters.Add(new Setter(Button.ForegroundProperty, Brushes.White));
-            closeBtnStyle.Triggers.Add(hoverTrigger);
-
-            var closeBtn = new Button
-            {
-                Content                  = "\uE711",
-                FontFamily               = new FontFamily("Segoe MDL2 Assets"),
-                FontSize                 = 11,
-                Width                    = 46,
-                BorderThickness          = new Thickness(0),
-                VerticalAlignment        = VerticalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Center,
-                Cursor                   = Cursors.Arrow,
-                Style                    = closeBtnStyle
-            };
-            closeBtn.Click += (_, _) => win.Close();
-            DockPanel.SetDock(closeBtn, Dock.Right);
-            titleBar.Children.Add(closeBtn);
-
-            // App label in title bar
-            titleBar.Children.Add(new TextBlock
-            {
-                Text              = AppName,
-                Foreground        = dimText,
-                FontSize          = 12,
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin            = new Thickness(12, 0, 0, 0)
-            });
-
-            root.Children.Add(titleBar);
-
-            // ── Content ─────────────────────────────────────────────────
-            var content = new StackPanel { Margin = new Thickness(36, 22, 36, 28) };
-            Grid.SetRow(content, 1);
-
-            content.Children.Add(new TextBlock
-            {
-                Text       = AppName,
-                FontSize   = 26,
-                FontWeight = FontWeights.Bold,
-                Foreground = accent
-            });
-
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
-            content.Children.Add(new TextBlock
-            {
-                Text       = $"Version {version?.ToString(3)}",
-                Foreground = dimText,
-                FontSize   = 12,
-                Margin     = new Thickness(0, 2, 0, 18)
-            });
-
-            content.Children.Add(new TextBlock
-            {
-                Text         = alreadyInstalled
-                    ? "A newer version is available. Install it or run without updating."
-                    : "Install Scalpel on this computer, or run it without installing.",
-                Foreground   = Brushes.White,
-                TextWrapping = TextWrapping.Wrap,
-                Margin       = new Thickness(0, 0, 0, 16)
-            });
-
-            var desktopChk = new CheckBox
-            {
-                IsChecked = true,
-                Margin    = new Thickness(0, 0, 0, 22),
-                Content   = new TextBlock { Text = "Create desktop shortcut", Foreground = Brushes.White }
-            };
-            content.Children.Add(desktopChk);
-
-            var btnRow = new StackPanel
-            {
-                Orientation         = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Right
-            };
-
-            var runBtn = new Button
-            {
-                Content = "Run",
-                Width   = 88,
-                Margin  = new Thickness(0, 0, 8, 0),
-                Style   = MakeLauncherButtonStyle(
-                    normal: new SolidColorBrush(Color.FromRgb(0x30, 0x30, 0x30)),
-                    hover:  new SolidColorBrush(Color.FromRgb(0x16, 0x63, 0x34)),
-                    fg:     Brushes.White)
-            };
-            var installBtn = new Button
-            {
-                Content    = alreadyInstalled ? "Update" : "Install",
-                Width      = 110,
-                Style      = MakeLauncherButtonStyle(
-                    normal: accent,
-                    hover:  new SolidColorBrush(Color.FromRgb(0x4a, 0xf0, 0x90)),
-                    fg:     new SolidColorBrush(Color.FromRgb(0x0a, 0x0a, 0x0a))),
-                FontWeight = FontWeights.SemiBold
-            };
-
-            runBtn.Click += (_, _) =>
-            {
-                cancelled = false; install = false;
-                win.Close();
-            };
-            installBtn.Click += (_, _) =>
-            {
-                cancelled = false; install = true;
-                desktop = desktopChk.IsChecked == true;
-                win.Close();
-            };
-
-            btnRow.Children.Add(runBtn);
-            btnRow.Children.Add(installBtn);
-            content.Children.Add(btnRow);
-
-            root.Children.Add(content);
-            win.Content = root;
-            win.ShowDialog();
-
-            return (cancelled, install, desktop);
-        }
 
         // ============================================================
         // Security — Authenticode verification + pdfium integrity
@@ -1272,10 +1087,10 @@ namespace Scalpel
             }
 
             // ── Downgrade guard ────────────────────────────────────────────────────
-            if (File.Exists(InstallExe))
+            if (File.Exists(Installer.InstallExe))
             {
                 var runVer  = FileVersionInfo.GetVersionInfo(src).FileVersion ?? "";
-                var instVer = FileVersionInfo.GetVersionInfo(InstallExe).FileVersion ?? "";
+                var instVer = FileVersionInfo.GetVersionInfo(Installer.InstallExe).FileVersion ?? "";
                 if (string.Compare(runVer, instVer, StringComparison.OrdinalIgnoreCase) < 0)
                 {
                     var res = MessageBox.Show(
@@ -1290,20 +1105,20 @@ namespace Scalpel
             try
             {
                 // Copy EXE to install location
-                Directory.CreateDirectory(InstallDir);
-                File.Copy(src, InstallExe, overwrite: true);
+                Directory.CreateDirectory(Installer.InstallDir);
+                File.Copy(src, Installer.InstallExe, overwrite: true);
 
                 // Shortcuts
-                Directory.CreateDirectory(StartMenuDir);
-                CreateShortcut(StartMenuLnk, InstallExe);
+                Directory.CreateDirectory(Installer.StartMenuDir);
+                CreateShortcut(Installer.StartMenuLnk, Installer.InstallExe);
                 if (wantDesktop)
-                    CreateShortcut(DesktopLnk, InstallExe);
+                    CreateShortcut(Installer.DesktopLnk, Installer.InstallExe);
 
                 // Installed marker
                 using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Scalpel"))
                 {
                     key.SetValue("Installed",    1);
-                    key.SetValue("InstallPath",  InstallExe);
+                    key.SetValue("InstallPath",  Installer.InstallExe);
                     key.SetValue("Version",
                         Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "");
                 }
@@ -1315,11 +1130,11 @@ namespace Scalpel
                     key.SetValue("DisplayName",          AppName);
                     key.SetValue("DisplayVersion",
                         Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "");
-                    key.SetValue("Publisher",            "Your Name");
-                    key.SetValue("InstallLocation",      InstallDir);
-                    key.SetValue("DisplayIcon",          $"{InstallExe},0");
-                    key.SetValue("UninstallString",      $"\"{InstallExe}\" /uninstall");
-                    key.SetValue("QuietUninstallString", $"\"{InstallExe}\" /uninstall");
+                    key.SetValue("Publisher",            "Liraz Amir");
+                    key.SetValue("InstallLocation",      Installer.InstallDir);
+                    key.SetValue("DisplayIcon",          $"{Installer.InstallExe},0");
+                    key.SetValue("UninstallString",      $"\"{Installer.InstallExe}\" /uninstall");
+                    key.SetValue("QuietUninstallString", $"\"{Installer.InstallExe}\" /uninstall");
                     key.SetValue("NoModify",             1);
                     key.SetValue("NoRepair",             1);
                 }
@@ -1342,11 +1157,11 @@ namespace Scalpel
 
             using (var k = Registry.CurrentUser.CreateSubKey(
                 @"Software\Classes\Scalpel.pdf\DefaultIcon"))
-                k.SetValue("", $"{InstallExe},0");
+                k.SetValue("", $"{Installer.InstallExe},0");
 
             using (var k = Registry.CurrentUser.CreateSubKey(
                 @"Software\Classes\Scalpel.pdf\shell\open\command"))
-                k.SetValue("", $"\"{InstallExe}\" \"%1\"");
+                k.SetValue("", $"\"{Installer.InstallExe}\" \"%1\"");
 
             // Associate .pdf extension — adds Scalpel to the "Open with" list
             using (var k = Registry.CurrentUser.CreateSubKey(
@@ -1386,63 +1201,5 @@ namespace Scalpel
             catch { /* best-effort */ }
         }
 
-        // ============================================================
-        // Uninstall
-        // ============================================================
-
-        private static void Uninstall()
-        {
-            var res = MessageBox.Show(
-                "Uninstall Scalpel from this computer?",
-                $"{AppName} Uninstall",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-            if (res != MessageBoxResult.Yes) return;
-
-            // Shortcuts
-            try { File.Delete(StartMenuLnk); } catch { }
-            try { Directory.Delete(StartMenuDir, recursive: false); } catch { }
-            try { File.Delete(DesktopLnk); } catch { }
-
-            // Registry cleanup
-            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Scalpel"); } catch { }
-            try { Registry.CurrentUser.DeleteSubKeyTree(
-                @"Software\Microsoft\Windows\CurrentVersion\Uninstall\Scalpel"); } catch { }
-            try { Registry.CurrentUser.DeleteSubKeyTree(@"Software\Classes\Scalpel.pdf"); } catch { }
-
-            try
-            {
-                using var k = Registry.CurrentUser.OpenSubKey(
-                    @"Software\Classes\.pdf\OpenWithProgids", writable: true);
-                k?.DeleteValue("Scalpel.pdf", throwOnMissingValue: false);
-            }
-            catch { }
-
-            try
-            {
-                using var k = Registry.CurrentUser.OpenSubKey(
-                    @"Software\RegisteredApplications", writable: true);
-                k?.DeleteValue(AppName, throwOnMissingValue: false);
-            }
-            catch { }
-
-            SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
-
-            // Self-delete: deferred via cmd batch so the EXE can exit first
-            string bat = Path.Combine(Path.GetTempPath(), "scalpel_uninstall.bat");
-            File.WriteAllText(bat,
-                "@echo off\r\n" +
-                "ping -n 3 127.0.0.1 >nul\r\n" +
-                $"rmdir /s /q \"{InstallDir}\"\r\n" +
-                "del \"%~f0\"\r\n");
-            Process.Start(new ProcessStartInfo("cmd.exe", $"/c \"{bat}\"")
-            {
-                WindowStyle    = ProcessWindowStyle.Hidden,
-                UseShellExecute = true
-            });
-
-            MessageBox.Show("Scalpel has been uninstalled.", AppName,
-                MessageBoxButton.OK, MessageBoxImage.Information);
-        }
     }
 }
