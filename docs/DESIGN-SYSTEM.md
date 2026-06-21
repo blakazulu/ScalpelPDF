@@ -67,7 +67,7 @@ Edit-tool buttons are plain `Button`s (not toggles): `SetTool(EditTool)` highlig
 
 ## 4. Color tokens
 
-Tokens are `SolidColorBrush` resources defined **identically-keyed** in all six `Themes/*.xaml`. `ThemeManager.LoadDict` copies the new theme's keys into the live merged dict (index 0) on switch — so the key set must match across every theme or a missing key keeps its stale value.
+Tokens are `SolidColorBrush` resources defined in a **two-layer system**: three base theme files (`Themes/Dark.xaml`, `Light.xaml`, `HighContrast.xaml`) own all surface tokens plus the built-in Amber default accent, and six optional accent overlay files (`Themes/Accents/{Dark,Light}_{Red,Green,Cyan}.xaml`) supply the 11-key accent token set for Dark/Light + non-Amber accents. Amber = no overlay; High Contrast = no overlay. `ThemeManager.LoadDict` copies the new theme's keys into the live merged dict (index 0) on switch — so the key set must match **per layer**: all 3 base files share the full key set; all 6 accent overlays share the accent key set. A missing key keeps its stale value silently.
 
 **Token set (24 brushes + `GrainOpacity` + 4 `SystemColors.*` highlight keys) — Studio Dark (default) values:**
 
@@ -98,18 +98,26 @@ Tokens are `SolidColorBrush` resources defined **identically-keyed** in all six 
 | `GrainOpacity` | `0.12` | Grain-texture opacity (`sys:Double`) |
 | 4× `SystemColors.*Highlight*` | `#36280D` / `#F6C170` | Native text-selection brushes |
 
-**The six themes** share the Studio geometry/type/icons; identity comes from canvas + accent:
+**The theme system is two-axis** — base theme × accent — sharing Studio geometry/type/icons; identity comes from canvas + accent:
 
-| Theme | Surface | Accent family |
+| Base theme | Surface | Built-in accent (Amber default) |
 |---|---|---|
 | **Dark** (default) | near-black `#0A0B0E`/`#14161A` | amber `#F2A93B` |
 | **Light** | warm-white `#DFE3E8`/`#F6F7F9`, ink text `#1A1D22` | amber `#F2A93B` (text `#9A6B14`) |
-| **High Contrast** | pure black/white, heavy borders | `#FFB000` |
-| **Blood** | Studio dark | red `#EF4444` |
-| **Greed** | Studio dark | green `#22C55E` (the heritage green) |
-| **Cyanotic** | Studio dark | cyan `#22D3EE` |
+| **High Contrast** | pure black/white, heavy borders | `#FFB000` (fixed; ignores accent picker) |
 
-`DangerRed` stays a red in every theme.
+For **Dark** and **Light**, the accent can be overridden independently:
+
+| Accent | Overlay file(s) | Primary color |
+|---|---|---|
+| **Amber** (default) | none (base built-in) | `#F2A93B` |
+| **Red** | `Themes/Accents/Dark_Red.xaml` / `Light_Red.xaml` | `#EF4444` |
+| **Green** | `Themes/Accents/Dark_Green.xaml` / `Light_Green.xaml` | `#22C55E` |
+| **Cyan** | `Themes/Accents/Dark_Cyan.xaml` / `Light_Cyan.xaml` | `#22D3EE` |
+
+The accent overlay defines the 11-key accent token set: `Accent`, `AccentText`, `AccentDim`, `AccentBorder`, `SelectionAccent`, `AccentLogo`, `BgScrollThumb`, and the 4 `SystemColors.*Highlight*` keys. All other tokens come from the base theme file.
+
+`DangerRed` stays a red in every theme and accent.
 
 ---
 
@@ -172,17 +180,20 @@ The contextual settings bars (Text/Highlight/Draw/Crop), the Search bar, the Sig
 ## 8. File map & resource contract
 
 - `App.xaml` merges three dictionaries in a **load-bearing order**: **[0]** theme (`Themes/Dark.xaml`, swapped by `ThemeManager`) · **[1]** strings (`Strings/en-US.xaml`, swapped by `LocaleManager`) · **[2]** `Themes/_Shared.xaml` (fonts, type scale, `Ico_*` map, Studio styles). New app-level dictionaries go at index ≥ 2.
-- `Themes/*.xaml` — six theme token dicts (identical key sets).
+- `Themes/Dark.xaml`, `Themes/Light.xaml`, `Themes/HighContrast.xaml` — three base theme token dicts (identical full key sets including Amber accent as default).
+- `Themes/Accents/{Dark,Light}_{Red,Green,Cyan}.xaml` — six accent overlay dicts (identical 11-key accent token sets). Applied on top of the base theme for Dark/Light + non-Amber accents; Amber and High Contrast use no overlay.
 - `Themes/_Shared.xaml` — the design system (non-color).
-- `Strings/*.xaml` — six locale string dicts (identical key sets).
+- `Strings/*.xaml` — six locale string dicts (identical key sets; accent labels use keys `Str_Accent`, `Str_Accent_{Amber,Red,Green,Cyan}`).
 - `Resources/Fonts/Geist-{Regular,Medium,SemiBold}.ttf`, `tabler-icons.ttf` — bundled as `Resource` build items in `Scalpel.csproj`.
-- `Services/ThemeManager.cs` (in-place per-key theme update + DWM title bar) · `Services/LocaleManager.cs` (wholesale strings swap).
+- `Services/ThemeManager.cs` (in-place per-key base+overlay update, `CurrentTheme`/`CurrentAccent`, `ApplyTheme`/`ApplyAccent`, DWM title bar) · `Services/ThemeMigration.cs` (migrates legacy Blood/Greed/Cyanotic persisted values to two-axis equivalents on first launch) · `Services/LocaleManager.cs` (wholesale strings swap).
 
 ---
 
 ## 9. How to extend
 
-**Add a theme:** create `Themes/<Name>.xaml` defining the **full** token key set (copy Dark, retune surface + accent family); add a `Theme` enum entry + `pack://` case in `ThemeManager`; add a Settings radio + `Theme<Name>Radio_Checked` handler + a sync line in `SettingsBtn_Click`. Verify all theme files share an identical key set.
+**Add a base theme:** create `Themes/<Name>.xaml` defining the **full** token key set (copy Dark, retune surface + built-in Amber accent); add a `Theme` enum entry + `pack://` case in `ThemeManager` + `ApplyTheme` switch branch; add a Settings radio + `Theme<Name>Radio_Checked` handler + a sync line in `SettingsBtn_Click`. Verify all three base files share an identical key set.
+
+**Add an accent:** create `Themes/Accents/Dark_<Name>.xaml` and `Themes/Accents/Light_<Name>.xaml` defining the **11-key accent token set** (copy an existing overlay, retune colors); add an `Accent` enum entry + overlay `pack://` cases in `ThemeManager` + `ApplyAccent` switch branch; add an `AccentAmberRadio`-style radio to the Settings overlay + handler + sync. Verify all 6 overlay files share an identical 11-key set. Accent radios must be disabled when High Contrast is active.
 
 **Add a tool / mode action:** add the `Button` (or `ToggleButton`) to the right `ModePanel…` in `MainWindow.xaml` using `StudioToolButton`/`StudioToolToggle`, an `Ico_*` icon, and a `Str_Lbl_*` label; wire its existing or new `_Click` handler. If it's an Edit tool, route through `SetTool`.
 

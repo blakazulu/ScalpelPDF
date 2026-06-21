@@ -46,7 +46,7 @@ Design pillars:
 - **Password-protected PDFs:** prompts for the password instead of erroring.
 
 ### Presentation & i18n
-- **Six themes** (live switch): Dark, Light, High Contrast, Blood, Greed, Cyanotic.
+- **Themes + accents** (live switch): three base themes (Dark, Light, High Contrast) × four accents (Amber, Red, Green, Cyan); accent is independent of base theme for Dark/Light; High Contrast uses a fixed accent.
 - **Localized UI:** English, Spanish, Traditional Chinese, Simplified Chinese, Bengali, Turkish. Contributor guide in `Strings/TRANSLATING.md`.
 - Keyboard-shortcut overlay (Ctrl+?), About dialog (click the version label).
 
@@ -85,9 +85,10 @@ Scalpel.sln
 │  ├─ Services/
 │  │   ├─ SearchService.cs    PdfPig full-text search
 │  │   ├─ SignatureStore.cs   Saved signatures (JSON in AppData)
-│  │   ├─ ThemeManager.cs     Theme dictionaries + DWM title bar
+│  │   ├─ ThemeManager.cs     Theme/accent dictionaries + DWM title bar
+│  │   ├─ ThemeMigration.cs   Legacy theme name migration (Blood/Greed/Cyanotic → two-axis)
 │  │   └─ LocaleManager.cs    String dictionaries
-│  ├─ Themes/*.xaml           6 theme ResourceDictionaries
+│  ├─ Themes/*.xaml           3 base theme + Accents/ overlay ResourceDictionaries
 │  └─ Strings/*.xaml          Per-locale string ResourceDictionaries
 ├─ Scalpel.Tests/           xUnit tests (link source files directly)
 ├─ build/bundle-source.ps1    GPL3 source-zip bundler (runs after Publish)

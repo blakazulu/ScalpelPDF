@@ -172,7 +172,8 @@ Opens a centered panel; radios reflect the current state. Changes apply live and
 
 | Group | Options | Action |
 |---|---|---|
-| **THEME** | Dark · Light · High Contrast · Blood · Greed · Cyanotic | Switches the color theme immediately (also recolors the native title bar). |
+| **THEME** | Dark · Light · High Contrast | Switches the base color theme immediately (`ThemeDarkRadio`/`ThemeLightRadio`/`ThemeHCRadio` → `ApplyTheme`; also recolors the native title bar). |
+| **ACCENT** | Amber · Red · Green · Cyan | Switches the accent color overlay (`AccentAmberRadio`/`AccentRedRadio`/`AccentGreenRadio`/`AccentCyanRadio` → `ApplyAccent`). Applies to Dark and Light only — all four radios are **disabled** when High Contrast is active (HC uses its own fixed accent). |
 | **LANGUAGE** | English · Español · 中文 (繁體) · 中文 (简体) · বাংলা · Türkçe | Switches the UI language immediately. |
 | Close (✕) | — | Closes the Settings overlay. |
 
@@ -250,9 +251,9 @@ Scalpel uses the **"Studio"** visual language: a document-first aesthetic where 
 
 - **Geist** — bundled UI font (embedded in the EXE via Costura/WPF resource). Used for all labels, overlays, and status text. Tabular numerals keep zoom percentages and page counts visually aligned. Fallback: `Segoe UI Variable, Segoe UI`.
 - **Tabler Icons** — bundled icon font (embedded). Replaces the legacy Segoe MDL2 Assets set throughout the app. Each icon is referenced by a named resource key (e.g. `Ico_Save`, `Ico_Open`) rather than hardcoded codepoints.
-- **Amber accent** (`#F2A93B`) — active mode tab, primary Save button, active tool highlight, focus ring, scrollbar thumb. Adapts per theme (Blood → red, Greed → green, Cyanotic → cyan family).
+- **Amber accent** (`#F2A93B`) — active mode tab, primary Save button, active tool highlight, focus ring, scrollbar thumb. The accent color is independently selectable (Amber · Red · Green · Cyan) for Dark and Light themes; High Contrast uses its own fixed amber/white accent.
 - **Hairline amber underline** — the active mode tab carries a bottom border that visually "connects" the tab to the toolbar below it.
-- The same geometry, spacing, and font apply across all six themes: Dark · Light · High Contrast · Blood · Greed · Cyanotic.
+- The same geometry, spacing, and font apply across all themes. The theme system is two-axis: base theme (Dark · Light · High Contrast) + accent (Amber · Red · Green · Cyan).
 
 ---
 
