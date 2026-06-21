@@ -25,6 +25,16 @@ public sealed class ActionRunner
         System.Threading.Thread.Sleep(120);
         var newLogs = _log.NewSince(snap);
 
+        // Physical clicks (ToggleButton/RadioButton/CheckBox) occasionally miss on a
+        // foreground-timing hiccup. If the control logged no click and nothing failed,
+        // retry once before giving up — this removes nearly all residual flakiness.
+        if (clicked && !ClickLogged(newLogs, spec.AutomationId) && !newLogs.Any(e => e.IsFailure))
+        {
+            _driver.Click(spec.AutomationId);
+            System.Threading.Thread.Sleep(120);
+            newLogs = _log.NewSince(snap);
+        }
+
         // Close any modal OS dialog the click opened (Open/Save/Print/message box)
         // so it can't wedge the next action. The in-window Settings overlay is not a
         // separate window, so it is unaffected. Then recover foreground.
@@ -100,6 +110,9 @@ public sealed class ActionRunner
 
         return new ActionResult(suite, label, Outcome.Pass, null, newLogs);
     }
+
+    private static bool ClickLogged(IReadOnlyList<LogEntry> logs, string automationId) =>
+        logs.Any(e => e.Cat == "UI" && e.Event == "click" && e.Msg == automationId);
 
     private string? ReadZoom()
     {
