@@ -1080,6 +1080,21 @@ namespace Scalpel
             using (var k = Registry.CurrentUser.CreateSubKey(@"Software\RegisteredApplications"))
                 k.SetValue(AppName, @"Software\Scalpel\Capabilities");
 
+            // "Edit with Scalpel PDF" context-menu verb for ALL .pdf files, independent of the
+            // default handler. Per-user (HKCU), no admin. On Windows 11 it appears under
+            // "Show more options"; on Windows 10 on the main context menu. The verb subkey is
+            // namespaced "Scalpel.edit" (not the bare "edit") to avoid colliding with a built-in
+            // edit verb. Removed on uninstall via Installer.OwnedRegistryKeys.
+            using (var k = Registry.CurrentUser.CreateSubKey(
+                @"Software\Classes\SystemFileAssociations\.pdf\shell\Scalpel.edit"))
+            {
+                k.SetValue("", "Edit with Scalpel PDF");
+                k.SetValue("Icon", $"{Installer.InstallExe},0");
+            }
+            using (var k = Registry.CurrentUser.CreateSubKey(
+                @"Software\Classes\SystemFileAssociations\.pdf\shell\Scalpel.edit\command"))
+                k.SetValue("", $"\"{Installer.InstallExe}\" /edit \"%1\"");
+
             // Tell the shell file associations have changed
             SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
         }
