@@ -15,16 +15,18 @@ namespace Scalpel
     {
         private const int ShotW = 1920, ShotH = 1080;
 
-        private sealed record Shot(string FileName, AppMode Mode, Theme Theme, Accent Accent, bool Seed);
+        private sealed record Shot(
+            string FileName, AppMode Mode, Theme Theme, Accent Accent,
+            int Page, EditTool? Tool, bool Seed);
 
         private static readonly IReadOnlyList<Shot> ShotRecipe =
         [
-            new Shot("01-view-dark.png",    AppMode.View,  Theme.Dark,         Accent.Amber, false),
-            new Shot("02-edit-light.png",   AppMode.Edit,  Theme.Light,        Accent.Amber, false),
-            new Shot("03-pages-dark.png",   AppMode.Pages, Theme.Dark,         Accent.Cyan,  false),
-            new Shot("04-sign-dark.png",    AppMode.Sign,  Theme.Dark,         Accent.Amber, false),
-            new Shot("05-highcontrast.png", AppMode.View,  Theme.HighContrast, Accent.Amber, false),
-            new Shot("06-view-green.png",   AppMode.View,  Theme.Dark,         Accent.Green, false),
+            new Shot("01-view-dark.png",    AppMode.View,  Theme.Dark,         Accent.Amber, 0, null,               false),
+            new Shot("02-edit-light.png",   AppMode.Edit,  Theme.Light,        Accent.Amber, 1, EditTool.Highlight, true),
+            new Shot("03-pages-dark.png",   AppMode.Pages, Theme.Dark,         Accent.Cyan,  0, null,               false),
+            new Shot("04-sign-dark.png",    AppMode.Sign,  Theme.Dark,         Accent.Amber, 2, null,               true),
+            new Shot("05-highcontrast.png", AppMode.View,  Theme.HighContrast, Accent.Amber, 3, null,               false),
+            new Shot("06-edit-green.png",   AppMode.Edit,  Theme.Dark,         Accent.Green, 0, EditTool.Draw,      false),
         ];
 
         /// <summary>
@@ -53,8 +55,18 @@ namespace Scalpel
                     ThemeManager.ApplyAccent(shot.Accent);
                     OpenFile(sample);
                     SetMode(shot.Mode);
-                    if (shot.Seed) SeedShotAnnotations(shot.Mode);   // no-op unless Task 5 lands
+                    // Let OpenFile's deferred Background callbacks (FitToWidth, page-0 reset) drain
+                    // before we navigate to the target page — otherwise FinishOpenFile resets to 0.
                     await SettleAsync();
+                    if (shot.Page > 0 && _doc is not null && shot.Page < _doc.PageCount)
+                        PageList.SelectedIndex = shot.Page;
+                    if (shot.Tool is EditTool tool)
+                        SetTool(tool);
+                    if (shot.Seed)
+                        SeedShotAnnotations(shot.Mode, shot.Page);
+                    // Short extra settle so the page-navigation render completes.
+                    await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+                    await Task.Delay(800);
                     CaptureContent(Path.Combine(outDir, shot.FileName));
                 }
 
@@ -70,8 +82,7 @@ namespace Scalpel
             }
         }
 
-        // Until Task 5, seeding is a no-op so shots 2 & 4 show the mode toolbar over the doc.
-        partial void SeedShotAnnotations(AppMode mode);
+        partial void SeedShotAnnotations(AppMode mode, int page);
 
         private async Task SettleAsync()
         {

@@ -31,7 +31,7 @@ Start-Process -FilePath $exe -ArgumentList '/shoot' -Wait
 
 $expected = @(
     '01-view-dark.png','02-edit-light.png','03-pages-dark.png',
-    '04-sign-dark.png','05-highcontrast.png','06-view-green.png')
+    '04-sign-dark.png','05-highcontrast.png','06-edit-green.png')
 
 Add-Type -AssemblyName System.Drawing
 $fail = $false
