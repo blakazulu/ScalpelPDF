@@ -1,0 +1,660 @@
+{
+  "total": 30,
+  "passed": 29,
+  "failed": 1,
+  "untestedControls": [],
+  "suites": [
+    {
+      "name": "pairwise",
+      "total": 30,
+      "failed": 1
+    }
+  ],
+  "results": [
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:23:52.995Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        },
+        {
+          "ts": "2026-06-21T07:23:53.02Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:23:54.515Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        },
+        {
+          "ts": "2026-06-21T07:23:54.543Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:23:56.048Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        },
+        {
+          "ts": "2026-06-21T07:23:56.08Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:23:57.573Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        },
+        {
+          "ts": "2026-06-21T07:23:57.608Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:23:59.1Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        },
+        {
+          "ts": "2026-06-21T07:23:59.131Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:00.629Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:00.659Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:02.161Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:02.194Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:03.688Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:03.721Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:05.212Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:05.252Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:06.737Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:06.764Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:08.267Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:08.296Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:09.793Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:09.823Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:11.322Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:11.354Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:12.853Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:12.884Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:14.387Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:14.429Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:15.908Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:15.938Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:17.431Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:17.465Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:18.969Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:19.008Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:20.474Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:20.504Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:21.998Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:22.024Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:23.526Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:23.553Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:25.053Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:25.085Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:26.582Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:26.609Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:28.111Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:28.143Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:29.632Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:29.655Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:31.164Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:31.19Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:32.697Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:32.723Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:34.225Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:34.256Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:24:35.751Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        },
+        {
+          "ts": "2026-06-21T07:24:35.781Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    }
+  ]
+}

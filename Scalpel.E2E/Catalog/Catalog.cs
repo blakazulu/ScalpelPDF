@@ -18,8 +18,10 @@ public static class Catalog
         new("SaveMenuBtn",   Surface.AlwaysVisible, true,  null),
         new("ZoomOutBtn",    Surface.AlwaysVisible, true,  "zoomDecreased"),
         new("ZoomInBtn",     Surface.AlwaysVisible, true,  "zoomIncreased"),
-        new("SettingsBtn",   Surface.AlwaysVisible, false, "settingsOverlayOpen"),
         new("SidebarToggleBtn", Surface.AlwaysVisible, true, null),
+        // SettingsBtn is intentionally ordered LAST among the non-settings controls
+        // (just before the settings group below) so the overlay it opens never
+        // obscures the mode/view/edit/tool controls tested before it.
 
         // View mode panel
         new("ViewSingleBtn",     Surface.ViewMode, true, null),
@@ -39,7 +41,9 @@ public static class Catalog
         // Sign mode panel
         new("ToolSignatureBtn", Surface.SignMode, true, null),
 
-        // Settings overlay
+        // Settings overlay — SettingsBtn opens it and must be tested first so the
+        // overlay is up for the controls that live inside it.
+        new("SettingsBtn",        Surface.AlwaysVisible, false, "settingsOverlayOpen"),
         new("ThemeDarkRadio",     Surface.SettingsOverlay, false, null),
         new("ThemeLightRadio",    Surface.SettingsOverlay, false, null),
         new("ThemeHCRadio",       Surface.SettingsOverlay, false, null),
@@ -52,9 +56,12 @@ public static class Catalog
         new("LangZhCNRadio",      Surface.SettingsOverlay, false, null),
         new("LangBnRadio",        Surface.SettingsOverlay, false, null),
         new("LangTrRadio",        Surface.SettingsOverlay, false, null),
-        new("LogEnabledCheck",    Surface.SettingsOverlay, false, null),
         new("OpenLogsBtn",        Surface.SettingsOverlay, false, null),
-        new("ClearLogsBtn",       Surface.SettingsOverlay, false, null),
+        // NOTE: LogEnabledCheck and ClearLogsBtn are deliberately NOT auto-exercised.
+        // LogEnabledCheck toggles the very logging the harness reads to verify results
+        // (clicking it blinds the harness mid-run); ClearLogsBtn deletes session logs.
+        // Exercising them would sabotage the harness's own observability. They are
+        // listed in SinglesSuite.ExcludedFromCoverage so they don't read as gaps.
     ];
 
     public static ControlSpec? Find(string automationId) =>

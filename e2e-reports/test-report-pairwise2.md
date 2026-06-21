@@ -1,0 +1,19 @@
+# Scalpel E2E Test Report
+
+**Total:** 30 &nbsp; **Passed:** 29 &nbsp; **Failed:** 1 &nbsp; **Untested controls:** 0
+
+## Summary by suite
+
+| Suite | Total | Passed | Failed |
+|---|---:|---:|---:|
+| pairwise | 30 | 29 | 1 |
+
+## Failures (1)
+
+### [pairwise] ToolSelectBtn->ToolTextBtn
+
+**Reason:** expected click 'ToolTextBtn' not logged
+
+## Controls never exercised
+
+_None — full coverage._

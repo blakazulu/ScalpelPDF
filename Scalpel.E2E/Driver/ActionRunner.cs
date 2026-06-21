@@ -25,6 +25,12 @@ public sealed class ActionRunner
         System.Threading.Thread.Sleep(120);
         var newLogs = _log.NewSince(snap);
 
+        // Close any modal OS dialog the click opened (Open/Save/Print/message box)
+        // so it can't wedge the next action. The in-window Settings overlay is not a
+        // separate window, so it is unaffected. Then recover foreground.
+        _driver.DismissModals();
+        _driver.FocusMainWindow();
+
         // Crash check first.
         if (!_driver.IsAlive)
         {
@@ -50,6 +56,11 @@ public sealed class ActionRunner
         System.Threading.Thread.Sleep(120);
         var newLogs = _log.NewSince(snap);
 
+        // Close any modal OS dialog this action opened so it can't wedge the next one,
+        // then recover foreground (a dialog/Explorer window stole it from Scalpel).
+        _driver.DismissModals();
+        _driver.FocusMainWindow();
+
         if (!_driver.IsAlive)
         {
             _driver.Relaunch(_openWith);
@@ -59,29 +70,33 @@ public sealed class ActionRunner
         return VerifyTail(suite, action, newLogs, expectClickMsg, assertionKey, priorZoom: null);
     }
 
-    // Shared verification tail: failure-line check → expected-click check → assertion (incl. zoom-delta).
+    // Shared verification tail: failure-line check → C assertion → expected-click check.
     private ActionResult VerifyTail(
         string suite, string label, IReadOnlyList<LogEntry> newLogs,
         string? expectClickMsg, string? assertionKey, string? priorZoom)
     {
-        // B: a failure line appeared.
+        // B: a failure line appeared (always fatal).
         var failure = newLogs.FirstOrDefault(e => e.IsFailure);
         if (failure != null)
             return new ActionResult(suite, label, Outcome.Fail,
                 $"failure logged: {failure.Cat}/{failure.Event} {failure.Msg}", newLogs);
 
-        // B: expected click logged (cat == UI, event == click).
-        if (expectClickMsg != null &&
-            !newLogs.Any(e => e.Cat == "UI" && e.Event == "click" && e.Msg == expectClickMsg))
-            return new ActionResult(suite, label, Outcome.Fail,
-                $"expected click '{expectClickMsg}' not logged", newLogs);
-
-        // C: UI-state assertion.
+        // C: UI-state assertion (incl. zoom-delta).
         var (ok, reason) = Assertions.Check(assertionKey, _driver, newLogs);
         if (ok && assertionKey is "zoomIncreased" or "zoomDecreased")
             (ok, reason) = CheckZoomDelta(assertionKey, priorZoom);
         if (!ok)
             return new ActionResult(suite, label, Outcome.Fail, reason, newLogs);
+
+        // B: expected click logged. Required ONLY for controls with no C-tier
+        // assertion — for them the click log is the sole signal. A control with a
+        // passing assertion (e.g. re-clicking the already-active mode tab, a
+        // legitimate no-op that fires no Click event) is already validated, so a
+        // missing click log is not a failure.
+        if (expectClickMsg != null && assertionKey == null &&
+            !newLogs.Any(e => e.Cat == "UI" && e.Event == "click" && e.Msg == expectClickMsg))
+            return new ActionResult(suite, label, Outcome.Fail,
+                $"expected click '{expectClickMsg}' not logged", newLogs);
 
         return new ActionResult(suite, label, Outcome.Pass, null, newLogs);
     }

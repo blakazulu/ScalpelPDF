@@ -1,0 +1,198 @@
+{
+  "total": 17,
+  "passed": 11,
+  "failed": 6,
+  "untestedControls": [],
+  "suites": [
+    {
+      "name": "journeys",
+      "total": 17,
+      "failed": 6
+    }
+  ],
+  "results": [
+    {
+      "suite": "journeys",
+      "action": "view:single",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewContinuousBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewContinuousBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewTwoPageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewTwoPageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewGridBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewGridBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewSingleBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewSingleBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewFitBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:18.048Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewFitBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "zoom:in",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:18.244Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ZoomInBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "mode:edit",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:18.568Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:18.729Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:18.887Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:19.035Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:19.194Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "mode:sign",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:open",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:50:19.501Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SettingsBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:theme-blood",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeBloodRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:theme-dark",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeDarkRadio\u0027 not logged",
+      "logContext": []
+    }
+  ]
+}

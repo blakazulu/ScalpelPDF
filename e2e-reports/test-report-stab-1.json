@@ -1,0 +1,539 @@
+{
+  "total": 36,
+  "passed": 35,
+  "failed": 1,
+  "untestedControls": [],
+  "suites": [
+    {
+      "name": "singles",
+      "total": 36,
+      "failed": 1
+    }
+  ],
+  "results": [
+    {
+      "suite": "singles",
+      "action": "ModeViewTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ModeEditTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:31.667Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ModeEditTab"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ModePagesTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:32.959Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ModePagesTab"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ModeSignTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:34.254Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ModeSignTab"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "OpenMenuBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:35.546Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "OpenMenuBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "SaveAsBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:36.738Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SaveAsBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "SaveMenuBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:37.882Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SaveMenuBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ZoomOutBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:39.095Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ZoomOutBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ZoomInBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:40.289Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ZoomInBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "SettingsBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:41.506Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SettingsBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "SidebarToggleBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:42.705Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SidebarToggleBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ViewSingleBtn",
+      "outcome": "Fail",
+      "failReason": "control not found / not clickable",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewContinuousBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:45.658Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewContinuousBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ViewTwoPageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:47.139Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewTwoPageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ViewGridBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:48.651Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewGridBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ViewFitBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:50.137Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewFitBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:51.536Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:53.07Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:54.594Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:56.129Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolImageBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:57.634Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolImageBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:09:59.159Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ToolSignatureBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:00.514Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSignatureBtn"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeDarkRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:01.861Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeDarkRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeLightRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:03.28Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeLightRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeHCRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:04.686Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeHCRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeBloodRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:06.09Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeBloodRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeGreedRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:07.495Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeGreedRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeCyanoticRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:08.903Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeCyanoticRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangEnRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:10.32Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangEnRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangEsRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:11.705Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangEsRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangZhTWRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:13.108Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangZhTWRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangZhCNRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:14.515Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangZhCNRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangBnRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:15.917Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangBnRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "LangTrRadio",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:17.32Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "LangTrRadio"
+        }
+      ]
+    },
+    {
+      "suite": "singles",
+      "action": "OpenLogsBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T07:10:18.711Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "OpenLogsBtn"
+        }
+      ]
+    }
+  ]
+}

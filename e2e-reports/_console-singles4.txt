@@ -1,0 +1,146 @@
+# Scalpel E2E Test Report
+
+**Total:** 38 &nbsp; **Passed:** 7 &nbsp; **Failed:** 31 &nbsp; **Untested controls:** 2
+
+## Summary by suite
+
+| Suite | Total | Passed | Failed |
+|---|---:|---:|---:|
+| singles | 38 | 7 | 31 |
+
+## Failures (31)
+
+### [singles] OpenMenuBtn
+
+**Reason:** expected click 'OpenMenuBtn' not logged
+
+### [singles] SaveAsBtn
+
+**Reason:** expected click 'SaveAsBtn' not logged
+
+### [singles] SaveMenuBtn
+
+**Reason:** expected click 'SaveMenuBtn' not logged
+
+### [singles] SidebarToggleBtn
+
+**Reason:** expected click 'SidebarToggleBtn' not logged
+
+### [singles] ViewSingleBtn
+
+**Reason:** control not found / not clickable
+
+### [singles] ViewContinuousBtn
+
+**Reason:** expected click 'ViewContinuousBtn' not logged
+
+### [singles] ViewTwoPageBtn
+
+**Reason:** expected click 'ViewTwoPageBtn' not logged
+
+### [singles] ViewGridBtn
+
+**Reason:** expected click 'ViewGridBtn' not logged
+
+### [singles] ViewFitBtn
+
+**Reason:** expected click 'ViewFitBtn' not logged
+
+### [singles] ToolSelectBtn
+
+**Reason:** expected click 'ToolSelectBtn' not logged
+
+### [singles] ToolTextBtn
+
+**Reason:** expected click 'ToolTextBtn' not logged
+
+### [singles] ToolHighlightBtn
+
+**Reason:** expected click 'ToolHighlightBtn' not logged
+
+### [singles] ToolDrawBtn
+
+**Reason:** expected click 'ToolDrawBtn' not logged
+
+### [singles] ToolImageBtn
+
+**Reason:** expected click 'ToolImageBtn' not logged
+
+### [singles] ToolCropBtn
+
+**Reason:** expected click 'ToolCropBtn' not logged
+
+### [singles] ToolSignatureBtn
+
+**Reason:** expected click 'ToolSignatureBtn' not logged
+
+### [singles] ThemeDarkRadio
+
+**Reason:** expected click 'ThemeDarkRadio' not logged
+
+### [singles] ThemeLightRadio
+
+**Reason:** expected click 'ThemeLightRadio' not logged
+
+### [singles] ThemeHCRadio
+
+**Reason:** expected click 'ThemeHCRadio' not logged
+
+### [singles] ThemeBloodRadio
+
+**Reason:** expected click 'ThemeBloodRadio' not logged
+
+### [singles] ThemeGreedRadio
+
+**Reason:** expected click 'ThemeGreedRadio' not logged
+
+### [singles] ThemeCyanoticRadio
+
+**Reason:** expected click 'ThemeCyanoticRadio' not logged
+
+### [singles] LangEnRadio
+
+**Reason:** expected click 'LangEnRadio' not logged
+
+### [singles] LangEsRadio
+
+**Reason:** expected click 'LangEsRadio' not logged
+
+### [singles] LangZhTWRadio
+
+**Reason:** expected click 'LangZhTWRadio' not logged
+
+### [singles] LangZhCNRadio
+
+**Reason:** expected click 'LangZhCNRadio' not logged
+
+### [singles] LangBnRadio
+
+**Reason:** expected click 'LangBnRadio' not logged
+
+### [singles] LangTrRadio
+
+**Reason:** expected click 'LangTrRadio' not logged
+
+### [singles] LogEnabledCheck
+
+**Reason:** expected click 'LogEnabledCheck' not logged
+
+### [singles] OpenLogsBtn
+
+**Reason:** expected click 'OpenLogsBtn' not logged
+
+### [singles] ClearLogsBtn
+
+**Reason:** expected click 'ClearLogsBtn' not logged
+
+## Controls never exercised
+
+- 6
+- 7
+
+
+Report written:
+  e2e-reports\test-report-smoke-singles4.md
+  e2e-reports\test-report-smoke-singles4.json
+Application failed to exit

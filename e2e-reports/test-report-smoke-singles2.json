@@ -1,0 +1,284 @@
+{
+  "total": 38,
+  "passed": 7,
+  "failed": 31,
+  "untestedControls": [
+    "6",
+    "7"
+  ],
+  "suites": [
+    {
+      "name": "singles",
+      "total": 38,
+      "failed": 31
+    }
+  ],
+  "results": [
+    {
+      "suite": "singles",
+      "action": "ModeViewTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ModeEditTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ModePagesTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ModeSignTab",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "OpenMenuBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027OpenMenuBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "SaveAsBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027SaveAsBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "SaveMenuBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027SaveMenuBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ZoomOutBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ZoomInBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "SettingsBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "SidebarToggleBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027SidebarToggleBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewSingleBtn",
+      "outcome": "Fail",
+      "failReason": "control not found / not clickable",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewContinuousBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewContinuousBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewTwoPageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewTwoPageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewGridBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewGridBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ViewFitBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewFitBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ToolSignatureBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSignatureBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeDarkRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeDarkRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeLightRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeLightRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeHCRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeHCRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeBloodRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeBloodRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeGreedRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeGreedRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ThemeCyanoticRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ThemeCyanoticRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangEnRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangEnRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangEsRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangEsRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangZhTWRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangZhTWRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangZhCNRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangZhCNRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangBnRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangBnRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LangTrRadio",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LangTrRadio\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "LogEnabledCheck",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027LogEnabledCheck\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "OpenLogsBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027OpenLogsBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "singles",
+      "action": "ClearLogsBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ClearLogsBtn\u0027 not logged",
+      "logContext": []
+    }
+  ]
+}

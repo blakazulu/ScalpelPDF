@@ -1,0 +1,225 @@
+{
+  "total": 30,
+  "passed": 0,
+  "failed": 30,
+  "untestedControls": [],
+  "suites": [
+    {
+      "name": "pairwise",
+      "total": 30,
+      "failed": 30
+    }
+  ],
+  "results": [
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolSelectBtn-\u003EToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolTextBtn-\u003EToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolHighlightBtn-\u003EToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolDrawBtn-\u003EToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolImageBtn-\u003EToolCropBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolCropBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolSelectBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolSelectBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolTextBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolTextBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolHighlightBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolHighlightBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolDrawBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolDrawBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "pairwise",
+      "action": "ToolCropBtn-\u003EToolImageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ToolImageBtn\u0027 not logged",
+      "logContext": []
+    }
+  ]
+}

@@ -1,0 +1,230 @@
+{
+  "total": 17,
+  "passed": 9,
+  "failed": 8,
+  "untestedControls": [],
+  "suites": [
+    {
+      "name": "journeys",
+      "total": 17,
+      "failed": 8
+    }
+  ],
+  "results": [
+    {
+      "suite": "journeys",
+      "action": "view:single",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ModeViewTab\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewContinuousBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewContinuousBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewTwoPageBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewTwoPageBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewGridBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewGridBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewSingleBtn",
+      "outcome": "Fail",
+      "failReason": "expected click \u0027ViewSingleBtn\u0027 not logged",
+      "logContext": []
+    },
+    {
+      "suite": "journeys",
+      "action": "view:ViewFitBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:48.258Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ViewFitBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "zoom:in",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:49.458Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ZoomInBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "mode:edit",
+      "outcome": "Fail",
+      "failReason": "ModePanelEdit not found",
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:49.685Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ModeEditTab"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolSelectBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.027Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolSelectBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolTextBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.184Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolTextBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolHighlightBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.342Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolHighlightBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolDrawBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.493Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolDrawBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "tool:ToolCropBtn",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.652Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ToolCropBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "mode:sign",
+      "outcome": "Fail",
+      "failReason": "ModePanelSign not found",
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:50.8Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ModeSignTab"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:open",
+      "outcome": "Fail",
+      "failReason": "SettingsOverlay not found",
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:51.129Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "SettingsBtn"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:theme-blood",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:51.381Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeBloodRadio"
+        }
+      ]
+    },
+    {
+      "suite": "journeys",
+      "action": "settings:theme-dark",
+      "outcome": "Pass",
+      "failReason": null,
+      "logContext": [
+        {
+          "ts": "2026-06-21T06:45:51.688Z",
+          "level": "INFO",
+          "cat": "UI",
+          "ev": "click",
+          "msg": "ThemeDarkRadio"
+        }
+      ]
+    }
+  ]
+}

@@ -16,12 +16,30 @@ internal static class Program
             return 2;
         }
 
+        // Resolve to a full path with normalized separators: a relative or
+        // forward-slash --app passes File.Exists but CreateProcess (used by
+        // FlaUI's launch with UseShellExecute=false) cannot find it.
+        appPath = Path.GetFullPath(appPath);
+
         // 1. Fixtures.
         string corpusDir = Path.Combine(Path.GetTempPath(), "scalpel-e2e-corpus");
         var corpus = Corpus.Generate(corpusDir);
         string openWith = corpus.First(c => c.Key == "simple-1p").Path;
 
-        // 2. Launch + locate this run's log (newest after launch).
+        // 2. Launch ONE app session and locate its log. We keep a single session
+        // (rather than relaunching per suite) because Windows foreground-lock stops
+        // a freshly launched process from reliably taking foreground, and physical
+        // clicks need the window foregrounded. The first launch wins foreground; we
+        // reset app state between suites instead.
+        bool all = suite == "all";
+        var selected = new[] { "singles", "journeys", "pairwise", "monkey" }
+            .Where(s => all || suite == s).ToList();
+        if (selected.Count == 0)
+        {
+            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|all.");
+            return 2;
+        }
+
         using var driver = AppDriver.Launch(appPath, openWith);
         System.Threading.Thread.Sleep(800); // let app.start + open.success flush
         string? logPath = LogReader.FindLatestLog(LogReader.DefaultLogDir());
@@ -30,16 +48,23 @@ internal static class Program
             Console.Error.WriteLine("No session log found — is logging enabled?");
             return 3;
         }
-        var log = new LogReader(logPath);
-        var runner = new ActionRunner(driver, log, openWith);
+        var runner = new ActionRunner(driver, new LogReader(logPath), openWith);
         var report = new RunReport();
 
-        // 3. Run the requested suite(s).
-        bool all = suite == "all";
-        if (all || suite == "singles")  SinglesSuite.Run(driver, runner, report);
-        if (all || suite == "journeys") JourneysSuite.Run(driver, runner, report);
-        if (all || suite == "pairwise") PairwiseSuite.Run(driver, runner, report);
-        if (all || suite == "monkey")   MonkeySuite.Run(driver, runner, report, seed);
+        // 3. Run each requested suite, resetting to a base state in between so one
+        // suite's end-state (open overlay, non-View mode) can't break the next.
+        foreach (var suiteName in selected)
+        {
+            Console.WriteLine($"[suite] {suiteName}...");
+            driver.ResetToBaseState();
+            switch (suiteName)
+            {
+                case "singles":  SinglesSuite.Run(driver, runner, report); break;
+                case "journeys": JourneysSuite.Run(driver, runner, report); break;
+                case "pairwise": PairwiseSuite.Run(driver, runner, report); break;
+                case "monkey":   MonkeySuite.Run(driver, runner, report, seed); break;
+            }
+        }
 
         // 4. Report.
         var (md, json) = Reporter.Write(report, reportDir, stamp);

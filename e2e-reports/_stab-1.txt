@@ -1,0 +1,24 @@
+# Scalpel E2E Test Report
+
+**Total:** 36 &nbsp; **Passed:** 35 &nbsp; **Failed:** 1 &nbsp; **Untested controls:** 0
+
+## Summary by suite
+
+| Suite | Total | Passed | Failed |
+|---|---:|---:|---:|
+| singles | 36 | 35 | 1 |
+
+## Failures (1)
+
+### [singles] ViewSingleBtn
+
+**Reason:** control not found / not clickable
+
+## Controls never exercised
+
+_None — full coverage._
+
+
+Report written:
+  e2e-reports\test-report-stab-1.md
+  e2e-reports\test-report-stab-1.json
