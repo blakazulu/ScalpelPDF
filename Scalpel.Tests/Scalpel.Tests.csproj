@@ -30,6 +30,7 @@
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\Logger.cs" Link="Services\Logger.cs" />
     <Compile Include="..\Scalpel.E2E\Model\LogEntry.cs" Link="E2E\LogEntry.cs" />
+    <Compile Include="..\Scalpel.E2E\Verify\LogReader.cs" Link="E2E\LogReader.cs" />
   </ItemGroup>
 
 </Project>
