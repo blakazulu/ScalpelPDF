@@ -40,9 +40,10 @@ namespace Scalpel
                 string sample = SampleDocument.Generate(
                     Path.Combine(Path.GetTempPath(), "scalpel_sample_shot.pdf"));
 
-                // Render off-screen at a fixed size — monitor size / DPI are irrelevant.
+                // Render off-screen at a fixed size -- monitor size / DPI are irrelevant.
+                // Do NOT set ShowInTaskbar = false after the window is shown -- WPF forces a
+                // native HWND recreation which can disrupt rendering and the dispatcher pump.
                 WindowState = WindowState.Normal;
-                ShowInTaskbar = false;
                 Left = -10000; Top = -10000;
                 Width = ShotW; Height = ShotH;
 
@@ -75,11 +76,17 @@ namespace Scalpel
         private async Task SettleAsync()
         {
             UpdateLayout();
-            // The open/render path schedules its final auto-fit at DispatcherPriority.Background
-            // (see FinishOpenFile). Drain everything down to idle, twice, before capturing.
-            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ContextIdle);
-            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
-            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            // Fix: avoid ContextIdle/ApplicationIdle -- the DispatcherTimer (_rerenderTimer)
+            // and other Background-priority work keeps the queue busy, so idle-priority
+            // continuations can starve forever. Instead:
+            //   1. Drain through Background priority (fires after all pending renders,
+            //      matching FinishOpenFile's own scheduling priority).
+            //   2. Yield for 600 ms so async page-bitmap decode/display completes.
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+            await Task.Delay(600);
+            // One more background drain to pick up any layout triggered by the bitmaps arriving.
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
+            await Task.Delay(200);
         }
 
         private void CaptureContent(string path)
