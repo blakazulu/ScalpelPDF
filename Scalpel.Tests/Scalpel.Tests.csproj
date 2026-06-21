@@ -21,6 +21,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="PdfPig" Version="0.1.14" />
+    <PackageReference Include="PdfSharpCore" Version="1.3.67" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
@@ -34,6 +35,7 @@
     <Compile Include="..\Scalpel.E2E\Model\ActionResult.cs" Link="E2E\ActionResult.cs" />
     <Compile Include="..\Scalpel.E2E\Model\RunReport.cs" Link="E2E\RunReport.cs" />
     <Compile Include="..\Scalpel.E2E\Report\Reporter.cs" Link="E2E\Reporter.cs" />
+    <Compile Include="..\Scalpel.E2E\Fixtures\Corpus.cs" Link="E2E\Corpus.cs" />
   </ItemGroup>
 
 </Project>
