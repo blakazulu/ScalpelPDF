@@ -1885,6 +1885,29 @@ namespace Scalpel
             CrashReporter.PushStatusMessage(text);
         }
 
+        // TEMP stub — replaced by the real toast in Task 3.
+        private void ShowToast(string message, string? copyText = null) => SetStatus(message);
+
+        private static IReadOnlyCollection<string>? _availableFamiliesCache;
+        /// <summary>System + bundled font families, cached; used for FontResolver availability checks.</summary>
+        private static IReadOnlyCollection<string> AvailableFontFamilies()
+        {
+            if (_availableFamiliesCache is not null) return _availableFamiliesCache;
+            var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                foreach (var ff in System.Windows.Media.Fonts.SystemFontFamilies)
+                {
+                    if (!string.IsNullOrWhiteSpace(ff.Source)) set.Add(ff.Source);
+                    foreach (var n in ff.FamilyNames.Values) set.Add(n);
+                }
+            }
+            catch { /* minimal fallback below */ }
+            set.Add("Segoe UI");
+            _availableFamiliesCache = set;
+            return set;
+        }
+
         private void VersionLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
@@ -6406,6 +6429,7 @@ namespace Scalpel
                 // Get actual font info from PdfPig letter data
                 double canvasFontSize = cHeight * 0.75; // fallback
                 string fontName = "Segoe UI"; // fallback
+                bool isBold = false, isItalic = false;
                 var firstWord = lineWords.First().Word;
                 try
                 {
@@ -6415,27 +6439,19 @@ namespace Scalpel
                         double pdfFontPts = letter.FontSize;
                         canvasFontSize = pdfFontPts * syInv;
 
-                        // Try to get font name from letter
+                        // Resolve raw PdfPig font name -> family + style + availability.
                         string? rawFont = null;
                         try { rawFont = letter.FontName; } catch { }
                         if (string.IsNullOrEmpty(rawFont))
                         {
-                            // Some PdfPig versions use different property paths
                             try { rawFont = firstWord.FontName; } catch { }
                         }
-                        if (!string.IsNullOrEmpty(rawFont))
-                        {
-                            string fontStr = rawFont!;
-                            // Strip PDF subset prefix (e.g. "ABCDEF+FontName" -> "FontName")
-                            if (fontStr.Contains('+'))
-                                fontStr = fontStr[(fontStr.IndexOf('+') + 1)..];
-                            // Clean common suffixes
-                            fontStr = fontStr.Replace(",Bold", "").Replace(",Italic", "")
-                                             .Replace("-Bold", "").Replace("-Italic", "")
-                                             .Replace("-Roman", "").Replace("-Regular", "");
-                            if (!string.IsNullOrWhiteSpace(fontStr))
-                                fontName = fontStr;
-                        }
+                        var resolved = Scalpel.Services.FontResolver.Resolve(rawFont, AvailableFontFamilies());
+                        fontName = resolved.FamilyName;
+                        isBold = resolved.IsBold;
+                        isItalic = resolved.IsItalic;
+                        if (!resolved.IsInstalled)
+                            ShowToast(string.Format(Loc("Str_FontMissing_Body"), resolved.DisplayName), resolved.DisplayName);
                     }
                 }
                 catch { /* use fallbacks */ }
@@ -6449,6 +6465,8 @@ namespace Scalpel
                     BorderBrush = (SolidColorBrush)FindResource("Accent"), SelectionBrush = AccentBrush(),
                     BorderThickness = new Thickness(2),
                     FontFamily = new FontFamily(fontName),
+                    FontWeight = isBold ? FontWeights.Bold : FontWeights.Normal,
+                    FontStyle = isItalic ? FontStyles.Italic : FontStyles.Normal,
                     FontSize = Math.Max(canvasFontSize, 10),
                     MinWidth = Math.Max(cWidth + 20, 100),
                     Height = Math.Max(cHeight + 12, 24),
@@ -6462,7 +6480,9 @@ namespace Scalpel
                         CanvasBounds = new Rect(cLeft, cTop, cWidth, cHeight),
                         Position = new Point(cLeft, cTop),
                         FontSize = Math.Max(canvasFontSize, 10),
-                        FontName = fontName
+                        FontName = fontName,
+                        IsBold = isBold,
+                        IsItalic = isItalic
                     }
                 };
                 Canvas.SetLeft(tb, cLeft);
@@ -6510,6 +6530,8 @@ namespace Scalpel
             public Point Position { get; set; }
             public double FontSize { get; set; }
             public string FontName { get; set; } = "Segoe UI";
+            public bool IsBold { get; set; }
+            public bool IsItalic { get; set; }
             /// <summary>Non-null when re-editing an already-committed annotation; update in place instead of adding a new one.</summary>
             public TextEditAnnotation? ExistingAnnotation { get; set; }
         }
@@ -6586,7 +6608,9 @@ namespace Scalpel
                     NewContent = newText,
                     OriginalContent = ctx.OriginalText,
                     FontSize = ctx.FontSize,
-                    FontName = ctx.FontName
+                    FontName = ctx.FontName,
+                    IsBold = ctx.IsBold,
+                    IsItalic = ctx.IsItalic
                 };
                 AddAnnotation(edit);
             }
@@ -8036,7 +8060,11 @@ namespace Scalpel
                                 (tea.OriginalBounds.X - 2) * sx, (tea.OriginalBounds.Y - 2) * sy,
                                 (tea.OriginalBounds.Width + 4) * sx, (tea.OriginalBounds.Height + 4) * sy);
                             // Draw replacement text
-                            var editFont = new XFont(tea.FontName, tea.FontSize * sy);
+                            var editStyle = tea.IsBold && tea.IsItalic ? XFontStyle.BoldItalic
+                                          : tea.IsBold ? XFontStyle.Bold
+                                          : tea.IsItalic ? XFontStyle.Italic
+                                          : XFontStyle.Regular;
+                            var editFont = new XFont(tea.FontName, tea.FontSize * sy, editStyle);
                             double ety = tea.Position.Y * sy + tea.FontSize * sy;
                             gfx.DrawString(tea.NewContent, editFont, XBrushes.Black, tea.Position.X * sx, ety);
                             break;

@@ -72,6 +72,8 @@ namespace Scalpel
         public string OriginalContent { get; set; } = "";
         public double FontSize { get; set; } = 14;
         public string FontName { get; set; } = "Segoe UI";
+        public bool IsBold { get; set; }
+        public bool IsItalic { get; set; }
     }
 
     /// <summary>
