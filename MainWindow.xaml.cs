@@ -8067,7 +8067,7 @@ namespace Scalpel
                     switch (annot)
                     {
                         case TextAnnotation ta:
-                            var font = new XFont("Segoe UI", ta.FontSize * sy);
+                            var font = new XFont("Geist", ta.FontSize * sy);
                             var lines = ta.Content.Split('\n');
                             double lineH = ta.FontSize * sy * 1.2;
                             double ty = ta.Position.Y * sy + ta.FontSize * sy;

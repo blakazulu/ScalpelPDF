@@ -137,7 +137,39 @@ namespace Scalpel
 
             ThemeManager.Initialize();
             LocaleManager.Initialize();
+            RegisterPdfFonts();
             new MainWindow().Show();
+        }
+
+        /// <summary>Register bundled fonts with PdfSharpCore and install our resolver
+        /// (once). Lets saved PDFs embed both system and bundled (Geist) fonts.</summary>
+        private static void RegisterPdfFonts()
+        {
+            try
+            {
+                if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is not null) return;
+                foreach (var (file, bold) in new[]
+                {
+                    ("Geist-Regular.ttf", false),
+                    ("Geist-SemiBold.ttf", true),
+                })
+                {
+                    try
+                    {
+                        var uri = new Uri($"pack://application:,,,/Resources/Fonts/{file}");
+                        var info = GetResourceStream(uri);
+                        if (info?.Stream is null) continue;
+                        using var ms = new System.IO.MemoryStream();
+                        info.Stream.CopyTo(ms);
+                        Scalpel.Services.PdfFontResolver.Instance
+                            .RegisterBundledFont("Geist", ms.ToArray(), bold, italic: false);
+                    }
+                    catch { /* skip a missing/locked font resource */ }
+                }
+                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver =
+                    Scalpel.Services.PdfFontResolver.Instance;
+            }
+            catch { /* never block startup over font setup */ }
         }
 
         // ============================================================
