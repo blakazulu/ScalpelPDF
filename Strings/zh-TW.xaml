@@ -92,6 +92,8 @@
     <sys:String x:Key="Str_KS_ThisList">此快速鍵清單</sys:String>
 
     <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_FontMissing_Body">未安裝「{0}」字型，將使用替代字型。</sys:String>
+    <sys:String x:Key="Str_FontMissing_CopyName">複製名稱</sys:String>
     <sys:String x:Key="Str_Ready">就緒</sys:String>
     <sys:String x:Key="Str_Portable">可攜版</sys:String>
     <sys:String x:Key="Str_InstallBtn">安裝 Scalpel...</sys:String>

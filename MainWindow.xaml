@@ -1248,6 +1248,34 @@
             </Border>
         </Grid>
 
+        <!-- Font-missing toast -->
+        <Grid x:Name="ToastHost"
+              Grid.RowSpan="5"
+              Panel.ZIndex="10000"
+              Visibility="Collapsed"
+              Background="{x:Null}">
+            <Border Style="{StaticResource StudioOverlayCard}"
+                    HorizontalAlignment="Center" VerticalAlignment="Top"
+                    Margin="0,16,0,0" Padding="16,10"
+                    MaxWidth="520">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="ToastText"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsBody}"/>
+                    <Button x:Name="ToastCopyBtn"
+                            Content="{DynamicResource Str_FontMissing_CopyName}"
+                            Click="ToastCopyBtn_Click"
+                            Margin="12,0,0,0"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource StudioToolButton}"
+                            Foreground="{DynamicResource Accent}"
+                            FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsBody}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <!-- Film grain overlay - main content area only -->
         <Border x:Name="GrainOverlay"
                 Grid.Row="3"

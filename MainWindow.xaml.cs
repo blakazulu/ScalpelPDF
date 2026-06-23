@@ -1885,8 +1885,50 @@ namespace Scalpel
             CrashReporter.PushStatusMessage(text);
         }
 
-        // TEMP stub — replaced by the real toast in Task 3.
-        private void ShowToast(string message, string? copyText = null) => SetStatus(message);
+        private System.Windows.Threading.DispatcherTimer? _toastTimer;
+
+        /// <summary>Shows a transient toast banner; auto-dismisses after ~4s. Never throws.</summary>
+        private void ShowToast(string message, string? copyText = null)
+        {
+            try
+            {
+                ToastText.Text = message;
+                ToastCopyBtn.Visibility = string.IsNullOrEmpty(copyText) ? Visibility.Collapsed : Visibility.Visible;
+                ToastCopyBtn.Tag = copyText;
+                ToastHost.Opacity = 1;
+                ToastHost.Visibility = Visibility.Visible;
+
+                _toastTimer?.Stop();
+                _toastTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromSeconds(4)
+                };
+                _toastTimer.Tick += (_, __) => { _toastTimer?.Stop(); HideToast(); };
+                _toastTimer.Start();
+            }
+            catch { /* a missing toast must never break editing */ }
+        }
+
+        private void HideToast()
+        {
+            try
+            {
+                var fade = new System.Windows.Media.Animation.DoubleAnimation(0, TimeSpan.FromMilliseconds(250));
+                fade.Completed += (_, __) => ToastHost.Visibility = Visibility.Collapsed;
+                ToastHost.BeginAnimation(UIElement.OpacityProperty, fade);
+            }
+            catch { ToastHost.Visibility = Visibility.Collapsed; }
+        }
+
+        private void ToastCopyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (ToastCopyBtn.Tag is string s && !string.IsNullOrEmpty(s))
+                    Clipboard.SetText(s);
+            }
+            catch { }
+        }
 
         private static IReadOnlyCollection<string>? _availableFamiliesCache;
         /// <summary>System + bundled font families, cached; used for FontResolver availability checks.</summary>
