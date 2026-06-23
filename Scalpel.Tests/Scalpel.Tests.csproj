@@ -28,6 +28,7 @@
   <ItemGroup>
     <Compile Include="..\Models\EditingTypes.cs" Link="Models\EditingTypes.cs" />
     <Compile Include="..\Services\SignatureStore.cs" Link="Services\SignatureStore.cs" />
+    <Compile Include="..\Services\FontResolver.cs" Link="Services\FontResolver.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\ThemeMigration.cs" Link="Services\ThemeMigration.cs" />
     <Compile Include="..\Services\Installer.cs" Link="Services\Installer.cs" />
