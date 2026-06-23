@@ -11,6 +11,8 @@ namespace Scalpel.Services
     /// so it serves both installed system fonts (lazy index of the Windows fonts dir)
     /// and bundled application fonts (registered byte arrays). Never throws; never
     /// returns null — unknown families fall back to Arial.
+    /// Embedding-time resolver for PdfSharpCore; distinct from <see cref="FontResolver"/>
+    /// which only normalizes names / checks availability for the editor.
     /// </summary>
     public sealed class PdfFontResolver : IFontResolver
     {
@@ -80,7 +82,7 @@ namespace Scalpel.Services
                             bytes = ExtractFace(loc.Path, loc.Face);
                     }
                     bytes ??= ReadFallback();
-                    _byFaceCache[faceName] = bytes;
+                    if (bytes.Length > 0) _byFaceCache[faceName] = bytes;
                     return bytes;
                 }
             }

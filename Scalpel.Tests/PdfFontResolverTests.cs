@@ -34,5 +34,19 @@ namespace Scalpel.Tests
             var bytes = PdfFontResolver.Instance.GetFont(info.FaceName);
             Assert.True(bytes.Length > 1000, "fallback face must yield a real font program");
         }
+
+        [Fact]
+        public void Resolve_MultiWordSystemFamily_ResolvesToRealFace()
+        {
+            // "Times New Roman" (times.ttf) is present on all Windows installs.
+            // FaceKey format is "family|b|i" lowercased, e.g. "times new roman|0|0".
+            var info = PdfFontResolver.Instance.ResolveTypeface("Times New Roman", false, false);
+            Assert.NotNull(info);
+            var bytes = PdfFontResolver.Instance.GetFont(info.FaceName);
+            Assert.True(bytes.Length > 1000);
+            // Verify it resolved to Times New Roman, NOT the Arial fallback.
+            Assert.DoesNotContain("arial|", info.FaceName, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("times new roman", info.FaceName, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }

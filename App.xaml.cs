@@ -142,7 +142,10 @@ namespace Scalpel
         }
 
         /// <summary>Register bundled fonts with PdfSharpCore and install our resolver
-        /// (once). Lets saved PDFs embed both system and bundled (Geist) fonts.</summary>
+        /// (once). Lets saved PDFs embed both system and bundled (Geist) fonts.
+        /// Note: only Geist Regular (bold=false) and Geist SemiBold (bold=true) are registered —
+        /// no italic variant exists, so drawing Geist italic yields a synthesized slant
+        /// via MustSimulateItalic.</summary>
         private static void RegisterPdfFonts()
         {
             try
@@ -159,8 +162,9 @@ namespace Scalpel
                         var uri = new Uri($"pack://application:,,,/Resources/Fonts/{file}");
                         var info = GetResourceStream(uri);
                         if (info?.Stream is null) continue;
+                        using var src = info.Stream;
                         using var ms = new System.IO.MemoryStream();
-                        info.Stream.CopyTo(ms);
+                        src.CopyTo(ms);
                         Scalpel.Services.PdfFontResolver.Instance
                             .RegisterBundledFont("Geist", ms.ToArray(), bold, italic: false);
                     }

@@ -17,6 +17,8 @@ namespace Scalpel.Services
     /// Normalizes raw PDF font names (PostScript-style, subset-prefixed) into a usable
     /// family name + style flags, and reports whether the family is installed.
     /// Pure and defensive: never throws; unknown input returns a safe default.
+    /// Editor-side font name normalization + availability; distinct from <see cref="PdfFontResolver"/>
+    /// which serves font bytes to PdfSharpCore for embedding.
     /// </summary>
     public static class FontResolver
     {
