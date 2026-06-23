@@ -30,6 +30,7 @@
     <Compile Include="..\Services\SignatureStore.cs" Link="Services\SignatureStore.cs" />
     <Compile Include="..\Services\FontResolver.cs" Link="Services\FontResolver.cs" />
     <Compile Include="..\Services\PdfFontResolver.cs" Link="Services\PdfFontResolver.cs" />
+    <Compile Include="..\Services\TrueTypeName.cs" Link="Services\TrueTypeName.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\ThemeMigration.cs" Link="Services\ThemeMigration.cs" />
     <Compile Include="..\Services\Installer.cs" Link="Services\Installer.cs" />
