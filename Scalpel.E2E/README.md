@@ -15,6 +15,7 @@ Plan: [`docs/superpowers/plans/2026-06-21-e2e-test-harness.md`](../docs/superpow
 | `journeys` | Scripted realistic workflows (view/zoom tour, edit-tool tour, sign mode, settings round-trip). |
 | `pairwise` | Every ordered pair of Edit-mode tools (state-leak detection). |
 | `monkey`   | A **seeded** random-action stress run incl. window resize. The seed makes any crash reproducible from the JSONL click-trail. |
+| `fonts`    | Drives the new Hebrew text-editing path via the **canvas**: Edit mode → Text tool → click to place a box → type Hebrew → commit (re-click the tool) → Ctrl+S, then reopens the saved PDF with PdfPig and asserts a Hebrew-block character (U+0590–U+05FF) was burned in. Exercises `BidiReorder`, the Noto-Hebrew fallback, and `DrawTextRun`. |
 
 Verification per action: the app stays alive (no crash), the expected `UI/click`
 event appears in the log, no `ERROR`/`crash.*`/`*.fail` line appears, and — for

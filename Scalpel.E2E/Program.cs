@@ -32,11 +32,11 @@ internal static class Program
         // clicks need the window foregrounded. The first launch wins foreground; we
         // reset app state between suites instead.
         bool all = suite == "all";
-        var selected = new[] { "singles", "journeys", "pairwise", "monkey" }
+        var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts" }
             .Where(s => all || suite == s).ToList();
         if (selected.Count == 0)
         {
-            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|all.");
+            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|all.");
             return 2;
         }
 
@@ -63,6 +63,7 @@ internal static class Program
                 case "journeys": JourneysSuite.Run(driver, runner, report); break;
                 case "pairwise": PairwiseSuite.Run(driver, runner, report); break;
                 case "monkey":   MonkeySuite.Run(driver, runner, report, seed); break;
+                case "fonts":    FontHebrewSuite.Run(driver, runner, report, openWith); break;
             }
         }
 

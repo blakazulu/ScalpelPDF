@@ -1,8 +1,11 @@
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
+using FlaUI.Core.WindowsAPI;
 using FlaUI.UIA3;
 
 namespace Scalpel.E2E;
@@ -16,8 +19,56 @@ public sealed class AppDriver : IDisposable
     [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
     [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")] private static extern bool BringWindowToTop(IntPtr hWnd);
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")] private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+    [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(POINT pt);
+    [DllImport("user32.dll")] private static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
+    [DllImport("user32.dll")] private static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+    [DllImport("user32.dll")] private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+    [DllImport("user32.dll")] private static extern bool SetCursorPos(int x, int y);
+    [DllImport("user32.dll")] private static extern bool GetCursorPos(out POINT lpPoint);
+    [DllImport("user32.dll")] private static extern int GetSystemMetrics(int nIndex);
     [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
     private const int SW_RESTORE = 9;
+    private const uint WM_LBUTTONDOWN = 0x0201;
+    private const uint WM_LBUTTONUP   = 0x0202;
+    private const int SM_CXVIRTUALSCREEN = 78;
+    private const int SM_CYVIRTUALSCREEN = 79;
+    private const int SM_XVIRTUALSCREEN  = 76;
+    private const int SM_YVIRTUALSCREEN  = 77;
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct POINT { public int X, Y; }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MOUSEINPUT
+    {
+        public int dx, dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct KEYBDINPUT
+    {
+        public ushort wVk, wScan;
+        public uint dwFlags, time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]
+    private struct INPUT
+    {
+        [System.Runtime.InteropServices.FieldOffset(0)] public uint type;
+        [System.Runtime.InteropServices.FieldOffset(4)] public MOUSEINPUT mi;
+        [System.Runtime.InteropServices.FieldOffset(4)] public KEYBDINPUT ki;
+    }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct RECT { public int Left, Top, Right, Bottom; }
 
     private readonly UIA3Automation _automation;
     private Application _app;
@@ -318,6 +369,166 @@ public sealed class AppDriver : IDisposable
             return false;
         }
         catch { return false; }
+    }
+
+    /// <summary>
+    /// Send a left-click via SendInput using absolute normalized virtual-screen coordinates.
+    /// screenX/Y are in physical screen pixels (as reported by UIA/GetWindowRect).
+    /// Normalizes using the virtual screen dimensions from GetSystemMetrics.
+    /// </summary>
+    private void SendInputClick(int screenX, int screenY)
+    {
+        int vsLeft  = GetSystemMetrics(SM_XVIRTUALSCREEN);
+        int vsTop   = GetSystemMetrics(SM_YVIRTUALSCREEN);
+        int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+        int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+        // Normalize to [0,65535] range for MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK.
+        int nx = (int)(((long)(screenX - vsLeft) * 65535 + vsWidth  - 1) / vsWidth);
+        int ny = (int)(((long)(screenY - vsTop)  * 65535 + vsHeight - 1) / vsHeight);
+        Console.WriteLine($"[AppDriver.SendInputClick] screen=({screenX},{screenY}) vs=({vsLeft},{vsTop},{vsWidth}x{vsHeight}) norm=({nx},{ny})");
+
+        // First move cursor via SetCursorPos (bypasses all DPI normalization concerns).
+        bool moved = SetCursorPos(screenX, screenY);
+        System.Threading.Thread.Sleep(50);
+        POINT actualPos;
+        GetCursorPos(out actualPos);
+        Console.WriteLine($"[AppDriver.SendInputClick] SetCursorPos({screenX},{screenY}) success={moved} actualCursor=({actualPos.X},{actualPos.Y})");
+
+        // Then click at current cursor position (no MOVE flag).
+        var inputs = new INPUT[]
+        {
+            new INPUT { type = 0, mi = new MOUSEINPUT { dwFlags = 0x0002 } }, // MOUSEEVENTF_LEFTDOWN
+            new INPUT { type = 0, mi = new MOUSEINPUT { dwFlags = 0x0004 } }  // MOUSEEVENTF_LEFTUP
+        };
+        SendInput((uint)inputs.Length, inputs, System.Runtime.InteropServices.Marshal.SizeOf(typeof(INPUT)));
+        System.Threading.Thread.Sleep(150);
+    }
+
+    /// <summary>
+    /// Click at fractional coordinates within the main window's bounding rectangle.
+    /// fracX/fracY are in [0,1]: (0,0) = top-left, (1,1) = bottom-right.
+    /// Uses Win32 GetWindowRect for accurate physical pixel bounds (avoids UIA DPI-scaling issues).
+    /// </summary>
+    public void ClickPoint(double fracX, double fracY)
+    {
+        FocusMainWindow();
+        System.Threading.Thread.Sleep(150);
+
+        // Get window rect via Win32 for reliable physical-pixel coordinates.
+        int wx = 0, wy = 0, ww = 800, wh = 600;
+        try
+        {
+            IntPtr hwnd = MainWindow.Properties.NativeWindowHandle.ValueOrDefault;
+            if (hwnd != IntPtr.Zero && GetWindowRect(hwnd, out RECT r))
+            {
+                wx = r.Left; wy = r.Top;
+                ww = r.Right - r.Left; wh = r.Bottom - r.Top;
+            }
+        }
+        catch { }
+
+        int x = wx + (int)(ww * fracX);
+        int y = wy + (int)(wh * fracY);
+        Console.WriteLine($"[AppDriver.ClickPoint] window=({wx},{wy},{ww}x{wh}) frac=({fracX},{fracY}) click=({x},{y})");
+        var pt = new System.Drawing.Point(x, y);
+        Mouse.MoveTo(pt);
+        System.Threading.Thread.Sleep(150);
+        Mouse.Click(MouseButton.Left);
+        System.Threading.Thread.Sleep(150);
+    }
+
+    /// <summary>
+    /// Click in the centre of the page canvas area to place an annotation.
+    /// Finds the PagePreviewPanel ScrollViewer via UIA, resolves the PageImage bounds
+    /// to get accurate screen coordinates, then uses UIA FromPoint + element.Click()
+    /// which is the same physical-click path used for RadioButton/Button elements.
+    /// Falls back to a FlaUI Mouse click on the raw screen coords if UIA lookup fails.
+    /// </summary>
+    public void ClickCanvas()
+    {
+        FocusMainWindow();
+        System.Threading.Thread.Sleep(200);
+
+        try
+        {
+            var scrollEl = MainWindow.FindFirstDescendant(
+                cf => cf.ByAutomationId("PagePreviewPanel").Or(cf.ByName("PagePreviewPanel")));
+
+            if (scrollEl != null)
+            {
+                var pageImage = scrollEl.FindFirstDescendant(
+                    cf => cf.ByAutomationId("PageImage").Or(cf.ByName("PageImage")));
+                if (pageImage == null)
+                    pageImage = scrollEl.FindFirstDescendant(
+                        cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Image));
+
+                var r = pageImage?.BoundingRectangle ?? scrollEl.BoundingRectangle;
+                int screenX = (int)(r.X + r.Width  * 0.45);
+                int screenY = (int)(r.Y + r.Height * 0.45);
+
+                // Use UIA FromPoint + element.Click() — the same physical-click mechanism
+                // that reliably works for toolbar buttons in this WPF layered window.
+                try
+                {
+                    var elemAtPoint = _automation.FromPoint(new System.Drawing.Point(screenX, screenY));
+                    if (elemAtPoint != null)
+                    {
+                        elemAtPoint.Click();
+                        System.Threading.Thread.Sleep(150);
+                        return;
+                    }
+                }
+                catch { }
+
+                Mouse.MoveTo(screenX, screenY);
+                System.Threading.Thread.Sleep(100);
+                Mouse.Click(MouseButton.Left);
+                System.Threading.Thread.Sleep(150);
+                return;
+            }
+        }
+        catch { }
+
+        ClickPoint(0.55, 0.50);
+    }
+
+    /// <summary>
+    /// Find the first unnamed Edit (TextBox) control in the main window's UIA tree.
+    /// The annotation TextBox created by PlaceTextBox has no AutomationId (unlike the
+    /// PageJumpBox and PART_EditableTextBox controls which are named). Returns null if
+    /// no unnamed Edit control is found (e.g. if the canvas click did not place a TextBox).
+    /// </summary>
+    public FlaUI.Core.AutomationElements.AutomationElement? FindAnyTextBox()
+    {
+        try
+        {
+            var all = MainWindow.FindAllDescendants(
+                cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Edit));
+            return all.FirstOrDefault(e => string.IsNullOrEmpty(e.AutomationId));
+        }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// Type a string into the focused element. FlaUI's Keyboard.Type handles Unicode,
+    /// including Hebrew characters, via SendInput with Unicode scan codes.
+    /// Does NOT call FocusMainWindow() to avoid disturbing keyboard focus within the app
+    /// (e.g., a text box that was just placed by a canvas click).
+    /// </summary>
+    public void TypeText(string s)
+    {
+        Keyboard.Type(s);
+        System.Threading.Thread.Sleep(150);
+    }
+
+    /// <summary>
+    /// Press a virtual key (e.g. VirtualKeyShort.RETURN, VirtualKeyShort.ESCAPE).
+    /// </summary>
+    public void PressKey(VirtualKeyShort key)
+    {
+        Keyboard.Press(key);
+        System.Threading.Thread.Sleep(100);
     }
 
     public void Dispose()
