@@ -28,13 +28,16 @@ internal static class Program
         string hebrewPath = corpus.FirstOrDefault(c => c.Key == "hebrew-1p")?.Path ?? "";
         string missingFontPath = corpus.FirstOrDefault(c => c.Key == "missingfont-1p")?.Path ?? "";
 
-        // 2. Decide which suites to run.
+        // 2. Decide which suites to run. --suite accepts "all" or a comma-separated subset
+        //    (e.g. --suite journeys,pairwise) so a fast/bounded run is possible.
         bool all = suite == "all";
+        var requested = suite.Split(',')
+            .Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
         var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts" }
-            .Where(s => all || suite == s).ToList();
+            .Where(s => all || requested.Contains(s)).ToList();
         if (selected.Count == 0)
         {
-            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|all.");
+            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|all, or a comma-separated subset.");
             return 2;
         }
 
