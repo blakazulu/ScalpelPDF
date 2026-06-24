@@ -10,9 +10,9 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Resources\scalpel.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.5.1.30</Version>
-    <AssemblyVersion>1.5.1.30</AssemblyVersion>
-    <FileVersion>1.5.1.30</FileVersion>
+    <Version>1.5.1.31</Version>
+    <AssemblyVersion>1.5.1.31</AssemblyVersion>
+    <FileVersion>1.5.1.31</FileVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
