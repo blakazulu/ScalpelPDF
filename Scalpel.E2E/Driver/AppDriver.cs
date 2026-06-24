@@ -270,12 +270,38 @@ public sealed class AppDriver : IDisposable
                     FocusMainWindow(); // robust forced-foreground; physical clicks need it
                     System.Threading.Thread.Sleep(60); // let the window actually come forward
                     el.Click();
+                    // Self-heal a missed click under foreground contention (higher in parallel
+                    // mode): for a selectable control that should now be selected but isn't,
+                    // re-foreground and click once more — within the same gate hold. This makes
+                    // physical clicks robust everywhere, not just the RunControl retry path.
+                    if (SelectableButNotSelected(el))
+                    {
+                        System.Threading.Thread.Sleep(90);
+                        FocusMainWindow();
+                        System.Threading.Thread.Sleep(60);
+                        el.Click();
+                    }
                 }
                 finally { ForegroundGate.Release(); }
             }
             return true;
         }
         catch { return false; }
+    }
+
+    // True only when the element exposes SelectionItem (RadioButton / selectable) AND is
+    // currently NOT selected — i.e. a click that should have selected it didn't land. Returns
+    // false for non-selectable controls and for togglables (a toggle legitimately ends up off),
+    // so we never retry a click that did take effect.
+    private static bool SelectableButNotSelected(AutomationElement el)
+    {
+        try
+        {
+            if (el.Patterns.SelectionItem.IsSupported)
+                return !el.Patterns.SelectionItem.Pattern.IsSelected.ValueOrDefault;
+        }
+        catch { }
+        return false;
     }
 
     /// <summary>
