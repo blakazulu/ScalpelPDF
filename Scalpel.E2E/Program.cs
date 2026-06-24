@@ -25,6 +25,8 @@ internal static class Program
         string corpusDir = Path.Combine(Path.GetTempPath(), "scalpel-e2e-corpus");
         var corpus = Corpus.Generate(corpusDir);
         string openWith = corpus.First(c => c.Key == "simple-1p").Path;
+        string hebrewPath = corpus.FirstOrDefault(c => c.Key == "hebrew-1p")?.Path ?? "";
+        string missingFontPath = corpus.FirstOrDefault(c => c.Key == "missingfont-1p")?.Path ?? "";
 
         // 2. Launch ONE app session and locate its log. We keep a single session
         // (rather than relaunching per suite) because Windows foreground-lock stops
@@ -63,7 +65,7 @@ internal static class Program
                 case "journeys": JourneysSuite.Run(driver, runner, report); break;
                 case "pairwise": PairwiseSuite.Run(driver, runner, report); break;
                 case "monkey":   MonkeySuite.Run(driver, runner, report, seed); break;
-                case "fonts":    FontHebrewSuite.Run(driver, runner, report, openWith); break;
+                case "fonts":    FontHebrewSuite.Run(driver, runner, report, openWith, hebrewPath, missingFontPath); break;
             }
         }
 

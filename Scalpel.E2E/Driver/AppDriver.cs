@@ -494,6 +494,68 @@ public sealed class AppDriver : IDisposable
     }
 
     /// <summary>
+    /// Double-click in the centre of the page canvas to trigger "edit existing text".
+    /// In EditTool.Select mode the app routes double-clicks to EditTextAtPosition,
+    /// which opens an inline TextBox pre-filled with the nearest PDF word line.
+    /// Uses the same coordinate resolution as ClickCanvas() (PageImage at 45%/45%).
+    /// </summary>
+    public void DoubleClickCanvas()
+    {
+        FocusMainWindow();
+        System.Threading.Thread.Sleep(200);
+
+        try
+        {
+            var scrollEl = MainWindow.FindFirstDescendant(
+                cf => cf.ByAutomationId("PagePreviewPanel").Or(cf.ByName("PagePreviewPanel")));
+
+            if (scrollEl != null)
+            {
+                var pageImage = scrollEl.FindFirstDescendant(
+                    cf => cf.ByAutomationId("PageImage").Or(cf.ByName("PageImage")));
+                if (pageImage == null)
+                    pageImage = scrollEl.FindFirstDescendant(
+                        cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Image));
+
+                var r = pageImage?.BoundingRectangle ?? scrollEl.BoundingRectangle;
+                int screenX = (int)(r.X + r.Width  * 0.45);
+                int screenY = (int)(r.Y + r.Height * 0.45);
+
+                Console.WriteLine($"[AppDriver.DoubleClickCanvas] screen=({screenX},{screenY})");
+
+                // Move cursor first, then send two rapid clicks (double-click).
+                Mouse.MoveTo(screenX, screenY);
+                System.Threading.Thread.Sleep(80);
+                Mouse.DoubleClick(MouseButton.Left);
+                System.Threading.Thread.Sleep(150);
+                return;
+            }
+        }
+        catch { }
+
+        // Fallback: fractional click via ClickPoint (single-monitor path).
+        FocusMainWindow();
+        System.Threading.Thread.Sleep(150);
+        int wx = 0, wy = 0, ww = 800, wh = 600;
+        try
+        {
+            IntPtr hwnd = MainWindow.Properties.NativeWindowHandle.ValueOrDefault;
+            if (hwnd != IntPtr.Zero && GetWindowRect(hwnd, out RECT rect))
+            {
+                wx = rect.Left; wy = rect.Top;
+                ww = rect.Right - rect.Left; wh = rect.Bottom - rect.Top;
+            }
+        }
+        catch { }
+        int fx = wx + (int)(ww * 0.55);
+        int fy = wy + (int)(wh * 0.50);
+        Mouse.MoveTo(fx, fy);
+        System.Threading.Thread.Sleep(100);
+        Mouse.DoubleClick(MouseButton.Left);
+        System.Threading.Thread.Sleep(150);
+    }
+
+    /// <summary>
     /// Find the first unnamed Edit (TextBox) control in the main window's UIA tree.
     /// The annotation TextBox created by PlaceTextBox has no AutomationId (unlike the
     /// PageJumpBox and PART_EditableTextBox controls which are named). Returns null if
