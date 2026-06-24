@@ -6501,8 +6501,14 @@ namespace Scalpel
                     if (firstWord.Letters.Count > 0)
                     {
                         var letter = firstWord.Letters[0];
-                        double pdfFontPts = letter.FontSize;
-                        canvasFontSize = pdfFontPts * syInv;
+                        // PointSize is the size as actually rendered (it accounts for text-matrix
+                        // scaling); letter.FontSize is only the raw `Tf` size, which is often 1pt
+                        // for matrix-scaled big text and would yield a tiny edit box. Prefer
+                        // PointSize, fall back to FontSize, then to the measured glyph height.
+                        double pdfFontPts = letter.PointSize > 0 ? letter.PointSize
+                                          : letter.FontSize > 0 ? letter.FontSize
+                                          : 0;
+                        canvasFontSize = pdfFontPts > 0 ? pdfFontPts * syInv : cHeight * 0.9;
 
                         // Resolve raw PdfPig font name -> family + style + availability.
                         string? rawFont = null;

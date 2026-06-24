@@ -852,8 +852,12 @@
                         </Border>
                     </Border>
 
-                    <!-- PDF page with annotation overlay -->
+                    <!-- PDF page with annotation overlay. FlowDirection is pinned LeftToRight so
+                         a right-to-left UI locale (Hebrew/Arabic) never mirrors the document
+                         coordinate space — otherwise canvas clicks and edit-box placement land
+                         on the wrong side. The PDF page coordinate system is always LTR. -->
                     <ScrollViewer x:Name="PagePreviewPanel" Visibility="Collapsed"
+                                  FlowDirection="LeftToRight"
                                   HorizontalScrollBarVisibility="Auto"
                                   VerticalScrollBarVisibility="Auto"
                                   Background="Transparent"
