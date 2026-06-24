@@ -68,8 +68,8 @@ namespace Scalpel.Tests
             // Build a PDF that stores a Hebrew word in logical order (no bidi reorder),
             // which is how real Hebrew PDFs store text and what PdfPig extracts.
             FontEmbeddingTestsEnsureResolver();
-            // שלום = shin lamed vav mem-sofit = shalom (שלום)
-            string word = "שלום";
+            // \u05E9\u05DC\u05D5\u05DD = shin lamed vav mem-sofit = shalom
+            string word = "\u05E9\u05DC\u05D5\u05DD"; // shalom
             string path = Path.Combine(Path.GetTempPath(),
                 $"scalpel_hesearch_{Guid.NewGuid():N}.pdf");
             try
@@ -97,9 +97,8 @@ namespace Scalpel.Tests
                 GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
             // Ensure Noto Sans Hebrew is registered for this headless test.
             string noto = Path.Combine(RepoRootForSearch(), "Resources", "Fonts", "NotoSansHebrew-Regular.ttf");
-            if (File.Exists(noto))
-                PdfFontResolver.Instance.RegisterBundledFont(
-                    "Noto Sans Hebrew", File.ReadAllBytes(noto), false, false);
+            Assert.True(File.Exists(noto), $"Noto Sans Hebrew font file not found at {noto}");
+            PdfFontResolver.Instance.RegisterBundledFont("Noto Sans Hebrew", File.ReadAllBytes(noto), false, false);
         }
 
         private static string RepoRootForSearch()
