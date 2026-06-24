@@ -1,0 +1,214 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ================================================================
+         Scalpel  —  Hebrew (he) strings
+         ================================================================ -->
+
+    <!-- ── Toolbar tooltips ─────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Open">פתיחה (Ctrl+O)</sys:String>
+    <sys:String x:Key="Str_TT_NewBlank">מסמך ריק חדש (Ctrl+N)</sys:String>
+    <sys:String x:Key="Str_TT_CloseFile">סגירת קובץ (Ctrl+W)</sys:String>
+    <sys:String x:Key="Str_TT_SaveAs">שמירה בשם (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Str_TT_SaveFlattened">שמירת PDF משוטח (רסטור של כל העמודים — לא ניתן לעריכה)</sys:String>
+    <sys:String x:Key="Str_TT_Print">הדפסה (Ctrl+P)</sys:String>
+    <sys:String x:Key="Str_TT_MergePDFs">מיזוג קובצי PDF (שילוב קובצי PDF נוספים אל הנוכחי)</sys:String>
+    <sys:String x:Key="Str_TT_ExtractPages">חילוץ עמודים (שמירת העמודים הנבחרים ל-PDF חדש)</sys:String>
+    <sys:String x:Key="Str_TT_DeletePages">מחיקת העמודים הנבחרים</sys:String>
+    <sys:String x:Key="Str_TT_MovePageUp">העברת עמוד למעלה (סידור מחדש)</sys:String>
+    <sys:String x:Key="Str_TT_MovePageDown">העברת עמוד למטה (סידור מחדש)</sys:String>
+    <sys:String x:Key="Str_TT_SelectTool">כלי בחירה - לחיצה על הערות, גרירה לבחירת טקסט, לחיצה כפולה לעריכה</sys:String>
+    <sys:String x:Key="Str_TT_TextTool">כלי טקסט - לחיצה להוספת טקסט</sys:String>
+    <sys:String x:Key="Str_TT_HighlightTool">כלי הדגשה - גרירה להדגשה</sys:String>
+    <sys:String x:Key="Str_TT_DrawTool">כלי ציור - דיו חופשי</sys:String>
+    <sys:String x:Key="Str_TT_SignatureTool">חתימה - יצירה והצבה של חתימות</sys:String>
+    <sys:String x:Key="Str_TT_ImageTool">כלי תמונה - לחיצה להוספת תמונה לעמוד</sys:String>
+    <sys:String x:Key="Str_TT_CropTool">כלי חיתוך - גרירה להגדרת אזור החיתוך, ואז החלה על העמודים</sys:String>
+    <sys:String x:Key="Str_TT_ClearAnnotations">ניקוי כל ההערות</sys:String>
+    <sys:String x:Key="Str_TT_UndoLast">ביטול הפעולה האחרונה (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Str_TT_MultiPageGrid">תצוגת רשת רב-עמודית</sys:String>
+    <sys:String x:Key="Str_TT_ZoomOut">התרחקות (Ctrl+-)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomLevel">רמת זום (Ctrl+scroll · Ctrl+=/- · Ctrl+0=איפוס)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomIn">התקרבות (Ctrl+=)</sys:String>
+    <sys:String x:Key="Str_TT_GoToPage">מעבר לעמוד (Enter לניווט)</sys:String>
+    <sys:String x:Key="Str_TT_CollapseSidebar">כיווץ הסרגל הצדדי</sys:String>
+    <sys:String x:Key="Str_TT_ExpandSidebar">הרחבת הסרגל הצדדי</sys:String>
+    <sys:String x:Key="Str_TT_KeyboardShortcuts">קיצורי מקלדת (Ctrl+?)</sys:String>
+    <sys:String x:Key="Str_TT_Settings">הגדרות</sys:String>
+    <sys:String x:Key="Str_TT_About">אודות Scalpel</sys:String>
+
+    <!-- ── About overlay ─────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_About_Version">גרסה</sys:String>
+    <sys:String x:Key="Str_About_Publisher">מפרסם</sys:String>
+    <sys:String x:Key="Str_About_Thumbprint">טביעת אצבע</sys:String>
+    <sys:String x:Key="Str_About_ExeSha">EXE SHA256</sys:String>
+    <sys:String x:Key="Str_About_Computing">מחשב...</sys:String>
+    <sys:String x:Key="Str_About_Author">מחבר</sys:String>
+    <sys:String x:Key="Str_About_Repository">מאגר</sys:String>
+    <sys:String x:Key="Str_About_License">רישיון</sys:String>
+
+    <!-- ── Sidebar tabs ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TabPages">עמודים</sys:String>
+    <sys:String x:Key="Str_TabOutlines">סימניות</sys:String>
+
+    <!-- ── Settings panel ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings">הגדרות</sys:String>
+    <sys:String x:Key="Str_Theme">ערכת נושא</sys:String>
+    <sys:String x:Key="Str_Language">שפה</sys:String>
+    <sys:String x:Key="Str_Lang_English">English</sys:String>
+    <sys:String x:Key="Str_Lang_Spanish">Español</sys:String>
+    <sys:String x:Key="Str_Lang_Traditional_Chinese">中文 (繁體)</sys:String>
+    <sys:String x:Key="Str_Lang_Simple_Chinese">中文 (简体)</sys:String>
+    <sys:String x:Key="Str_Lang_Bengali">বাংলা</sys:String>
+    <sys:String x:Key="Str_Lang_Turkish">Türkçe</sys:String>
+    <sys:String x:Key="Str_Lang_Hebrew">עברית</sys:String>
+    <sys:String x:Key="Str_Lang_Arabic">العربية</sys:String>
+    <sys:String x:Key="Str_Lang_Russian">Русский</sys:String>
+
+    <!-- ── Keyboard shortcuts overlay ───────────────────────────────── -->
+    <sys:String x:Key="Str_KS_Title">קיצורי מקלדת</sys:String>
+    <sys:String x:Key="Str_KS_File">קובץ</sys:String>
+    <sys:String x:Key="Str_KS_Open">פתיחה</sys:String>
+    <sys:String x:Key="Str_KS_CloseFile">סגירת קובץ</sys:String>
+    <sys:String x:Key="Str_KS_NewBlank">מסמך ריק חדש</sys:String>
+    <sys:String x:Key="Str_KS_SaveAs">שמירה בשם</sys:String>
+    <sys:String x:Key="Str_KS_Print">הדפסה</sys:String>
+    <sys:String x:Key="Str_KS_Navigation">ניווט</sys:String>
+    <sys:String x:Key="Str_KS_PrevNext">עמוד קודם / הבא</sys:String>
+    <sys:String x:Key="Str_KS_ZoomCursor">התקרבות / התרחקות (מעוגן לסמן)</sys:String>
+    <sys:String x:Key="Str_KS_ZoomInOut">התקרבות / התרחקות</sys:String>
+    <sys:String x:Key="Str_KS_ResetZoom">איפוס זום ל-100%</sys:String>
+    <sys:String x:Key="Str_KS_PanView">הזזת התצוגה</sys:String>
+    <sys:String x:Key="Str_KS_Editing">עריכה</sys:String>
+    <sys:String x:Key="Str_KS_Undo">ביטול</sys:String>
+    <sys:String x:Key="Str_KS_DeleteAnnot">מחיקת ההערה הנבחרת</sys:String>
+    <sys:String x:Key="Str_KS_ConfirmCancel">אישור / ביטול טקסט או חיתוך</sys:String>
+    <sys:String x:Key="Str_KS_SearchSelect">חיפוש &amp; בחירה</sys:String>
+    <sys:String x:Key="Str_KS_Find">מציאה / חיפוש</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevResult">תוצאה הבאה / קודמת</sys:String>
+    <sys:String x:Key="Str_KS_SelectAll">בחירת כל הטקסט בעמוד</sys:String>
+    <sys:String x:Key="Str_KS_CopyText">העתקת הטקסט הנבחר</sys:String>
+    <sys:String x:Key="Str_KS_Help">עזרה</sys:String>
+    <sys:String x:Key="Str_KS_ThisList">רשימת קיצורים זו</sys:String>
+
+    <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_FontMissing_Body">הגופן "{0}" אינו מותקן — ייעשה שימוש בגופן חלופי.</sys:String>
+    <sys:String x:Key="Str_FontMissing_CopyName">העתקת השם</sys:String>
+    <sys:String x:Key="Str_Ready">מוכן</sys:String>
+    <sys:String x:Key="Str_Portable">נייד</sys:String>
+    <sys:String x:Key="Str_InstallBtn">התקנת Scalpel...</sys:String>
+
+    <!-- ── Status messages (format strings — use string.Format) ─────── -->
+    <sys:String x:Key="Str_Opened">נפתח {0} - {1} עמודים</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnly">נפתח {0} (לקריאה בלבד - הגבלות בעלים) - {1} עמודים</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnlyXRef">נפתח {0} (לקריאה בלבד - טבלת XRef לא תקנית) - {1} עמודים</sys:String>
+    <sys:String x:Key="Str_OpenedRepaired">נפתח {0} (עותק מתוקן - שמור כדי לשמור שינויים) - {1} עמודים</sys:String>
+    <sys:String x:Key="Str_OpenedRasterRepair">נפתח {0} (תיקון ברסטור - שמור כדי לשמור שינויים) - {1} עמודים</sys:String>
+    <sys:String x:Key="Str_PageOf">עמוד {0} מתוך {1}</sys:String>
+    <sys:String x:Key="Str_PageOfLinks">עמוד {0} מתוך {1}  ({2} קישורים)</sys:String>
+    <sys:String x:Key="Str_PageFormFields">עמוד {0} מתוך {1} — עמוד זה מכיל שדות טופס למילוי</sys:String>
+    <sys:String x:Key="Str_PageRenderError">עמוד {0} - לא ניתן לעבד</sys:String>
+    <sys:String x:Key="Str_RenderError">שגיאת עיבוד: {0}</sys:String>
+    <sys:String x:Key="Str_Rotated">סובבו {0} עמודים</sys:String>
+    <sys:String x:Key="Str_Cropped">נחתכו {0} עמודים</sys:String>
+    <sys:String x:Key="Str_CropFailed">החיתוך נכשל: {0}</sys:String>
+    <sys:String x:Key="Str_RemovedCrop">תיבת החיתוך הוסרה מ-{0} עמודים</sys:String>
+    <sys:String x:Key="Str_RemoveCropFailed">הסרת החיתוך נכשלה: {0}</sys:String>
+    <sys:String x:Key="Str_Extracted">חולצו {0} עמודים אל {1}</sys:String>
+    <sys:String x:Key="Str_Deleted">נמחקו {0} עמודים - נותרו {1}</sys:String>
+    <sys:String x:Key="Str_Printed">נשלחו {0} עמודים למדפסת</sys:String>
+    <sys:String x:Key="Str_LinkRemoved">הקישור הוסר.</sys:String>
+    <sys:String x:Key="Str_InvalidRange">טווח לא חוקי — לדוגמה 1-3,5,7</sys:String>
+    <sys:String x:Key="Str_CropNoDoc">חיתוך: אין מסמך פתוח</sys:String>
+    <sys:String x:Key="Str_CropNoPage">חיתוך: לא נבחר עמוד</sys:String>
+    <sys:String x:Key="Str_CropNoDims">חיתוך: מידות העמוד אינן זמינות</sys:String>
+    <sys:String x:Key="Str_RotateFailed">הסיבוב נכשל: {0}</sys:String>
+
+    <!-- ── Dialog strings ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Dlg_InstallTitle">התקנת Scalpel</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">להתקין את Scalpel בפרופיל המשתמש שלך?
+
+הפעולה תעתיק את האפליקציה אל %LocalAppData%\Scalpel ותיצור קיצור דרך בתפריט התחל.
+ניתן להסיר את ההתקנה דרך הוספה/הסרה של תוכניות בכל עת.</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedClose">יש לך שינויים שלא נשמרו. לסגור את הקובץ ללא שמירה?</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">יש לך שינויים שלא נשמרו. לסגור את Scalpel ללא שמירה?</sys:String>
+    <sys:String x:Key="Str_Dlg_FailedOpen">פתיחת ה-PDF נכשלה:
+{0}</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
+
+
+    <!-- ── Theme names ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Theme_Dark">כהה</sys:String>
+    <sys:String x:Key="Str_Theme_Light">בהיר</sys:String>
+    <sys:String x:Key="Str_Theme_HighContrast">ניגודיות גבוהה</sys:String>
+    <sys:String x:Key="Str_Accent">צבע הדגשה</sys:String>
+    <sys:String x:Key="Str_Accent_Amber">ענבר</sys:String>
+    <sys:String x:Key="Str_Accent_Red">אדום</sys:String>
+    <sys:String x:Key="Str_Accent_Green">ירוק</sys:String>
+    <sys:String x:Key="Str_Accent_Cyan">תכלת</sys:String>
+
+    <!-- ── Zoom dropdown ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Zoom_FitWidth">התאמה לרוחב</sys:String>
+    <sys:String x:Key="Str_Zoom_FitPage">התאמה לעמוד</sys:String>
+    <sys:String x:Key="Str_FitWidth">עמוד {0} מתוך {1} - התאמה לרוחב ({2}%)</sys:String>
+    <sys:String x:Key="Str_FitPage">עמוד {0} מתוך {1} - התאמה לעמוד ({2}%)</sys:String>
+
+    <!-- ── KS overlay font size (sys:Double) ──────────────────────────── -->
+    <sys:Double x:Key="Str_KS_FontSize">11</sys:Double>
+
+
+    <!-- ── Mode tab strip ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Mode_View">תצוגה</sys:String>
+    <sys:String x:Key="Str_Mode_Edit">עריכה</sys:String>
+    <sys:String x:Key="Str_Mode_Pages">עמודים</sys:String>
+    <sys:String x:Key="Str_Mode_Sign">חתימה</sys:String>
+    <sys:String x:Key="Str_Mode_About">אודות</sys:String>
+    <sys:String x:Key="Str_TT_Search">חיפוש (Ctrl+F)</sys:String>
+
+    <!-- ── Toolbar new tooltip keys ──────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Save">שמירה (Ctrl+S)</sys:String>
+    <sys:String x:Key="Str_TT_FileMenu">פעולות קובץ נוספות</sys:String>
+    <sys:String x:Key="Str_TT_InsertPage">הוספת עמוד ריק אחרי הבחירה</sys:String>
+    <sys:String x:Key="Str_TT_Rotate">סיבוב העמודים הנבחרים עם כיוון השעון (90°)</sys:String>
+
+    <!-- ── Toolbar button labels ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Lbl_Open">פתיחה</sys:String>
+    <sys:String x:Key="Str_Lbl_Save">שמירה</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveAs">שמירה בשם…</sys:String>
+    <sys:String x:Key="Str_Lbl_Print">הדפסה</sys:String>
+    <sys:String x:Key="Str_Lbl_New">חדש</sys:String>
+    <sys:String x:Key="Str_Lbl_CloseFile">סגירת קובץ</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveFlattened">שמירה משוטחת</sys:String>
+    <sys:String x:Key="Str_Lbl_Select">בחירה</sys:String>
+    <sys:String x:Key="Str_Lbl_Text">טקסט</sys:String>
+    <sys:String x:Key="Str_Lbl_Highlight">הדגשה</sys:String>
+    <sys:String x:Key="Str_Lbl_Draw">ציור</sys:String>
+    <sys:String x:Key="Str_Lbl_Image">תמונה</sys:String>
+    <sys:String x:Key="Str_Lbl_Crop">חיתוך</sys:String>
+    <sys:String x:Key="Str_Lbl_Undo">ביטול</sys:String>
+    <sys:String x:Key="Str_Lbl_Clear">ניקוי</sys:String>
+    <sys:String x:Key="Str_Lbl_Merge">מיזוג</sys:String>
+    <sys:String x:Key="Str_Lbl_Extract">חילוץ</sys:String>
+    <sys:String x:Key="Str_Lbl_InsertPage">הוספת עמוד</sys:String>
+    <sys:String x:Key="Str_Lbl_Delete">מחיקה</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveUp">העברה למעלה</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveDown">העברה למטה</sys:String>
+    <sys:String x:Key="Str_Lbl_Rotate">סיבוב</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">התאמה לרוחב</sys:String>
+    <sys:String x:Key="Str_Lbl_Signature">חתימה</sys:String>
+
+    <!-- ── View mode ──────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_View_Single">עמוד יחיד</sys:String>
+    <sys:String x:Key="Str_View_Continuous">רציף</sys:String>
+    <sys:String x:Key="Str_View_TwoPage">שני עמודים</sys:String>
+    <sys:String x:Key="Str_View_Grid">רשת</sys:String>
+    <sys:String x:Key="Str_Continuous_EditMsg">עבור לעמוד יחיד כדי להשתמש בכלי העריכה</sys:String>
+
+    <!-- ── Diagnostics / logging ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings_Diagnostics">אבחון</sys:String>
+    <sys:String x:Key="Str_Log_Enable">הפעלת רישום יומן</sys:String>
+    <sys:String x:Key="Str_Log_OpenFolder">פתיחת תיקיית היומנים</sys:String>
+    <sys:String x:Key="Str_Log_Clear">ניקוי יומנים</sys:String>
+
+</ResourceDictionary>

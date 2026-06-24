@@ -1,0 +1,214 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ================================================================
+         Scalpel  —  Arabic (ar) strings
+         ================================================================ -->
+
+    <!-- ── Toolbar tooltips ─────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Open">فتح (Ctrl+O)</sys:String>
+    <sys:String x:Key="Str_TT_NewBlank">مستند فارغ جديد (Ctrl+N)</sys:String>
+    <sys:String x:Key="Str_TT_CloseFile">إغلاق الملف (Ctrl+W)</sys:String>
+    <sys:String x:Key="Str_TT_SaveAs">حفظ باسم (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Str_TT_SaveFlattened">حفظ PDF مسطّح (تحويل كل الصفحات إلى صور — غير قابل للتحرير)</sys:String>
+    <sys:String x:Key="Str_TT_Print">طباعة (Ctrl+P)</sys:String>
+    <sys:String x:Key="Str_TT_MergePDFs">دمج ملفات PDF (ضم ملفات PDF إضافية إلى هذا الملف)</sys:String>
+    <sys:String x:Key="Str_TT_ExtractPages">استخراج الصفحات (حفظ الصفحات المحددة في ملف PDF جديد)</sys:String>
+    <sys:String x:Key="Str_TT_DeletePages">حذف الصفحات المحددة</sys:String>
+    <sys:String x:Key="Str_TT_MovePageUp">نقل الصفحة لأعلى (إعادة ترتيب)</sys:String>
+    <sys:String x:Key="Str_TT_MovePageDown">نقل الصفحة لأسفل (إعادة ترتيب)</sys:String>
+    <sys:String x:Key="Str_TT_SelectTool">أداة التحديد - انقر على التعليقات، اسحب لتحديد النص، انقر مرتين للتحرير</sys:String>
+    <sys:String x:Key="Str_TT_TextTool">أداة النص - انقر لإضافة نص</sys:String>
+    <sys:String x:Key="Str_TT_HighlightTool">أداة التظليل - اسحب للتظليل</sys:String>
+    <sys:String x:Key="Str_TT_DrawTool">أداة الرسم - حبر يدوي حر</sys:String>
+    <sys:String x:Key="Str_TT_SignatureTool">التوقيع - إنشاء التواقيع ووضعها</sys:String>
+    <sys:String x:Key="Str_TT_ImageTool">أداة الصورة - انقر لإدراج صورة في الصفحة</sys:String>
+    <sys:String x:Key="Str_TT_CropTool">أداة الاقتصاص - اسحب لتحديد منطقة الاقتصاص، ثم طبّق على الصفحات</sys:String>
+    <sys:String x:Key="Str_TT_ClearAnnotations">مسح كل التعليقات</sys:String>
+    <sys:String x:Key="Str_TT_UndoLast">تراجع عن آخر إجراء (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Str_TT_MultiPageGrid">عرض شبكي متعدد الصفحات</sys:String>
+    <sys:String x:Key="Str_TT_ZoomOut">تصغير (Ctrl+-)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomLevel">مستوى التكبير (Ctrl+scroll · Ctrl+=/- · Ctrl+0=إعادة تعيين)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomIn">تكبير (Ctrl+=)</sys:String>
+    <sys:String x:Key="Str_TT_GoToPage">الانتقال إلى صفحة (Enter للتنقل)</sys:String>
+    <sys:String x:Key="Str_TT_CollapseSidebar">طي الشريط الجانبي</sys:String>
+    <sys:String x:Key="Str_TT_ExpandSidebar">توسيع الشريط الجانبي</sys:String>
+    <sys:String x:Key="Str_TT_KeyboardShortcuts">اختصارات لوحة المفاتيح (Ctrl+?)</sys:String>
+    <sys:String x:Key="Str_TT_Settings">الإعدادات</sys:String>
+    <sys:String x:Key="Str_TT_About">حول Scalpel</sys:String>
+
+    <!-- ── About overlay ─────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_About_Version">الإصدار</sys:String>
+    <sys:String x:Key="Str_About_Publisher">الناشر</sys:String>
+    <sys:String x:Key="Str_About_Thumbprint">البصمة</sys:String>
+    <sys:String x:Key="Str_About_ExeSha">EXE SHA256</sys:String>
+    <sys:String x:Key="Str_About_Computing">جارٍ الحساب...</sys:String>
+    <sys:String x:Key="Str_About_Author">المؤلف</sys:String>
+    <sys:String x:Key="Str_About_Repository">المستودع</sys:String>
+    <sys:String x:Key="Str_About_License">الترخيص</sys:String>
+
+    <!-- ── Sidebar tabs ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TabPages">الصفحات</sys:String>
+    <sys:String x:Key="Str_TabOutlines">المخططات</sys:String>
+
+    <!-- ── Settings panel ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings">الإعدادات</sys:String>
+    <sys:String x:Key="Str_Theme">السمة</sys:String>
+    <sys:String x:Key="Str_Language">اللغة</sys:String>
+    <sys:String x:Key="Str_Lang_English">English</sys:String>
+    <sys:String x:Key="Str_Lang_Spanish">Español</sys:String>
+    <sys:String x:Key="Str_Lang_Traditional_Chinese">中文 (繁體)</sys:String>
+    <sys:String x:Key="Str_Lang_Simple_Chinese">中文 (简体)</sys:String>
+    <sys:String x:Key="Str_Lang_Bengali">বাংলা</sys:String>
+    <sys:String x:Key="Str_Lang_Turkish">Türkçe</sys:String>
+    <sys:String x:Key="Str_Lang_Hebrew">עברית</sys:String>
+    <sys:String x:Key="Str_Lang_Arabic">العربية</sys:String>
+    <sys:String x:Key="Str_Lang_Russian">Русский</sys:String>
+
+    <!-- ── Keyboard shortcuts overlay ───────────────────────────────── -->
+    <sys:String x:Key="Str_KS_Title">اختصارات لوحة المفاتيح</sys:String>
+    <sys:String x:Key="Str_KS_File">ملف</sys:String>
+    <sys:String x:Key="Str_KS_Open">فتح</sys:String>
+    <sys:String x:Key="Str_KS_CloseFile">إغلاق الملف</sys:String>
+    <sys:String x:Key="Str_KS_NewBlank">مستند فارغ جديد</sys:String>
+    <sys:String x:Key="Str_KS_SaveAs">حفظ باسم</sys:String>
+    <sys:String x:Key="Str_KS_Print">طباعة</sys:String>
+    <sys:String x:Key="Str_KS_Navigation">التنقل</sys:String>
+    <sys:String x:Key="Str_KS_PrevNext">الصفحة السابقة / التالية</sys:String>
+    <sys:String x:Key="Str_KS_ZoomCursor">تكبير / تصغير (مرتبط بالمؤشر)</sys:String>
+    <sys:String x:Key="Str_KS_ZoomInOut">تكبير / تصغير</sys:String>
+    <sys:String x:Key="Str_KS_ResetZoom">إعادة تعيين التكبير إلى 100%</sys:String>
+    <sys:String x:Key="Str_KS_PanView">تحريك العرض</sys:String>
+    <sys:String x:Key="Str_KS_Editing">التحرير</sys:String>
+    <sys:String x:Key="Str_KS_Undo">تراجع</sys:String>
+    <sys:String x:Key="Str_KS_DeleteAnnot">حذف التعليق المحدد</sys:String>
+    <sys:String x:Key="Str_KS_ConfirmCancel">تأكيد / إلغاء النص أو الاقتصاص</sys:String>
+    <sys:String x:Key="Str_KS_SearchSelect">البحث &amp; التحديد</sys:String>
+    <sys:String x:Key="Str_KS_Find">إيجاد / بحث</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevResult">النتيجة التالية / السابقة</sys:String>
+    <sys:String x:Key="Str_KS_SelectAll">تحديد كل النص في الصفحة</sys:String>
+    <sys:String x:Key="Str_KS_CopyText">نسخ النص المحدد</sys:String>
+    <sys:String x:Key="Str_KS_Help">مساعدة</sys:String>
+    <sys:String x:Key="Str_KS_ThisList">قائمة الاختصارات هذه</sys:String>
+
+    <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_FontMissing_Body">الخط "{0}" غير مثبّت — سيُستخدم خط بديل.</sys:String>
+    <sys:String x:Key="Str_FontMissing_CopyName">نسخ الاسم</sys:String>
+    <sys:String x:Key="Str_Ready">جاهز</sys:String>
+    <sys:String x:Key="Str_Portable">محمول</sys:String>
+    <sys:String x:Key="Str_InstallBtn">تثبيت Scalpel...</sys:String>
+
+    <!-- ── Status messages (format strings — use string.Format) ─────── -->
+    <sys:String x:Key="Str_Opened">تم فتح {0} - {1} صفحة</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnly">تم فتح {0} (للقراءة فقط - قيود المالك) - {1} صفحة</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnlyXRef">تم فتح {0} (للقراءة فقط - جدول XRef غير قياسي) - {1} صفحة</sys:String>
+    <sys:String x:Key="Str_OpenedRepaired">تم فتح {0} (نسخة مُصلَحة - احفظ للاحتفاظ بالتغييرات) - {1} صفحة</sys:String>
+    <sys:String x:Key="Str_OpenedRasterRepair">تم فتح {0} (إصلاح بالتحويل إلى صور - احفظ للاحتفاظ بالتغييرات) - {1} صفحة</sys:String>
+    <sys:String x:Key="Str_PageOf">صفحة {0} من {1}</sys:String>
+    <sys:String x:Key="Str_PageOfLinks">صفحة {0} من {1}  ({2} رابط)</sys:String>
+    <sys:String x:Key="Str_PageFormFields">صفحة {0} من {1} — تحتوي هذه الصفحة على حقول نموذج قابلة للتعبئة</sys:String>
+    <sys:String x:Key="Str_PageRenderError">صفحة {0} - تعذّر العرض</sys:String>
+    <sys:String x:Key="Str_RenderError">خطأ في العرض: {0}</sys:String>
+    <sys:String x:Key="Str_Rotated">تم تدوير {0} صفحة</sys:String>
+    <sys:String x:Key="Str_Cropped">تم اقتصاص {0} صفحة</sys:String>
+    <sys:String x:Key="Str_CropFailed">فشل الاقتصاص: {0}</sys:String>
+    <sys:String x:Key="Str_RemovedCrop">تمت إزالة مربع الاقتصاص من {0} صفحة</sys:String>
+    <sys:String x:Key="Str_RemoveCropFailed">فشلت إزالة الاقتصاص: {0}</sys:String>
+    <sys:String x:Key="Str_Extracted">تم استخراج {0} صفحة إلى {1}</sys:String>
+    <sys:String x:Key="Str_Deleted">تم حذف {0} صفحة - تبقّى {1}</sys:String>
+    <sys:String x:Key="Str_Printed">تم إرسال {0} صفحة إلى الطابعة</sys:String>
+    <sys:String x:Key="Str_LinkRemoved">تمت إزالة الرابط.</sys:String>
+    <sys:String x:Key="Str_InvalidRange">نطاق غير صالح — مثال 1-3,5,7</sys:String>
+    <sys:String x:Key="Str_CropNoDoc">الاقتصاص: لا يوجد مستند مفتوح</sys:String>
+    <sys:String x:Key="Str_CropNoPage">الاقتصاص: لم يتم تحديد صفحة</sys:String>
+    <sys:String x:Key="Str_CropNoDims">الاقتصاص: أبعاد الصفحة غير متوفرة</sys:String>
+    <sys:String x:Key="Str_RotateFailed">فشل التدوير: {0}</sys:String>
+
+    <!-- ── Dialog strings ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Dlg_InstallTitle">تثبيت Scalpel</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">هل تريد تثبيت Scalpel في ملف تعريف المستخدم الخاص بك؟
+
+سيؤدي هذا إلى نسخ التطبيق إلى %LocalAppData%\Scalpel وإنشاء اختصار في قائمة ابدأ.
+يمكنك إلغاء التثبيت عبر إضافة/إزالة البرامج في أي وقت.</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedClose">لديك تغييرات غير محفوظة. إغلاق هذا الملف دون حفظ؟</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">لديك تغييرات غير محفوظة. إغلاق Scalpel دون حفظ؟</sys:String>
+    <sys:String x:Key="Str_Dlg_FailedOpen">تعذّر فتح ملف PDF:
+{0}</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
+
+
+    <!-- ── Theme names ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Theme_Dark">داكن</sys:String>
+    <sys:String x:Key="Str_Theme_Light">فاتح</sys:String>
+    <sys:String x:Key="Str_Theme_HighContrast">تباين عالٍ</sys:String>
+    <sys:String x:Key="Str_Accent">لون التمييز</sys:String>
+    <sys:String x:Key="Str_Accent_Amber">كهرماني</sys:String>
+    <sys:String x:Key="Str_Accent_Red">أحمر</sys:String>
+    <sys:String x:Key="Str_Accent_Green">أخضر</sys:String>
+    <sys:String x:Key="Str_Accent_Cyan">سماوي</sys:String>
+
+    <!-- ── Zoom dropdown ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Zoom_FitWidth">ملاءمة العرض</sys:String>
+    <sys:String x:Key="Str_Zoom_FitPage">ملاءمة الصفحة</sys:String>
+    <sys:String x:Key="Str_FitWidth">صفحة {0} من {1} - ملاءمة العرض ({2}%)</sys:String>
+    <sys:String x:Key="Str_FitPage">صفحة {0} من {1} - ملاءمة الصفحة ({2}%)</sys:String>
+
+    <!-- ── KS overlay font size (sys:Double) ──────────────────────────── -->
+    <sys:Double x:Key="Str_KS_FontSize">11</sys:Double>
+
+
+    <!-- ── Mode tab strip ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Mode_View">عرض</sys:String>
+    <sys:String x:Key="Str_Mode_Edit">تحرير</sys:String>
+    <sys:String x:Key="Str_Mode_Pages">صفحات</sys:String>
+    <sys:String x:Key="Str_Mode_Sign">توقيع</sys:String>
+    <sys:String x:Key="Str_Mode_About">حول</sys:String>
+    <sys:String x:Key="Str_TT_Search">بحث (Ctrl+F)</sys:String>
+
+    <!-- ── Toolbar new tooltip keys ──────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Save">حفظ (Ctrl+S)</sys:String>
+    <sys:String x:Key="Str_TT_FileMenu">إجراءات ملف إضافية</sys:String>
+    <sys:String x:Key="Str_TT_InsertPage">إدراج صفحة فارغة بعد التحديد</sys:String>
+    <sys:String x:Key="Str_TT_Rotate">تدوير الصفحات المحددة في اتجاه عقارب الساعة (90°)</sys:String>
+
+    <!-- ── Toolbar button labels ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Lbl_Open">فتح</sys:String>
+    <sys:String x:Key="Str_Lbl_Save">حفظ</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveAs">حفظ باسم…</sys:String>
+    <sys:String x:Key="Str_Lbl_Print">طباعة</sys:String>
+    <sys:String x:Key="Str_Lbl_New">جديد</sys:String>
+    <sys:String x:Key="Str_Lbl_CloseFile">إغلاق الملف</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveFlattened">حفظ مسطّح</sys:String>
+    <sys:String x:Key="Str_Lbl_Select">تحديد</sys:String>
+    <sys:String x:Key="Str_Lbl_Text">نص</sys:String>
+    <sys:String x:Key="Str_Lbl_Highlight">تظليل</sys:String>
+    <sys:String x:Key="Str_Lbl_Draw">رسم</sys:String>
+    <sys:String x:Key="Str_Lbl_Image">صورة</sys:String>
+    <sys:String x:Key="Str_Lbl_Crop">اقتصاص</sys:String>
+    <sys:String x:Key="Str_Lbl_Undo">تراجع</sys:String>
+    <sys:String x:Key="Str_Lbl_Clear">مسح</sys:String>
+    <sys:String x:Key="Str_Lbl_Merge">دمج</sys:String>
+    <sys:String x:Key="Str_Lbl_Extract">استخراج</sys:String>
+    <sys:String x:Key="Str_Lbl_InsertPage">إدراج صفحة</sys:String>
+    <sys:String x:Key="Str_Lbl_Delete">حذف</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveUp">نقل لأعلى</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveDown">نقل لأسفل</sys:String>
+    <sys:String x:Key="Str_Lbl_Rotate">تدوير</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">ملاءمة العرض</sys:String>
+    <sys:String x:Key="Str_Lbl_Signature">توقيع</sys:String>
+
+    <!-- ── View mode ──────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_View_Single">صفحة واحدة</sys:String>
+    <sys:String x:Key="Str_View_Continuous">متواصل</sys:String>
+    <sys:String x:Key="Str_View_TwoPage">صفحتان</sys:String>
+    <sys:String x:Key="Str_View_Grid">شبكة</sys:String>
+    <sys:String x:Key="Str_Continuous_EditMsg">انتقل إلى صفحة واحدة لاستخدام أدوات التحرير</sys:String>
+
+    <!-- ── Diagnostics / logging ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings_Diagnostics">التشخيص</sys:String>
+    <sys:String x:Key="Str_Log_Enable">تمكين التسجيل</sys:String>
+    <sys:String x:Key="Str_Log_OpenFolder">فتح مجلد السجلات</sys:String>
+    <sys:String x:Key="Str_Log_Clear">مسح السجلات</sys:String>
+
+</ResourceDictionary>

@@ -1,0 +1,214 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ================================================================
+         Scalpel  —  Russian (ru) strings
+         ================================================================ -->
+
+    <!-- ── Toolbar tooltips ─────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Open">Открыть (Ctrl+O)</sys:String>
+    <sys:String x:Key="Str_TT_NewBlank">Новый пустой документ (Ctrl+N)</sys:String>
+    <sys:String x:Key="Str_TT_CloseFile">Закрыть файл (Ctrl+W)</sys:String>
+    <sys:String x:Key="Str_TT_SaveAs">Сохранить как (Ctrl+Shift+S)</sys:String>
+    <sys:String x:Key="Str_TT_SaveFlattened">Сохранить сведённый PDF (растеризовать все страницы — без возможности редактирования)</sys:String>
+    <sys:String x:Key="Str_TT_Print">Печать (Ctrl+P)</sys:String>
+    <sys:String x:Key="Str_TT_MergePDFs">Объединить PDF (добавить другие PDF в текущий)</sys:String>
+    <sys:String x:Key="Str_TT_ExtractPages">Извлечь страницы (сохранить выбранные страницы в новый PDF)</sys:String>
+    <sys:String x:Key="Str_TT_DeletePages">Удалить выбранные страницы</sys:String>
+    <sys:String x:Key="Str_TT_MovePageUp">Переместить страницу вверх (изменить порядок)</sys:String>
+    <sys:String x:Key="Str_TT_MovePageDown">Переместить страницу вниз (изменить порядок)</sys:String>
+    <sys:String x:Key="Str_TT_SelectTool">Инструмент выбора - щёлкните по аннотациям, перетащите для выделения текста, двойной щелчок для редактирования</sys:String>
+    <sys:String x:Key="Str_TT_TextTool">Инструмент текста - щёлкните, чтобы добавить текст</sys:String>
+    <sys:String x:Key="Str_TT_HighlightTool">Инструмент выделения - перетащите для выделения</sys:String>
+    <sys:String x:Key="Str_TT_DrawTool">Инструмент рисования - произвольное рисование</sys:String>
+    <sys:String x:Key="Str_TT_SignatureTool">Подпись - создание и размещение подписей</sys:String>
+    <sys:String x:Key="Str_TT_ImageTool">Инструмент изображения - щёлкните, чтобы вставить изображение на страницу</sys:String>
+    <sys:String x:Key="Str_TT_CropTool">Инструмент обрезки - перетащите, чтобы задать область обрезки, затем примените к страницам</sys:String>
+    <sys:String x:Key="Str_TT_ClearAnnotations">Очистить все аннотации</sys:String>
+    <sys:String x:Key="Str_TT_UndoLast">Отменить последнее действие (Ctrl+Z)</sys:String>
+    <sys:String x:Key="Str_TT_MultiPageGrid">Сетка из нескольких страниц</sys:String>
+    <sys:String x:Key="Str_TT_ZoomOut">Уменьшить (Ctrl+-)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomLevel">Масштаб (Ctrl+scroll · Ctrl+=/- · Ctrl+0=сброс)</sys:String>
+    <sys:String x:Key="Str_TT_ZoomIn">Увеличить (Ctrl+=)</sys:String>
+    <sys:String x:Key="Str_TT_GoToPage">Перейти к странице (Enter для перехода)</sys:String>
+    <sys:String x:Key="Str_TT_CollapseSidebar">Свернуть боковую панель</sys:String>
+    <sys:String x:Key="Str_TT_ExpandSidebar">Развернуть боковую панель</sys:String>
+    <sys:String x:Key="Str_TT_KeyboardShortcuts">Сочетания клавиш (Ctrl+?)</sys:String>
+    <sys:String x:Key="Str_TT_Settings">Настройки</sys:String>
+    <sys:String x:Key="Str_TT_About">О программе Scalpel</sys:String>
+
+    <!-- ── About overlay ─────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_About_Version">ВЕРСИЯ</sys:String>
+    <sys:String x:Key="Str_About_Publisher">ИЗДАТЕЛЬ</sys:String>
+    <sys:String x:Key="Str_About_Thumbprint">ОТПЕЧАТОК</sys:String>
+    <sys:String x:Key="Str_About_ExeSha">EXE SHA256</sys:String>
+    <sys:String x:Key="Str_About_Computing">Вычисление...</sys:String>
+    <sys:String x:Key="Str_About_Author">АВТОР</sys:String>
+    <sys:String x:Key="Str_About_Repository">РЕПОЗИТОРИЙ</sys:String>
+    <sys:String x:Key="Str_About_License">ЛИЦЕНЗИЯ</sys:String>
+
+    <!-- ── Sidebar tabs ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_TabPages">СТРАНИЦЫ</sys:String>
+    <sys:String x:Key="Str_TabOutlines">ЗАКЛАДКИ</sys:String>
+
+    <!-- ── Settings panel ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings">Настройки</sys:String>
+    <sys:String x:Key="Str_Theme">ТЕМА</sys:String>
+    <sys:String x:Key="Str_Language">ЯЗЫК</sys:String>
+    <sys:String x:Key="Str_Lang_English">English</sys:String>
+    <sys:String x:Key="Str_Lang_Spanish">Español</sys:String>
+    <sys:String x:Key="Str_Lang_Traditional_Chinese">中文 (繁體)</sys:String>
+    <sys:String x:Key="Str_Lang_Simple_Chinese">中文 (简体)</sys:String>
+    <sys:String x:Key="Str_Lang_Bengali">বাংলা</sys:String>
+    <sys:String x:Key="Str_Lang_Turkish">Türkçe</sys:String>
+    <sys:String x:Key="Str_Lang_Hebrew">עברית</sys:String>
+    <sys:String x:Key="Str_Lang_Arabic">العربية</sys:String>
+    <sys:String x:Key="Str_Lang_Russian">Русский</sys:String>
+
+    <!-- ── Keyboard shortcuts overlay ───────────────────────────────── -->
+    <sys:String x:Key="Str_KS_Title">Сочетания клавиш</sys:String>
+    <sys:String x:Key="Str_KS_File">ФАЙЛ</sys:String>
+    <sys:String x:Key="Str_KS_Open">Открыть</sys:String>
+    <sys:String x:Key="Str_KS_CloseFile">Закрыть файл</sys:String>
+    <sys:String x:Key="Str_KS_NewBlank">Новый пустой документ</sys:String>
+    <sys:String x:Key="Str_KS_SaveAs">Сохранить как</sys:String>
+    <sys:String x:Key="Str_KS_Print">Печать</sys:String>
+    <sys:String x:Key="Str_KS_Navigation">НАВИГАЦИЯ</sys:String>
+    <sys:String x:Key="Str_KS_PrevNext">Предыдущая / следующая страница</sys:String>
+    <sys:String x:Key="Str_KS_ZoomCursor">Увеличить / уменьшить (привязка к курсору)</sys:String>
+    <sys:String x:Key="Str_KS_ZoomInOut">Увеличить / уменьшить</sys:String>
+    <sys:String x:Key="Str_KS_ResetZoom">Сбросить масштаб до 100%</sys:String>
+    <sys:String x:Key="Str_KS_PanView">Панорамирование</sys:String>
+    <sys:String x:Key="Str_KS_Editing">РЕДАКТИРОВАНИЕ</sys:String>
+    <sys:String x:Key="Str_KS_Undo">Отменить</sys:String>
+    <sys:String x:Key="Str_KS_DeleteAnnot">Удалить выбранную аннотацию</sys:String>
+    <sys:String x:Key="Str_KS_ConfirmCancel">Подтвердить / отменить текст или обрезку</sys:String>
+    <sys:String x:Key="Str_KS_SearchSelect">ПОИСК &amp; ВЫДЕЛЕНИЕ</sys:String>
+    <sys:String x:Key="Str_KS_Find">Найти / поиск</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevResult">Следующий / предыдущий результат</sys:String>
+    <sys:String x:Key="Str_KS_SelectAll">Выделить весь текст на странице</sys:String>
+    <sys:String x:Key="Str_KS_CopyText">Копировать выделенный текст</sys:String>
+    <sys:String x:Key="Str_KS_Help">СПРАВКА</sys:String>
+    <sys:String x:Key="Str_KS_ThisList">Этот список сочетаний</sys:String>
+
+    <!-- ── Status bar ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_FontMissing_Body">Шрифт "{0}" не установлен — будет использован замещающий шрифт.</sys:String>
+    <sys:String x:Key="Str_FontMissing_CopyName">Копировать имя</sys:String>
+    <sys:String x:Key="Str_Ready">Готово</sys:String>
+    <sys:String x:Key="Str_Portable">ПОРТАТИВНАЯ</sys:String>
+    <sys:String x:Key="Str_InstallBtn">Установить Scalpel...</sys:String>
+
+    <!-- ── Status messages (format strings — use string.Format) ─────── -->
+    <sys:String x:Key="Str_Opened">Открыт {0} - стр.: {1}</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnly">Открыт {0} (только для чтения - ограничения владельца) - стр.: {1}</sys:String>
+    <sys:String x:Key="Str_OpenedReadOnlyXRef">Открыт {0} (только для чтения - нестандартная таблица XRef) - стр.: {1}</sys:String>
+    <sys:String x:Key="Str_OpenedRepaired">Открыт {0} (восстановленная копия - сохраните для записи изменений) - стр.: {1}</sys:String>
+    <sys:String x:Key="Str_OpenedRasterRepair">Открыт {0} (восстановление растеризацией - сохраните для записи изменений) - стр.: {1}</sys:String>
+    <sys:String x:Key="Str_PageOf">Страница {0} из {1}</sys:String>
+    <sys:String x:Key="Str_PageOfLinks">Страница {0} из {1}  (ссылок: {2})</sys:String>
+    <sys:String x:Key="Str_PageFormFields">Страница {0} из {1} — на этой странице есть заполняемые поля формы</sys:String>
+    <sys:String x:Key="Str_PageRenderError">Страница {0} - не удалось отобразить</sys:String>
+    <sys:String x:Key="Str_RenderError">Ошибка отображения: {0}</sys:String>
+    <sys:String x:Key="Str_Rotated">Повёрнуто страниц: {0}</sys:String>
+    <sys:String x:Key="Str_Cropped">Обрезано страниц: {0}</sys:String>
+    <sys:String x:Key="Str_CropFailed">Не удалось обрезать: {0}</sys:String>
+    <sys:String x:Key="Str_RemovedCrop">CropBox удалён со страниц: {0}</sys:String>
+    <sys:String x:Key="Str_RemoveCropFailed">Не удалось удалить обрезку: {0}</sys:String>
+    <sys:String x:Key="Str_Extracted">Извлечено страниц: {0} в {1}</sys:String>
+    <sys:String x:Key="Str_Deleted">Удалено страниц: {0} - осталось: {1}</sys:String>
+    <sys:String x:Key="Str_Printed">Отправлено на печать страниц: {0}</sys:String>
+    <sys:String x:Key="Str_LinkRemoved">Ссылка удалена.</sys:String>
+    <sys:String x:Key="Str_InvalidRange">Недопустимый диапазон — например 1-3,5,7</sys:String>
+    <sys:String x:Key="Str_CropNoDoc">Обрезка: документ не открыт</sys:String>
+    <sys:String x:Key="Str_CropNoPage">Обрезка: страница не выбрана</sys:String>
+    <sys:String x:Key="Str_CropNoDims">Обрезка: размеры страницы недоступны</sys:String>
+    <sys:String x:Key="Str_RotateFailed">Не удалось повернуть: {0}</sys:String>
+
+    <!-- ── Dialog strings ───────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Dlg_InstallTitle">Установить Scalpel</sys:String>
+    <sys:String x:Key="Str_Dlg_InstallMsg">Установить Scalpel в ваш профиль пользователя?
+
+Приложение будет скопировано в %LocalAppData%\Scalpel, и будет создан ярлык в меню «Пуск».
+Вы можете удалить его через «Установка и удаление программ» в любое время.</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedClose">Есть несохранённые изменения. Закрыть этот файл без сохранения?</sys:String>
+    <sys:String x:Key="Str_Dlg_UnsavedExit">Есть несохранённые изменения. Закрыть Scalpel без сохранения?</sys:String>
+    <sys:String x:Key="Str_Dlg_FailedOpen">Не удалось открыть PDF:
+{0}</sys:String>
+    <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
+
+
+    <!-- ── Theme names ────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Theme_Dark">Тёмная</sys:String>
+    <sys:String x:Key="Str_Theme_Light">Светлая</sys:String>
+    <sys:String x:Key="Str_Theme_HighContrast">Высокая контрастность</sys:String>
+    <sys:String x:Key="Str_Accent">АКЦЕНТ</sys:String>
+    <sys:String x:Key="Str_Accent_Amber">Янтарный</sys:String>
+    <sys:String x:Key="Str_Accent_Red">Красный</sys:String>
+    <sys:String x:Key="Str_Accent_Green">Зелёный</sys:String>
+    <sys:String x:Key="Str_Accent_Cyan">Голубой</sys:String>
+
+    <!-- ── Zoom dropdown ──────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Zoom_FitWidth">По ширине</sys:String>
+    <sys:String x:Key="Str_Zoom_FitPage">По странице</sys:String>
+    <sys:String x:Key="Str_FitWidth">Страница {0} из {1} - По ширине ({2}%)</sys:String>
+    <sys:String x:Key="Str_FitPage">Страница {0} из {1} - По странице ({2}%)</sys:String>
+
+    <!-- ── KS overlay font size (sys:Double) ──────────────────────────── -->
+    <sys:Double x:Key="Str_KS_FontSize">11</sys:Double>
+
+
+    <!-- ── Mode tab strip ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Mode_View">Просмотр</sys:String>
+    <sys:String x:Key="Str_Mode_Edit">Правка</sys:String>
+    <sys:String x:Key="Str_Mode_Pages">Страницы</sys:String>
+    <sys:String x:Key="Str_Mode_Sign">Подпись</sys:String>
+    <sys:String x:Key="Str_Mode_About">О программе</sys:String>
+    <sys:String x:Key="Str_TT_Search">Поиск (Ctrl+F)</sys:String>
+
+    <!-- ── Toolbar new tooltip keys ──────────────────────────────────── -->
+    <sys:String x:Key="Str_TT_Save">Сохранить (Ctrl+S)</sys:String>
+    <sys:String x:Key="Str_TT_FileMenu">Другие действия с файлом</sys:String>
+    <sys:String x:Key="Str_TT_InsertPage">Вставить пустую страницу после выделения</sys:String>
+    <sys:String x:Key="Str_TT_Rotate">Повернуть выбранные страницы по часовой стрелке (90°)</sys:String>
+
+    <!-- ── Toolbar button labels ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Lbl_Open">Открыть</sys:String>
+    <sys:String x:Key="Str_Lbl_Save">Сохранить</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveAs">Сохранить как…</sys:String>
+    <sys:String x:Key="Str_Lbl_Print">Печать</sys:String>
+    <sys:String x:Key="Str_Lbl_New">Новый</sys:String>
+    <sys:String x:Key="Str_Lbl_CloseFile">Закрыть файл</sys:String>
+    <sys:String x:Key="Str_Lbl_SaveFlattened">Сохранить сведённый</sys:String>
+    <sys:String x:Key="Str_Lbl_Select">Выбор</sys:String>
+    <sys:String x:Key="Str_Lbl_Text">Текст</sys:String>
+    <sys:String x:Key="Str_Lbl_Highlight">Выделение</sys:String>
+    <sys:String x:Key="Str_Lbl_Draw">Рисование</sys:String>
+    <sys:String x:Key="Str_Lbl_Image">Изображение</sys:String>
+    <sys:String x:Key="Str_Lbl_Crop">Обрезка</sys:String>
+    <sys:String x:Key="Str_Lbl_Undo">Отменить</sys:String>
+    <sys:String x:Key="Str_Lbl_Clear">Очистить</sys:String>
+    <sys:String x:Key="Str_Lbl_Merge">Объединить</sys:String>
+    <sys:String x:Key="Str_Lbl_Extract">Извлечь</sys:String>
+    <sys:String x:Key="Str_Lbl_InsertPage">Вставить страницу</sys:String>
+    <sys:String x:Key="Str_Lbl_Delete">Удалить</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveUp">Вверх</sys:String>
+    <sys:String x:Key="Str_Lbl_MoveDown">Вниз</sys:String>
+    <sys:String x:Key="Str_Lbl_Rotate">Повернуть</sys:String>
+    <sys:String x:Key="Str_Lbl_Fit">По ширине</sys:String>
+    <sys:String x:Key="Str_Lbl_Signature">Подпись</sys:String>
+
+    <!-- ── View mode ──────────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_View_Single">Одна страница</sys:String>
+    <sys:String x:Key="Str_View_Continuous">Непрерывно</sys:String>
+    <sys:String x:Key="Str_View_TwoPage">Две страницы</sys:String>
+    <sys:String x:Key="Str_View_Grid">Сетка</sys:String>
+    <sys:String x:Key="Str_Continuous_EditMsg">Переключитесь на «Одна страница», чтобы использовать инструменты редактирования</sys:String>
+
+    <!-- ── Diagnostics / logging ─────────────────────────────────────── -->
+    <sys:String x:Key="Str_Settings_Diagnostics">Диагностика</sys:String>
+    <sys:String x:Key="Str_Log_Enable">Включить ведение журнала</sys:String>
+    <sys:String x:Key="Str_Log_OpenFolder">Открыть папку журналов</sys:String>
+    <sys:String x:Key="Str_Log_Clear">Очистить журналы</sys:String>
+
+</ResourceDictionary>
