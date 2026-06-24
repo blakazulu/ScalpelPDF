@@ -48,5 +48,21 @@ namespace Scalpel.Tests
             Assert.DoesNotContain("arial|", info.FaceName, StringComparison.OrdinalIgnoreCase);
             Assert.Contains("times new roman", info.FaceName, StringComparison.OrdinalIgnoreCase);
         }
+
+        [Fact]
+        public void TryGetExactFontBytes_KnownSystemFamily_ReturnsBytes()
+        {
+            bool ok = PdfFontResolver.Instance.TryGetExactFontBytes("Arial", false, false, out var bytes);
+            Assert.True(ok);
+            Assert.True(bytes.Length > 1000);
+        }
+
+        [Fact]
+        public void TryGetExactFontBytes_UnknownFamily_ReturnsFalse()
+        {
+            bool ok = PdfFontResolver.Instance.TryGetExactFontBytes("NoSuchFontXYZ123", false, false, out var bytes);
+            Assert.False(ok);
+            Assert.Empty(bytes);
+        }
     }
 }

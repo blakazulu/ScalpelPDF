@@ -89,6 +89,35 @@ namespace Scalpel.Services
             catch { return ReadFallback(); }
         }
 
+        /// <summary>True + bytes when <paramref name="family"/> (with style, then regular)
+        /// is an EXACT bundled or system-indexed face. Unlike <see cref="GetFont"/> this does
+        /// NOT fall back to Arial — so a glyph-coverage check can't be fooled into testing
+        /// Arial's glyphs for an unknown family. Never throws.</summary>
+        public bool TryGetExactFontBytes(string family, bool bold, bool italic, out byte[] bytes)
+        {
+            bytes = Array.Empty<byte>();
+            try
+            {
+                string fam = (family ?? "").Trim();
+                if (fam.Length == 0) return false;
+                EnsureIndex();
+                foreach (var key in new[] { FaceKey(fam, bold, italic), FaceKey(fam, false, false) })
+                {
+                    if (_bundled.TryGetValue(key, out var bb) && bb.Length > 0) { bytes = bb; return true; }
+                    lock (_lock)
+                    {
+                        if (_systemIndex!.TryGetValue(key, out var loc))
+                        {
+                            var data = ExtractFace(loc.Path, loc.Face);
+                            if (data.Length > 0) { bytes = data; return true; }
+                        }
+                    }
+                }
+                return false;
+            }
+            catch { return false; }
+        }
+
         // ---- internals ----
 
         private static string FaceKey(string family, bool bold, bool italic)
