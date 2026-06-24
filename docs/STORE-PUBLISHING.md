@@ -2,6 +2,8 @@
 
 This guide covers packaging Scalpel as an **MSIX** and submitting it to the Microsoft Store, plus how to build and test the package locally. It is additive: the existing portable EXE, winget, and Chocolatey channels are unchanged. The single-file `Scalpel.exe` produced by `dotnet publish` is the exact binary that goes inside the package.
 
+> **Live listing:** Scalpel is published on the Microsoft Store at <https://apps.microsoft.com/detail/9n9hn8xw4lf3>. The steps below are the procedure for building and submitting each new version.
+
 > Not legal advice. Scalpel is **GPLv3**; see [§5 Licensing](#5-licensing-gplv3-on-the-store) — it must be handled deliberately on the Store.
 
 ---

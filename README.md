@@ -64,6 +64,10 @@ Six themes to choose from:
 
 ## Download
 
+[![Get it from the Microsoft Store](https://get.microsoft.com/images/en-us%20dark.svg)](https://apps.microsoft.com/detail/9n9hn8xw4lf3)
+
+Now on the **Microsoft Store**: <https://apps.microsoft.com/detail/9n9hn8xw4lf3>
+
 ```powershell
 winget install scalpel
 ```
