@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace Scalpel.Services
 {
-    internal enum Locale { EnUS, Es, ZhTW, ZhCN, Bn, TrTR }
+    internal enum Locale { EnUS, Es, ZhTW, ZhCN, Bn, TrTR, He, Ar, Ru }
 
     internal static class LocaleManager
     {
@@ -42,6 +42,9 @@ namespace Scalpel.Services
                 Locale.ZhCN => new Uri("pack://application:,,,/Strings/zh-CN.xaml"),
                 Locale.Bn   => new Uri("pack://application:,,,/Strings/bn.xaml"),
                 Locale.TrTR => new Uri("pack://application:,,,/Strings/tr-TR.xaml"),
+                Locale.He   => new Uri("pack://application:,,,/Strings/he.xaml"),
+                Locale.Ar   => new Uri("pack://application:,,,/Strings/ar.xaml"),
+                Locale.Ru   => new Uri("pack://application:,,,/Strings/ru.xaml"),
                 _           => new Uri("pack://application:,,,/Strings/en-US.xaml"),
             };
 
@@ -53,6 +56,14 @@ namespace Scalpel.Services
                 merged[1] = dict;
             else
                 merged.Add(dict);
+
+            // Mirror the whole UI for RTL locales (Hebrew/Arabic). Safe if MainWindow not yet created.
+            var win = Application.Current?.MainWindow;
+            if (win != null)
+                win.FlowDirection = IsRtlLocale(locale) ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
         }
+
+        /// <summary>True for locales whose script reads right-to-left (UI should mirror).</summary>
+        public static bool IsRtlLocale(Locale l) => l == Locale.He || l == Locale.Ar;
     }
 }

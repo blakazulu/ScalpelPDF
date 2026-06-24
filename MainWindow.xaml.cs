@@ -192,6 +192,9 @@ namespace Scalpel
         public MainWindow()
         {
             InitializeComponent();
+            // LocaleManager.Initialize ran before this window existed, so mirror RTL now for he/ar.
+            this.FlowDirection = Scalpel.Services.LocaleManager.IsRtlLocale(Scalpel.Services.LocaleManager.Current)
+                ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
             var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
             if (v != null) VersionLabel.Text = $"v{v.Major}.{v.Minor}.{v.Build}";
             _annotationCanvas = (Canvas)FindName("AnnotationCanvas")!;
