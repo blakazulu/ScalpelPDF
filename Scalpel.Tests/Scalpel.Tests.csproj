@@ -32,6 +32,7 @@
     <Compile Include="..\Services\PdfFontResolver.cs" Link="Services\PdfFontResolver.cs" />
     <Compile Include="..\Services\TrueTypeName.cs" Link="Services\TrueTypeName.cs" />
     <Compile Include="..\Services\BidiReorder.cs" Link="Services\BidiReorder.cs" />
+    <Compile Include="..\Services\ArabicShaper.cs" Link="Services\ArabicShaper.cs" />
     <Compile Include="..\Services\TrueTypeCmap.cs" Link="Services\TrueTypeCmap.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\ThemeMigration.cs" Link="Services\ThemeMigration.cs" />
