@@ -6346,7 +6346,9 @@ namespace Scalpel
                         FontWeight = ToWeight(existingEdit.IsBold),
                         FontStyle = ToStyle(existingEdit.IsItalic),
                         MinWidth = Math.Max(reb.Width + 20, 100),
-                        Height = Math.Max(reb.Height + 12, 24),
+                        // Height from the font size so the box fits the text at any size
+                        // (see EditTextAtPosition new-edit path for the rationale).
+                        Height = Math.Max(Math.Max(existingEdit.FontSize, 10) * 1.35 + 6, 24),
                         Padding = new Thickness(2, 0, 2, 0),
                         VerticalContentAlignment = VerticalAlignment.Center,
                         AcceptsReturn = false,
@@ -6540,7 +6542,10 @@ namespace Scalpel
                     FontStyle = ToStyle(isItalic),
                     FontSize = Math.Max(canvasFontSize, 10),
                     MinWidth = Math.Max(cWidth + 20, 100),
-                    Height = Math.Max(cHeight + 12, 24),
+                    // Fit the box height to the FONT (line height ~1.35em + borders), not the
+                    // measured glyph bbox + a constant — the constant under-sizes big text and
+                    // clips it. This tracks the selected text's height at any size.
+                    Height = Math.Max(Math.Max(canvasFontSize, 10) * 1.35 + 6, 24),
                     Padding = new Thickness(2, 0, 2, 0),
                     VerticalContentAlignment = VerticalAlignment.Center,
                     AcceptsReturn = false,
