@@ -108,6 +108,35 @@ namespace Scalpel.Tests
             finally { if (File.Exists(path)) File.Delete(path); }
         }
 
+        [Fact]
+        public void NotoHebrew_FromRepo_CoversAlef_AndEmbeds()
+        {
+            EnsureResolver();
+            string noto = Path.Combine(RepoRoot(), "Resources", "Fonts", "NotoSansHebrew-Regular.ttf");
+            Assert.True(File.Exists(noto), $"expected bundled Hebrew font at {noto}");
+            byte[] bytes = File.ReadAllBytes(noto);
+            Assert.True(Scalpel.Services.TrueTypeCmap.CoversCodepoint(bytes, 0x05D0),
+                "Noto Sans Hebrew must cover ALEF");
+
+            const string fam = "ScalpelHebrewTestFont";
+            PdfFontResolver.Instance.RegisterBundledFont(fam, bytes, false, false);
+            string path = Path.Combine(Path.GetTempPath(), $"scalpel_embed_he_{Guid.NewGuid():N}.pdf");
+            try
+            {
+                using (var doc = new PdfDocument())
+                {
+                    var page = doc.AddPage();
+                    using var gfx = XGraphics.FromPdfPage(page);
+                    // visual order is irrelevant to embedding; draw Hebrew glyphs
+                    gfx.DrawString("םולש", new XFont(fam, 14), XBrushes.Black,
+                        new XPoint(50, 50));
+                    doc.Save(path);
+                }
+                Assert.True(HasEmbeddedFontProgram(path), "Hebrew font should embed");
+            }
+            finally { if (File.Exists(path)) File.Delete(path); }
+        }
+
         private static string RepoRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

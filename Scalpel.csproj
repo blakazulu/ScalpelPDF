@@ -57,6 +57,7 @@
     <Resource Include="Resources\Fonts\Geist-Medium.ttf" />
     <Resource Include="Resources\Fonts\Geist-SemiBold.ttf" />
     <Resource Include="Resources\Fonts\tabler-icons.ttf" />
+    <Resource Include="Resources\Fonts\NotoSansHebrew-Regular.ttf" />
   </ItemGroup>
 
   <!-- GPL3 source bundle: produces <AppName>-<Version>-src.zip in the publish folder every time you Publish. -->
