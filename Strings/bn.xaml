@@ -169,6 +169,14 @@
     <sys:String x:Key="Str_Lbl_Save">সংরক্ষণ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">এভাবে সংরক্ষণ করুন…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">মুদ্রণ</sys:String>
+    <sys:String x:Key="Str_TT_Tools">PDF সরঞ্জাম</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">সরঞ্জাম</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">নম্বরিং / Bates / শিরোনাম…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">PDF সংকুচিত করুন…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">অনুসন্ধানযোগ্য করুন (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">চিহ্নিত এলাকা রিড্যাক্ট করুন…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">পাসওয়ার্ড সুরক্ষা…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">মেটাডেটা সরান</sys:String>
     <sys:String x:Key="Str_Lbl_New">নতুন</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">ফাইল বন্ধ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">ফ্ল্যাটেন সেভ</sys:String>

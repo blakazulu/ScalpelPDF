@@ -169,6 +169,14 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Lbl_Save">Kaydet</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">Farklı Kaydet…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">Yazdır</sys:String>
+    <sys:String x:Key="Str_TT_Tools">PDF araçları</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">Araçlar</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">Numaralandırma / Bates / Üstbilgi…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">PDF'yi Sıkıştır…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">Aranabilir Yap (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">İşaretli Alanları Karart…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">Parola Koruması…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">Meta Verileri Kaldır</sys:String>
     <sys:String x:Key="Str_Lbl_New">Yeni</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Dosyayı Kapat</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Düzleştirilmiş Kaydet</sys:String>

@@ -179,6 +179,14 @@
     <sys:String x:Key="Str_Lbl_Save">حفظ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">حفظ باسم…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">طباعة</sys:String>
+    <sys:String x:Key="Str_TT_Tools">أدوات PDF</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">أدوات</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">ترقيم / Bates / ترويسة…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">ضغط PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">جعله قابلاً للبحث (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">حجب المناطق المحددة…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">الحماية بكلمة مرور…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">إزالة البيانات الوصفية</sys:String>
     <sys:String x:Key="Str_Lbl_New">جديد</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">إغلاق الملف</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">حفظ مسطّح</sys:String>

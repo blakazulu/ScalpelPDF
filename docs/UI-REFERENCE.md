@@ -257,4 +257,25 @@ Scalpel uses the **"Studio"** visual language: a document-first aesthetic where 
 
 ---
 
+## 12. Tools menu (local PDF power features)
+
+A persistent **Tools ▾** button in the File group (handler `FileMenu_Click`, opens a `ContextMenu`)
+exposes six local-only document operations. Handlers live in `MainWindow.Tools.cs` (a `partial class
+MainWindow`); the engines are unit-tested services under `Services/`. All operations burn pending
+annotations into a temp working copy first (`BuildWorkingSourceFile`) and load the result back via
+`AdoptTransformedFile` (Save As to write it out).
+
+| Menu item | String key | Handler | Engine service | Notes |
+|-----------|-----------|---------|----------------|-------|
+| Numbering / Bates / Header… | `Str_Tool_Numbering` | `ToolsNumbering_Click` | `BatesNumberingService` | Page numbers (`Page {page} of {total}`), Bates (`prefix{n}`, zero-padded), or custom header/footer; any of 6 corners. |
+| Compress PDF… | `Str_Tool_Compress` | `ToolsCompress_Click` | `PdfCompressionService` + `DocnetPageRasterizer` | Low/Medium/High presets; rasterize-rebuild at JPEG quality (pages become images). |
+| Make Searchable (OCR)… | `Str_Tool_Ocr` | `ToolsOcr_Click` | `OcrService` + `TesseractCliOcrEngine` | Invisible searchable text layer. Installed build bundles engine+data in `<AppDir>\ocr`; portable build downloads English data on demand to `%LOCALAPPDATA%\Scalpel\ocr` (`OcrAssets`). |
+| Redact Marked Areas… | `Str_Tool_Redact` | `ToolsRedact_Click` | `RedactionService` | Uses Highlight annotations as regions; flattens affected pages to images + black boxes so text is unrecoverable. |
+| Password Protect… | `Str_Tool_Protect` | `ToolsProtect_Click` | `PdfEncryptionService` | Encrypts a saved copy (user password + print/copy permissions). |
+| Remove Metadata | `Str_Tool_Sanitize` | `ToolsSanitize_Click` | `MetadataSanitizer` | Clears author/title/subject/keywords + XMP. |
+
+The small modal forms are built by `ShowToolForm` (themed code-behind dialog, mirrors `PromptForPassword`).
+
+---
+
 *Icons are from the **Tabler Icons** font (bundled); the tooltip text above is the source of truth for each button's purpose. This reference is generated from `MainWindow.xaml`, the handlers in `MainWindow.xaml.cs`, and `Strings/en-US.xaml`.*

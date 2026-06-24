@@ -169,6 +169,14 @@
     <sys:String x:Key="Str_Lbl_Save">保存</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">另存为…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">打印</sys:String>
+    <sys:String x:Key="Str_TT_Tools">PDF 工具</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">工具</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">编号 / Bates / 页眉…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">压缩 PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">生成可搜索文本 (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">遮蔽标记区域…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">密码保护…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">移除元数据</sys:String>
     <sys:String x:Key="Str_Lbl_New">新建</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">关闭文件</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">保存平面化</sys:String>

@@ -12,6 +12,15 @@ namespace Scalpel.Services
 
         public static IReadOnlyList<Release> Releases { get; } = new[]
         {
+            new Release("1.6.0", "June 2026", new[]
+            {
+                "New Tools menu with five local-only power features — no subscription, no uploads.",
+                "Page numbering, Bates numbering, and custom headers/footers you can place in any corner.",
+                "Compress PDF: shrink scan- and photo-heavy files with Low/Medium/High presets, all on your machine.",
+                "Make Searchable (OCR): turn scanned pages into selectable, searchable text offline (one-time local language-data download).",
+                "Password protect: encrypt a copy with a password and printing/copying permissions.",
+                "Remove metadata: strip author, title, and hidden data before sharing.",
+            }),
             new Release("1.5.1", "June 2026", new[]
             {
                 "Added Hebrew, Arabic, and Russian — including a full right-to-left interface for Hebrew and Arabic.",

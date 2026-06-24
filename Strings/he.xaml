@@ -179,6 +179,14 @@
     <sys:String x:Key="Str_Lbl_Save">שמירה</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">שמירה בשם…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">הדפסה</sys:String>
+    <sys:String x:Key="Str_TT_Tools">כלי PDF</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">כלים</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">מספור / Bates / כותרת…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">דחיסת PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">הפיכה לניתן לחיפוש (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">צנזור אזורים מסומנים…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">הגנה בסיסמה…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">הסרת מטא-נתונים</sys:String>
     <sys:String x:Key="Str_Lbl_New">חדש</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">סגירת קובץ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">שמירה משוטחת</sys:String>

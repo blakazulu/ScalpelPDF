@@ -25,17 +25,27 @@
     Skip signing. Writes all-zeros into BuildInfo.cs (disables runtime pdfium check).
     Useful for local test builds. Prints a red warning banner.
 
+.PARAMETER OcrSourceDir
+    Folder holding the bundled OCR engine for the "Windows (with OCR)" download:
+    tesseract.exe (+ its dependent DLLs) and tessdata\eng.traineddata. When present, the
+    script produces an extra "with OCR" zip (signed EXE + an adjacent ocr\ folder) so the
+    installed build has OCR offline out of the box. The portable bare EXE is unaffected
+    (it fetches language data on demand). Defaults to build\ocr-assets; skipped if absent.
+
 .EXAMPLE
     .\release.ps1 -CertThumbprint "AABBCC..."
 .EXAMPLE
     .\release.ps1 -CertName "Open Source Developer, Stephen Riley"
 .EXAMPLE
     .\release.ps1 -SkipSign
+.EXAMPLE
+    .\release.ps1 -CertThumbprint "AABBCC..." -OcrSourceDir "D:\tesseract-portable"
 #>
 param(
     [string]$CertThumbprint = "",
     [string]$CertName       = "Open Source Developer Stephen Riley",
-    [switch]$SkipSign
+    [switch]$SkipSign,
+    [string]$OcrSourceDir   = ""
 )
 
 $ErrorActionPreference = 'Stop'
@@ -233,6 +243,49 @@ if ($pdfiumPath) {
     Write-Host "    pdfium.dll    : $pdfiumHash" -ForegroundColor Green
 }
 
+# ── 4b. Stage "Windows (with OCR)" distribution ──────────────────────────────
+# The installed/normal Windows download bundles the OCR engine; the portable bare EXE
+# fetches language data on demand. Runtime resolution lives in Services/OcrAssets.cs
+# (looks in <AppDir>\ocr first), and the self-installer copies an adjacent ocr\ folder
+# into the install dir. Here we assemble that ocr\ folder next to the signed EXE.
+Write-Host "`n==> Staging 'Windows (with OCR)' distribution..." -ForegroundColor Cyan
+
+if (-not $OcrSourceDir) { $OcrSourceDir = Join-Path $PSScriptRoot "build\ocr-assets" }
+
+$ocrZipPath = $null
+$haveOcr     = $false
+if (Test-Path $OcrSourceDir) {
+    $srcTess = Join-Path $OcrSourceDir "tesseract.exe"
+    $srcData = Join-Path $OcrSourceDir "tessdata\eng.traineddata"
+    if ((Test-Path $srcTess) -and (Test-Path $srcData)) {
+        $haveOcr = $true
+    } else {
+        Write-Warning "    '$OcrSourceDir' is missing tesseract.exe or tessdata\eng.traineddata — skipping OCR bundle."
+    }
+} else {
+    Write-Warning "    OCR source not found: $OcrSourceDir"
+    Write-Host    "    (Populate it with tesseract.exe + tessdata\eng.traineddata to build the 'with OCR' download." -ForegroundColor Yellow
+    Write-Host    "     The portable EXE is still produced and fetches OCR data on demand.)" -ForegroundColor Yellow
+}
+
+if ($haveOcr) {
+    $ver = "0.0.0"
+    try { $ver = ([System.Diagnostics.FileVersionInfo]::GetVersionInfo($exe)).FileVersion } catch { }
+
+    $stageDir = Join-Path $publishDir "with-ocr"
+    if (Test-Path $stageDir) { Remove-Item $stageDir -Recurse -Force }
+    New-Item -ItemType Directory -Path $stageDir | Out-Null
+
+    # Signed EXE + an adjacent ocr\ folder (matches Services/OcrAssets.AppOcrDir).
+    Copy-Item $exe (Join-Path $stageDir "Scalpel.exe")
+    Copy-Item $OcrSourceDir (Join-Path $stageDir "ocr") -Recurse
+
+    $ocrZipPath = Join-Path $publishDir "Scalpel-$ver-win-with-ocr.zip"
+    if (Test-Path $ocrZipPath) { Remove-Item $ocrZipPath -Force }
+    Compress-Archive -Path (Join-Path $stageDir "*") -DestinationPath $ocrZipPath
+    Write-Host "    With-OCR bundle: $ocrZipPath" -ForegroundColor Green
+}
+
 # ── 5. Source zip ────────────────────────────────────────────────────────────
 $srcZip = Get-ChildItem $publishDir -Filter "*-src.zip" -ErrorAction SilentlyContinue |
           Sort-Object LastWriteTime -Descending | Select-Object -First 1
@@ -248,6 +301,10 @@ $sumsPath = Join-Path $PSScriptRoot "SHA256SUMS.txt"
 $lines    = [System.Collections.Generic.List[string]]::new()
 $lines.Add("Scalpel.exe           $exeHash")
 if ($pdfiumPath) { $lines.Add("pdfium.dll              $pdfiumHash") }
+if ($ocrZipPath -and (Test-Path $ocrZipPath)) {
+    $ocrHash = (Get-FileHash $ocrZipPath -Algorithm SHA256).Hash
+    $lines.Add("$((Split-Path $ocrZipPath -Leaf).PadRight(22))$ocrHash")
+}
 if ($srcZip) {
     $srcHash = (Get-FileHash $srcZip.FullName -Algorithm SHA256).Hash
     $lines.Add("$($srcZip.Name.PadRight(24))$srcHash")
@@ -259,6 +316,7 @@ Write-Host "`n==> SHA256SUMS.txt written to: $sumsPath" -ForegroundColor Green
 Write-Host "`n╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
 Write-Host   "  Scalpel release artifacts" -ForegroundColor White
 Write-Host   "  EXE  : $exe"
+if ($ocrZipPath -and (Test-Path $ocrZipPath)) { Write-Host "  OCR  : $ocrZipPath" }
 if ($srcZip) { Write-Host "  SRC  : $($srcZip.FullName)" }
 Write-Host   ""
 Write-Host   "  SHA256 (EXE)       : $exeHash" -ForegroundColor Green

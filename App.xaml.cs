@@ -642,6 +642,16 @@ namespace Scalpel
         }
 
         /// <summary>
+        /// <summary>Recursively copies a directory tree (used to carry bundled OCR assets into the install dir).</summary>
+        private static void CopyDirectoryRecursive(string sourceDir, string destDir)
+        {
+            Directory.CreateDirectory(destDir);
+            foreach (var file in Directory.GetFiles(sourceDir))
+                File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)), overwrite: true);
+            foreach (var sub in Directory.GetDirectories(sourceDir))
+                CopyDirectoryRecursive(sub, Path.Combine(destDir, Path.GetFileName(sub)));
+        }
+
         /// Installs Scalpel, offers to set as default PDF handler, then relaunches
         /// from the installed location. Returns false if installation failed or was
         /// already installed from this path.
@@ -1057,6 +1067,19 @@ namespace Scalpel
                 Directory.CreateDirectory(Installer.InstallDir);
                 File.Copy(src, Installer.InstallExe, overwrite: true);
                 try { File.Copy(src, Installer.UninstallExe, overwrite: true); } catch { }
+
+                // Bundled OCR: the installed "Windows (with OCR)" download ships an "ocr" folder
+                // (tesseract.exe + tessdata) next to the EXE — carry it into the install dir so OCR
+                // works offline out of the box. The portable bare-EXE has no such folder and fetches
+                // language data on demand instead. Both OCR locations are covered by uninstall cleanup
+                // (InstallDir and %LOCALAPPDATA%\Scalpel are both wiped).
+                try
+                {
+                    string srcOcr = Path.Combine(Path.GetDirectoryName(src)!, "ocr");
+                    if (Directory.Exists(srcOcr))
+                        CopyDirectoryRecursive(srcOcr, Path.Combine(Installer.InstallDir, "ocr"));
+                }
+                catch { /* best-effort — OCR can still download on demand if this fails */ }
 
                 // Shortcuts
                 Directory.CreateDirectory(Installer.StartMenuDir);

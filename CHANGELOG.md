@@ -7,6 +7,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this
 ## Unreleased
 
 ### Added
+- **Tools menu — five local-only PDF power features** (no subscription, no uploads), exposed via a new **Tools ▾** button in the toolbar's File group. Each is backed by a unit-tested service under `Services/`:
+  - **Page numbering / Bates numbering / headers & footers** (`BatesNumberingService`) — sequential Bates IDs with prefix/suffix and zero-padding, `Page X of N` page numbers, or custom header/footer text, placed in any of six page corners.
+  - **Compress PDF** (`PdfCompressionService` + `DocnetPageRasterizer`) — Low/Medium/High presets re-encode pages as downscaled JPEGs entirely on-device; highly effective on scan/photo-heavy files. Output pages become images (text non-selectable) — run OCR after to restore searchable text.
+  - **Make Searchable (OCR)** (`OcrService`, `SearchableLayerWriter`, `TesseractTsv`, `TesseractCliOcrEngine`, `OcrAssets`) — turns scanned pages into selectable, searchable text via an invisible text layer, fully offline. Distribution-aware packaging: the installed Windows download bundles the Tesseract engine + English data in `<AppDir>\ocr`; the portable build fetches the language data on demand (~12 MB, official tessdata source) into `%LOCALAPPDATA%\Scalpel\ocr`.
+  - **Redact Marked Areas** (`RedactionService`) — mark regions with the Highlight tool, then permanently flatten the affected pages to images with black boxes so the underlying text is unrecoverable (not just visually covered). Untouched pages keep selectable text.
+  - **Password Protect** (`PdfEncryptionService`) — encrypt a saved copy with a user password and print/copy permission flags. (Removing a known password is implicit: open it, then Save As.)
+  - **Remove Metadata** (`MetadataSanitizer`) — strip author, title, subject, keywords, and the hidden XMP metadata stream before sharing.
+- The self-installer now carries a bundled `ocr/` folder (when shipped next to the EXE) into the install directory, so the installed "Windows (with OCR)" download works offline out of the box; `release.ps1` gains an `-OcrSourceDir` parameter that assembles that distribution.
 - Local-only session logging for diagnostics and QA. Each app launch writes a JSONL log to `%LOCALAPPDATA%\Scalpel\logs\` (one file per session, named `scalpel-<timestamp>.jsonl`) recording app start/exit, every button and menu click, the outcome of major operations (open, save, save-flattened, merge, extract, sign, print), and all errors and crashes. On by default, with a **Settings → Diagnostics** section to toggle logging, open the logs folder, or clear old logs; session logs older than 7 days are removed automatically on startup. Stays fully offline — logs are written only to the local machine and never transmitted. See `docs/LOGGING.md`.
 
 ### Fixed

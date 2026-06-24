@@ -179,6 +179,14 @@
     <sys:String x:Key="Str_Lbl_Save">Сохранить</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">Сохранить как…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">Печать</sys:String>
+    <sys:String x:Key="Str_TT_Tools">Инструменты PDF</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">Инструменты</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">Нумерация / Bates / Колонтитул…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">Сжать PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">Сделать с поиском (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">Закрасить выделенное…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">Защита паролем…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">Удалить метаданные</sys:String>
     <sys:String x:Key="Str_Lbl_New">Новый</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Закрыть файл</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Сохранить сведённый</sys:String>

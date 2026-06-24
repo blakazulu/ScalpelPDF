@@ -169,6 +169,14 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Lbl_Save">Guardar</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">Guardar como…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">Imprimir</sys:String>
+    <sys:String x:Key="Str_TT_Tools">Herramientas PDF</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">Herramientas</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">Numeración / Bates / Encabezado…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">Comprimir PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">Hacer buscable (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">Censurar áreas marcadas…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">Proteger con contraseña…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">Eliminar metadatos</sys:String>
     <sys:String x:Key="Str_Lbl_New">Nuevo</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Cerrar archivo</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Guardar aplanado</sys:String>

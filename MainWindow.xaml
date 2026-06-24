@@ -516,6 +516,25 @@
               <Button Style="{StaticResource StudioToolButton}" Click="Print_Click" ToolTip="{DynamicResource Str_TT_Print}" Margin="6,0,0,0">
                 <StackPanel Orientation="Horizontal"><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Print}" Margin="0,0,7,0"/><TextBlock Text="{DynamicResource Str_Lbl_Print}" VerticalAlignment="Center"/></StackPanel>
               </Button>
+              <!-- Tools: page numbering / Bates, compress, OCR, protect, sanitize -->
+              <Button x:Name="ToolsMenuBtn" Style="{StaticResource StudioToolButton}" Click="FileMenu_Click" ToolTip="{DynamicResource Str_TT_Tools}" Margin="6,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="18" Text="{StaticResource Ico_Settings}" Margin="0,0,7,0"/>
+                  <TextBlock Text="{DynamicResource Str_Lbl_Tools}" VerticalAlignment="Center"/>
+                  <TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="14" Text="{StaticResource Ico_Chevron}" Margin="6,0,0,0"/>
+                </StackPanel>
+                <Button.ContextMenu>
+                  <ContextMenu>
+                    <MenuItem Header="{DynamicResource Str_Tool_Numbering}" Click="ToolsNumbering_Click"/>
+                    <MenuItem Header="{DynamicResource Str_Tool_Compress}" Click="ToolsCompress_Click"/>
+                    <MenuItem Header="{DynamicResource Str_Tool_Ocr}" Click="ToolsOcr_Click"/>
+                    <Separator/>
+                    <MenuItem Header="{DynamicResource Str_Tool_Redact}" Click="ToolsRedact_Click"/>
+                    <MenuItem Header="{DynamicResource Str_Tool_Protect}" Click="ToolsProtect_Click"/>
+                    <MenuItem Header="{DynamicResource Str_Tool_Sanitize}" Click="ToolsSanitize_Click"/>
+                  </ContextMenu>
+                </Button.ContextMenu>
+              </Button>
               <Border Width="1" Background="{DynamicResource BorderDim}" Margin="10,3"/>
             </StackPanel>
 

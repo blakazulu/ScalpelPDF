@@ -179,6 +179,14 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Lbl_Save">Save</sys:String>
     <sys:String x:Key="Str_Lbl_SaveAs">Save As…</sys:String>
     <sys:String x:Key="Str_Lbl_Print">Print</sys:String>
+    <sys:String x:Key="Str_TT_Tools">PDF tools</sys:String>
+    <sys:String x:Key="Str_Lbl_Tools">Tools</sys:String>
+    <sys:String x:Key="Str_Tool_Numbering">Numbering / Bates / Header…</sys:String>
+    <sys:String x:Key="Str_Tool_Compress">Compress PDF…</sys:String>
+    <sys:String x:Key="Str_Tool_Ocr">Make Searchable (OCR)…</sys:String>
+    <sys:String x:Key="Str_Tool_Redact">Redact Marked Areas…</sys:String>
+    <sys:String x:Key="Str_Tool_Protect">Password Protect…</sys:String>
+    <sys:String x:Key="Str_Tool_Sanitize">Remove Metadata</sys:String>
     <sys:String x:Key="Str_Lbl_New">New</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Close File</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Save Flattened</sys:String>
