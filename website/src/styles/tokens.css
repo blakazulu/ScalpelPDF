@@ -1,0 +1,121 @@
+/*
+ * Design tokens — derived 1:1 from docs/system-design.md (the app's "Clinical" language).
+ * Two base themes: Light (Clinical, the brand default) and Dark.
+ * The steel chrome + surgical-red accent are the identity carriers.
+ */
+
+:root {
+  /* ---- Type ---------------------------------------------------------- */
+  --font-ui: 'Geist Variable', 'Heebo Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Code', monospace;
+  --font-he: 'Heebo Variable', 'Geist Variable', system-ui, sans-serif;
+
+  /* Fluid type scale — clinical, tight. clamp(min, vw, max) */
+  --fs-eyebrow: 0.72rem;
+  --fs-micro: 0.78rem;
+  --fs-body: clamp(0.98rem, 0.94rem + 0.2vw, 1.08rem);
+  --fs-lead: clamp(1.12rem, 1.02rem + 0.5vw, 1.4rem);
+  --fs-h3: clamp(1.2rem, 1.05rem + 0.7vw, 1.6rem);
+  --fs-h2: clamp(1.7rem, 1.3rem + 1.8vw, 2.8rem);
+  --fs-display: clamp(2.6rem, 1.7rem + 4.4vw, 5.4rem);
+
+  --tracking-eyebrow: 0.22em;
+  --tracking-tight: -0.02em;
+  --tracking-display: -0.035em;
+
+  /* ---- Geometry ------------------------------------------------------ */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --maxw: 1180px;
+  --gutter: clamp(1.1rem, 0.6rem + 2.5vw, 3rem);
+
+  /* ---- Motion -------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 140ms;
+  --dur: 320ms;
+  --dur-slow: 620ms;
+}
+
+/* ===================== LIGHT (Clinical — default) ===================== */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-canvas: #DFE3E8;   /* deep desk steel */
+  --bg-page: #F4F6F8;     /* working surface */
+  --bg-panel: #FDFDFE;    /* paper / card */
+  --bg-elevated: #FFFFFF; /* ribbon white */
+  --bg-control: #EEF0F3;
+  --bg-hover: #E4E8EC;
+
+  --border: #E0E3E8;
+  --border-strong: #CDD3DA;
+
+  --text: #1A1D22;
+  --text-dim: #525A64;
+  --text-faint: #8A93A0;
+
+  --chrome-bg: #2C3A4C;       /* steel title bar */
+  --chrome-bg-2: #243140;
+  --chrome-text: #FFFFFF;
+  --chrome-text-dim: #AEB9C7;
+  --chrome-hover: #3C4C60;
+
+  --accent: #E11D38;          /* surgical red */
+  --accent-strong: #C8122B;
+  --accent-text: #B11228;
+  --accent-dim: #FDEAEC;
+  --accent-border: #E11D38;
+  --danger: #DC2626;
+
+  --shadow-sm: 0 1px 2px rgba(20, 30, 45, 0.06), 0 2px 6px rgba(20, 30, 45, 0.05);
+  --shadow: 0 10px 30px -12px rgba(24, 34, 50, 0.28), 0 4px 12px -6px rgba(24, 34, 50, 0.14);
+  --shadow-lg: 0 32px 64px -28px rgba(20, 30, 48, 0.42);
+  --ring: 0 0 0 3px rgba(225, 29, 56, 0.28);
+
+  --grid-line: rgba(44, 58, 76, 0.05);
+  --hero-glow: rgba(225, 29, 56, 0.10);
+}
+
+/* ============================== DARK ================================== */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-canvas: #0A0B0E;
+  --bg-page: #101218;
+  --bg-panel: #181B21;
+  --bg-elevated: #1B1F27;
+  --bg-control: #23272F;
+  --bg-hover: #2A2E36;
+
+  --border: #20242B;
+  --border-strong: #2E343E;
+
+  --text: #E7E9EE;
+  --text-dim: #9298A4;
+  --text-faint: #5B616C;
+
+  --chrome-bg: #13161C;
+  --chrome-bg-2: #0E1116;
+  --chrome-text: #E8EAEF;
+  --chrome-text-dim: #8990A0;
+  --chrome-hover: #2A2E36;
+
+  --accent: #F04458;
+  --accent-strong: #FF5A6C;
+  --accent-text: #FF8A98;
+  --accent-dim: #3A1219;
+  --accent-border: #8C1C2C;
+  --danger: #EF4444;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.66);
+  --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.8);
+  --ring: 0 0 0 3px rgba(240, 68, 88, 0.34);
+
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --hero-glow: rgba(240, 68, 88, 0.16);
+}

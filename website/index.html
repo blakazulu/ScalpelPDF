@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#2C3A4C" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Scalpel - Local-only Windows PDF editor</title>
+    <meta name="description" content="Scalpel is a portable, local-only Windows PDF editor. View, annotate, edit, sign, OCR, redact. One 6 MB EXE. No account, no subscription, no telemetry. GPLv3." />
+    <meta property="og:title" content="Scalpel - Local-only Windows PDF editor" />
+    <meta property="og:description" content="Precise PDF editing. Nothing leaves your machine. One portable 6 MB EXE - no account, no telemetry, GPLv3." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/scalpel-icon.svg" />
+    <!-- Anti-FOUC: set theme + direction before first paint -->
+    <script>
+      (function () {
+        try {
+          document.documentElement.classList.add('js');
+          var t = localStorage.getItem('scalpel.theme');
+          if (t !== 'light' && t !== 'dark')
+            t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', t);
+          var l = localStorage.getItem('scalpel.lang');
+          if (!l) { var n = (navigator.language || 'en').slice(0, 2); l = n === 'he' ? 'he' : 'en'; }
+          document.documentElement.setAttribute('lang', l);
+          document.documentElement.setAttribute('dir', l === 'he' ? 'rtl' : 'ltr');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="a11y.skip" data-i18n-attr="aria-label:a11y.skip">Skip to content</a>
+
+    <!-- ===================== Chrome top bar ===================== -->
+    <header class="chrome">
+      <div class="chrome__row">
+        <a class="brand" href="#top" aria-label="Scalpel">
+          <img class="brand__logo" src="/scalpel-icon.svg" alt="" width="30" height="30" />
+          <span class="brand__word">Scalpel<span class="brand__pdf">PDF</span></span>
+        </a>
+
+        <nav class="chrome__nav" aria-label="Primary">
+          <a href="#features" data-i18n="nav.features">Features</a>
+          <a href="#tools" data-i18n="nav.tools">Tools</a>
+          <a href="#privacy" data-i18n="nav.privacy">Privacy</a>
+          <a href="#get" data-i18n="nav.get">Get it</a>
+        </nav>
+
+        <span class="chrome__spacer"></span>
+
+        <button class="qat" data-lang-toggle data-i18n-attr="aria-label:a11y.lang;title:a11y.lang" aria-label="Switch language">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg>
+          <span data-lang-label>עב</span>
+        </button>
+
+        <button class="qat" data-theme-toggle data-i18n-attr="aria-label:a11y.theme;title:a11y.theme" aria-label="Toggle dark mode">
+          <span class="qat__sun" data-icon="sun" aria-hidden="true"></span>
+          <span class="qat__moon" data-icon="moon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <span id="top"></span>
+
+      <!-- ========================= Hero ========================= -->
+      <section class="hero section" aria-labelledby="hero-title">
+        <div class="wrap hero__grid">
+          <div class="hero__copy">
+            <p class="eyebrow reveal" data-i18n="hero.eyebrow">Local-only · Windows · GPLv3</p>
+            <h1 class="hero__title reveal" data-delay="1" id="hero-title">
+              <span data-i18n="hero.title_a">Precise PDF editing.</span>
+              <span class="cut" data-i18n="hero.title_cut">Nothing leaves your machine.</span>
+            </h1>
+            <p class="hero__lead reveal" data-delay="2" data-i18n-html="hero.lead"></p>
+
+            <!-- The 3-option hero CTA -->
+            <div class="downloads reveal" data-delay="2">
+              <a class="dl dl--primary" href="https://github.com/blakazulu/ScalpelPDF/releases/latest" data-dl="portable">
+                <span class="dl__icon" data-icon="package" aria-hidden="true"></span>
+                <span class="dl__body">
+                  <span class="dl__title" data-i18n="dl.portable.title">Portable</span>
+                  <span class="dl__desc" data-i18n="dl.portable.desc"></span>
+                </span>
+                <span class="dl__cta">
+                  <span class="dl__meta" data-i18n="dl.portable.meta">~6 MB · .exe</span>
+                  <span data-icon="arrow" aria-hidden="true"></span>
+                </span>
+              </a>
+
+              <a class="dl" href="https://github.com/blakazulu/ScalpelPDF/releases/latest" data-dl="installer">
+                <span class="dl__icon" data-icon="install" aria-hidden="true"></span>
+                <span class="dl__body">
+                  <span class="dl__title" data-i18n="dl.installer.title">Installer</span>
+                  <span class="dl__desc" data-i18n="dl.installer.desc"></span>
+                </span>
+                <span class="dl__cta">
+                  <span class="dl__meta" data-i18n="dl.installer.meta">x64 · Win 10/11</span>
+                  <span data-icon="arrow" aria-hidden="true"></span>
+                </span>
+              </a>
+
+              <a class="dl" href="https://apps.microsoft.com/detail/9n9hn8xw4lf3" data-dl="store">
+                <span class="dl__icon" data-icon="store" aria-hidden="true"></span>
+                <span class="dl__body">
+                  <span class="dl__title" data-i18n="dl.store.title">Microsoft Store</span>
+                  <span class="dl__desc" data-i18n="dl.store.desc"></span>
+                </span>
+                <span class="dl__cta">
+                  <span class="dl__meta" data-i18n="dl.store.meta">Store · auto-update</span>
+                  <span data-icon="arrow" aria-hidden="true"></span>
+                </span>
+              </a>
+            </div>
+
+            <ul class="trustline reveal" data-delay="3">
+              <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="trust.1">No account</span></li>
+              <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="trust.2">No telemetry</span></li>
+              <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="trust.3">No phone-home</span></li>
+              <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="trust.4">Open source (GPLv3)</span></li>
+            </ul>
+          </div>
+
+          <!-- Hero visual: app-window frame holding the Lottie -->
+          <div class="hero__visual reveal" data-delay="2">
+            <div class="appframe">
+              <div class="appframe__bar">
+                <span class="appframe__dot"></span><span class="appframe__dot"></span><span class="appframe__dot"></span>
+                <span class="appframe__name" data-i18n="frame.name">Acquisition.pdf - Scalpel</span>
+              </div>
+              <div class="appframe__stage" data-lottie>
+                <img class="appframe__fallback" src="/scalpel-icon.svg" alt="Scalpel logo" width="220" height="220" />
+              </div>
+            </div>
+            <span class="chip chip--a"><span data-icon="bolt" aria-hidden="true"></span>~6&nbsp;MB EXE</span>
+            <span class="chip chip--b"><span data-icon="wifi_off" aria-hidden="true"></span>Offline</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== Capability marquee ===================== -->
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee__track">
+          <span class="marquee__item"><span data-icon="doc"></span><span data-i18n="marquee.view">View</span></span>
+          <span class="marquee__item"><span data-icon="pen"></span><span data-i18n="marquee.annotate">Annotate</span></span>
+          <span class="marquee__item"><span data-icon="feather"></span><span data-i18n="marquee.editText">Edit text</span></span>
+          <span class="marquee__item"><span data-icon="layers"></span><span data-i18n="marquee.merge">Merge &amp; split</span></span>
+          <span class="marquee__item"><span data-icon="signature"></span><span data-i18n="marquee.sign">Sign</span></span>
+          <span class="marquee__item"><span data-icon="form"></span><span data-i18n="marquee.forms">Fill forms</span></span>
+          <span class="marquee__item"><span data-icon="ocr"></span><span data-i18n="marquee.ocr">OCR</span></span>
+          <span class="marquee__item"><span data-icon="redact"></span><span data-i18n="marquee.redact">Redact</span></span>
+          <span class="marquee__item"><span data-icon="compress"></span><span data-i18n="marquee.compress">Compress</span></span>
+          <span class="marquee__item"><span data-icon="printer"></span><span data-i18n="marquee.print">Print</span></span>
+          <span class="marquee__item"><span data-icon="flatten"></span><span data-i18n="marquee.flatten">Flatten</span></span>
+          <span class="marquee__item"><span data-icon="hash"></span><span data-i18n="marquee.bates">Bates numbering</span></span>
+        </div>
+      </div>
+
+      <!-- ===================== Features (the editor) ===================== -->
+      <section class="section" id="features" aria-labelledby="features-title">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow reveal" data-i18n="features.eyebrow">The editor</p>
+            <h2 class="reveal" data-delay="1" id="features-title" data-i18n="features.title">A full surgical kit, in one window.</h2>
+            <p class="reveal" data-delay="2" data-i18n="features.lead"></p>
+          </div>
+
+          <div class="groups">
+            <article class="group reveal">
+              <span class="group__cap" data-i18n="group.view.cap">View</span>
+              <span class="group__icon" data-icon="doc" aria-hidden="true"></span>
+              <h3 data-i18n="group.view.title">Read &amp; navigate</h3>
+              <p data-i18n="group.view.desc"></p>
+            </article>
+            <article class="group reveal" data-delay="1">
+              <span class="group__cap" data-i18n="group.annotate.cap">Annotate</span>
+              <span class="group__icon" data-icon="pen" aria-hidden="true"></span>
+              <h3 data-i18n="group.annotate.title">Mark it up</h3>
+              <p data-i18n="group.annotate.desc"></p>
+            </article>
+            <article class="group reveal" data-delay="2">
+              <span class="group__cap" data-i18n="group.edit.cap">Edit</span>
+              <span class="group__icon" data-icon="feather" aria-hidden="true"></span>
+              <h3 data-i18n="group.edit.title">Change the text</h3>
+              <p data-i18n="group.edit.desc"></p>
+            </article>
+            <article class="group reveal">
+              <span class="group__cap" data-i18n="group.organize.cap">Pages</span>
+              <span class="group__icon" data-icon="layers" aria-hidden="true"></span>
+              <h3 data-i18n="group.organize.title">Reorganize</h3>
+              <p data-i18n="group.organize.desc"></p>
+            </article>
+            <article class="group reveal" data-delay="1">
+              <span class="group__cap" data-i18n="group.sign.cap">Sign</span>
+              <span class="group__icon" data-icon="signature" aria-hidden="true"></span>
+              <h3 data-i18n="group.sign.title">Sign &amp; fill</h3>
+              <p data-i18n="group.sign.desc"></p>
+            </article>
+            <article class="group reveal" data-delay="2">
+              <span class="group__cap" data-i18n="group.print.cap">Output</span>
+              <span class="group__icon" data-icon="printer" aria-hidden="true"></span>
+              <h3 data-i18n="group.print.title">Print &amp; flatten</h3>
+              <p data-i18n="group.print.desc"></p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <div class="wrap"><hr class="incision" /></div>
+
+      <!-- ===================== Tools menu ===================== -->
+      <section class="section" id="tools" aria-labelledby="tools-title">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow reveal" data-i18n="tools.eyebrow">The Tools menu</p>
+            <h2 class="reveal" data-delay="1" id="tools-title" data-i18n="tools.title">Document operations, run locally.</h2>
+            <p class="reveal" data-delay="2" data-i18n="tools.lead"></p>
+          </div>
+
+          <div class="tools reveal">
+            <div class="tool">
+              <span class="tool__num">01</span><span class="tool__icon" data-icon="hash" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.numbering.title">Page &amp; Bates numbering</h4><p data-i18n="tool.numbering.desc"></p></div>
+            </div>
+            <div class="tool">
+              <span class="tool__num">02</span><span class="tool__icon" data-icon="compress" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.compress.title">Compression</h4><p data-i18n="tool.compress.desc"></p></div>
+            </div>
+            <div class="tool">
+              <span class="tool__num">03</span><span class="tool__icon" data-icon="ocr" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.ocr.title">OCR</h4><p data-i18n="tool.ocr.desc"></p></div>
+            </div>
+            <div class="tool">
+              <span class="tool__num">04</span><span class="tool__icon" data-icon="redact" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.redact.title">Redaction</h4><p data-i18n="tool.redact.desc"></p></div>
+            </div>
+            <div class="tool">
+              <span class="tool__num">05</span><span class="tool__icon" data-icon="lock" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.protect.title">Password protection</h4><p data-i18n="tool.protect.desc"></p></div>
+            </div>
+            <div class="tool">
+              <span class="tool__num">06</span><span class="tool__icon" data-icon="eraser" aria-hidden="true"></span>
+              <div><h4 data-i18n="tool.sanitize.title">Metadata removal</h4><p data-i18n="tool.sanitize.desc"></p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== Privacy band ===================== -->
+      <section class="section privacy" id="privacy" aria-labelledby="privacy-title">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow reveal" data-i18n="privacy.eyebrow">Why local-only</p>
+            <h2 class="reveal" data-delay="1" id="privacy-title" data-i18n="privacy.title">Your documents never leave your machine.</h2>
+            <p class="reveal" data-delay="2" data-i18n="privacy.lead"></p>
+          </div>
+          <div class="privacy__grid">
+            <div class="pcard reveal"><h4><span data-icon="shield" aria-hidden="true"></span><span data-i18n="pcard.local.title">100% on-device</span></h4><p data-i18n="pcard.local.desc"></p></div>
+            <div class="pcard reveal" data-delay="1"><h4><span data-icon="wifi_off" aria-hidden="true"></span><span data-i18n="pcard.telemetry.title">Zero telemetry</span></h4><p data-i18n="pcard.telemetry.desc"></p></div>
+            <div class="pcard reveal" data-delay="2"><h4><span data-icon="bolt" aria-hidden="true"></span><span data-i18n="pcard.account.title">No account</span></h4><p data-i18n="pcard.account.desc"></p></div>
+            <div class="pcard reveal" data-delay="3"><h4><span data-icon="github" aria-hidden="true"></span><span data-i18n="pcard.open.title">Open source</span></h4><p data-i18n="pcard.open.desc"></p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== Get it (final 3-option CTA) ===================== -->
+      <section class="section" id="get" aria-labelledby="get-title">
+        <div class="wrap">
+          <div class="section-head">
+            <p class="eyebrow reveal" data-i18n="getit.eyebrow">Get Scalpel</p>
+            <h2 class="reveal" data-delay="1" id="get-title" data-i18n="getit.title">Three ways to install. Same 6 MB app.</h2>
+            <p class="reveal" data-delay="2" data-i18n="getit.lead"></p>
+          </div>
+
+          <div class="getit__grid">
+            <article class="option reveal">
+              <span class="option__tag" data-i18n="option.portable.tag">No install</span>
+              <h3 data-i18n="option.portable.title">Portable</h3>
+              <p data-i18n="option.portable.desc"></p>
+              <ul>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.portable.f1"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.portable.f2"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.portable.f3"></span></li>
+              </ul>
+              <a class="btn btn--ghost btn--block" href="https://github.com/blakazulu/ScalpelPDF/releases/latest">
+                <span data-icon="download" aria-hidden="true"></span><span data-i18n="option.portable.btn">Download EXE</span>
+              </a>
+            </article>
+
+            <article class="option option--primary reveal" data-delay="1">
+              <span class="option__tag" data-i18n="option.installer.tag">Recommended</span>
+              <h3 data-i18n="option.installer.title">Installer</h3>
+              <p data-i18n="option.installer.desc"></p>
+              <ul>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.installer.f1"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.installer.f2"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.installer.f3"></span></li>
+              </ul>
+              <a class="btn btn--primary btn--block" href="https://github.com/blakazulu/ScalpelPDF/releases/latest">
+                <span data-icon="download" aria-hidden="true"></span><span data-i18n="option.installer.btn">Download installer</span>
+              </a>
+            </article>
+
+            <article class="option reveal" data-delay="2">
+              <span class="option__tag" data-i18n="option.store.tag">Auto-update</span>
+              <h3 data-i18n="option.store.title">Microsoft Store</h3>
+              <p data-i18n="option.store.desc"></p>
+              <ul>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.store.f1"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.store.f2"></span></li>
+                <li><span data-icon="check" aria-hidden="true"></span><span data-i18n="option.store.f3"></span></li>
+              </ul>
+              <a class="btn btn--ghost btn--block" href="https://apps.microsoft.com/detail/9n9hn8xw4lf3">
+                <span data-icon="store" aria-hidden="true"></span><span data-i18n="option.store.btn">View on Store</span>
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== Footer ===================== -->
+    <footer class="footer">
+      <div class="wrap">
+        <div class="footer__row">
+          <div>
+            <div class="footer__brand"><img src="/favicon.svg" alt="" width="28" height="28" />Scalpel</div>
+            <p style="color: var(--text-dim); margin-block-start: 0.5rem; max-width: 22rem;" data-i18n="footer.tagline">The PDF equivalent of Notepad.</p>
+          </div>
+          <nav class="footer__links" aria-label="Footer">
+            <a href="#features" data-i18n="footer.l.features">Features</a>
+            <a href="#tools" data-i18n="footer.l.tools">Tools</a>
+            <a href="#privacy" data-i18n="footer.l.privacy">Privacy</a>
+            <a href="https://github.com/blakazulu/ScalpelPDF" data-i18n="footer.l.source">Source (GPLv3)</a>
+            <a href="https://apps.microsoft.com/detail/9n9hn8xw4lf3" data-i18n="footer.l.store">Microsoft Store</a>
+          </nav>
+        </div>
+        <div class="footer__legal">
+          <span data-i18n="footer.legal">© 2026 Liraz Amir · GPLv3 · No telemetry</span>
+          <span class="mono" data-i18n="footer.version">v1.5.1 · x64 · Windows 10/11</span>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

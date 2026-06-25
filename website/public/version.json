@@ -1,0 +1,9 @@
+{
+  "version": "1.8.0",
+  "siteUrl": "https://scalpel-pdf.netlify.app",
+  "storeUrl": "https://apps.microsoft.com/detail/9n9hn8xw4lf3",
+  "notes": [
+    "Optional update notifications — Scalpel can now tell you when a new version is out.",
+    "Fixes and polish across themes."
+  ]
+}
