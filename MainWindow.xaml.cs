@@ -343,6 +343,7 @@ namespace Scalpel
             _suppressLogToggleEvent = true;
             LogEnabledCheck.IsChecked = Scalpel.Services.Logger.Enabled;
             _suppressLogToggleEvent = false;
+            SyncUpdateToggle();
             SettingsOverlay.Visibility = Visibility.Visible;
         }
 

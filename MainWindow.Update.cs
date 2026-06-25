@@ -103,5 +103,17 @@ namespace Scalpel
 
         private void UpdateOverlayCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
             => e.Handled = true;
+
+        /// <summary>Reflects the stored setting onto the toggle; call when opening Settings.</summary>
+        private void SyncUpdateToggle()
+        {
+            if (UpdateCheckToggle != null)
+                UpdateCheckToggle.IsChecked = App.GetSetting(KeyUpdateEnabled) == "1";
+        }
+
+        private void UpdateCheckToggle_Click(object sender, RoutedEventArgs e)
+        {
+            App.SetSetting(KeyUpdateEnabled, UpdateCheckToggle.IsChecked == true ? "1" : "0");
+        }
     }
 }

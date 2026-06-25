@@ -1118,6 +1118,13 @@
                                   Checked="LangRuRadio_Checked"/>
                     </StackPanel>
 
+                    <CheckBox x:Name="UpdateCheckToggle"
+                              Content="{DynamicResource Str_Settings_CheckUpdates}"
+                              Foreground="{DynamicResource TextPrimary}"
+                              FontFamily="{DynamicResource FontUI}" FontSize="12"
+                              Margin="0,8,0,0"
+                              Click="UpdateCheckToggle_Click"/>
+
                     <TextBlock Text="{DynamicResource Str_Settings_Diagnostics}" Foreground="{DynamicResource Accent}"
                                FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold"
                                Margin="0,12,0,4"/>
