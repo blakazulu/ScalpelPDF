@@ -8,6 +8,15 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Clean on-domain download link → the latest GitHub Release asset (binary stays
+# on GitHub's CDN: no repo bloat, no Netlify bandwidth). Must come before the
+# catch-all below — redirects are matched top to bottom, first match wins.
+[[redirects]]
+  from = "/download"
+  to = "https://github.com/blakazulu/ScalpelPDF/releases/latest/download/Scalpel.exe"
+  status = 302
+  force = true
+
 # SPA-free static site, but keep a catch-all so deep links resolve to the page.
 [[redirects]]
   from = "/*"
