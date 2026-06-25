@@ -56,6 +56,7 @@
     <Compile Include="..\Scalpel.E2E\Fixtures\Corpus.cs" Link="E2E\Corpus.cs" />
     <Compile Include="..\Scalpel.E2E\Catalog\ControlSpec.cs" Link="E2E\ControlSpec.cs" />
     <Compile Include="..\Scalpel.E2E\Catalog\Catalog.cs" Link="E2E\Catalog.cs" />
+    <Compile Include="..\Services\UpdateService.cs" Link="Services\UpdateService.cs" />
   </ItemGroup>
 
 </Project>
