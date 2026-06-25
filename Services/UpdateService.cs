@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Scalpel.Services
 {
@@ -15,6 +18,34 @@ namespace Scalpel.Services
     {
         /// <summary>Fallback when a packaged build has no explicit storeUrl.</summary>
         public const string StoreSearchUrl = "https://apps.microsoft.com/search?query=Scalpel+PDF";
+
+        public static readonly TimeSpan CheckInterval = TimeSpan.FromHours(24);
+        public const string VersionJsonUrl = "https://scalpel-pdf.netlify.app/version.json";
+
+        /// <summary>Whether an automatic check is due: enabled and last check older than the interval.</summary>
+        public static bool ShouldCheckNow(bool enabled, DateTime? lastCheck, DateTime now)
+        {
+            if (!enabled) return false;
+            if (lastCheck is null) return true;
+            return now - lastCheck.Value >= CheckInterval;
+        }
+
+        /// <summary>
+        /// Fetches and parses version.json. Returns null on any failure (offline/timeout/malformed) —
+        /// caller does nothing. Sends no data about the user. Does NOT touch settings.
+        /// </summary>
+        public static async Task<UpdateInfo?> CheckAsync(string url)
+        {
+            try
+            {
+                ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                http.DefaultRequestHeaders.Add("User-Agent", "Scalpel-UpdateCheck");
+                string json = await http.GetStringAsync(url).ConfigureAwait(false);
+                return TryParse(json);
+            }
+            catch { return null; }
+        }
 
         /// <summary>True when <paramref name="latest"/> is a strictly newer 3-part version.</summary>
         public static bool IsNewer(string latest, Version current)

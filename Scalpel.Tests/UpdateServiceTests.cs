@@ -62,5 +62,27 @@ namespace Scalpel.Tests
             var info = new UpdateInfo("1.7.0", "https://site", "", Array.Empty<string>());
             Assert.Equal(UpdateService.StoreSearchUrl, UpdateService.ResolveUrl(info, packaged: true));
         }
+
+        [Fact]
+        public void ShouldCheckNow_false_when_disabled()
+        {
+            var now = new DateTime(2026, 6, 25, 12, 0, 0, DateTimeKind.Utc);
+            Assert.False(UpdateService.ShouldCheckNow(enabled: false, lastCheck: null, now: now));
+        }
+
+        [Fact]
+        public void ShouldCheckNow_true_when_enabled_and_never_checked()
+        {
+            var now = new DateTime(2026, 6, 25, 12, 0, 0, DateTimeKind.Utc);
+            Assert.True(UpdateService.ShouldCheckNow(enabled: true, lastCheck: null, now: now));
+        }
+
+        [Fact]
+        public void ShouldCheckNow_respects_24h_throttle()
+        {
+            var now = new DateTime(2026, 6, 25, 12, 0, 0, DateTimeKind.Utc);
+            Assert.False(UpdateService.ShouldCheckNow(true, now.AddHours(-1), now));   // too soon
+            Assert.True(UpdateService.ShouldCheckNow(true, now.AddHours(-25), now));   // due
+        }
     }
 }
