@@ -79,7 +79,7 @@ pwsh -File packaging\build-msix.ps1 -NoSign `
      -PublisherDisplayName "Your Publisher Display Name"
 ```
 
-`-NoSign` leaves the package unsigned; upload `packaging\out\Scalpel_<version>_x64.msix` in Partner Center under the submission's **Packages** step. Then fill in Store listing (description, screenshots — reuse `screenshots/`), age rating, pricing (Free), and markets, and submit for certification.
+`-NoSign` leaves the package unsigned; upload `packaging\out\Scalpel_<version>_x64.msix` in Partner Center under the submission's **Packages** step. Then fill in Store listing (description, screenshots — reuse `store-assets/screenshots/`), age rating, pricing (Free), and markets, and submit for certification.
 
 > Bump `<Version>` in `Scalpel.csproj` for each submission — the Store rejects a re-used version. The script derives the 4-part package version from it.
 

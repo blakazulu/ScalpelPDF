@@ -313,7 +313,7 @@ variants). **Never combine `scale-` and `targetsize-` on one file.**
 | Desktop min size | 1366×768 (4K OK) |
 | Caption | optional, ≤ 200 chars |
 
-Keep key content in the top two-thirds; no added logos/marketing text. (Reuse the repo's `screenshots/`.)
+Keep key content in the top two-thirds; no added logos/marketing text. (Reuse the repo's `store-assets/screenshots/`.)
 
 ### 5d. Promotional assets (optional)
 
@@ -364,7 +364,7 @@ be done in any order; finish with **Submit for certification**.
 | **Properties** | **Category**; privacy-policy URL (conditional); contact (companies) | Category **Utilities + tools → PDF editor** (or Productivity); add privacy URL |
 | **Age ratings** | IARC questionnaire (all required) | Answer honestly → Everyone/3+ |
 | **Packages** | ≥1 `.msix`/`.msixbundle` | Upload the `-NoSign` package |
-| **Store listings** | Description + ≥1 screenshot (per language) | Reuse `screenshots/`; 6 locales |
+| **Store listings** | Description + ≥1 screenshot (per language) | Reuse `store-assets/screenshots/`; 6 locales |
 | **Submission options** | Restricted-capability justification (if any); Notes for certification | Justify only if non-`runFullTrust` caps |
 
 ### Certification
