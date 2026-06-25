@@ -1,6 +1,6 @@
 # Publishing Scalpel to the Microsoft Store
 
-This guide covers packaging Scalpel as an **MSIX** and submitting it to the Microsoft Store, plus how to build and test the package locally. It is additive: the existing portable EXE, winget, and Chocolatey channels are unchanged. The single-file `Scalpel.exe` produced by `dotnet publish` is the exact binary that goes inside the package.
+This guide covers packaging Scalpel as an **MSIX** and submitting it to the Microsoft Store, plus how to build and test the package locally. It is additive: the existing portable EXE and Inno installer channels are unchanged. The single-file `Scalpel.exe` produced by `dotnet publish` is the exact binary that goes inside the package.
 
 > **Live listing:** Scalpel is published on the Microsoft Store at <https://apps.microsoft.com/detail/9n9hn8xw4lf3>. The steps below are the procedure for building and submitting each new version.
 
@@ -12,7 +12,7 @@ This guide covers packaging Scalpel as an **MSIX** and submitting it to the Micr
 
 The app detects MSIX at runtime via `App.IsPackaged()` (`GetCurrentPackageFullName`). In packaged mode it **suppresses its self-installer**, because the package and the OS own those concerns:
 
-| Concern | Portable / winget / choco | MSIX / Store |
+| Concern | Portable / Inno installer | MSIX / Store |
 |---|---|---|
 | Install / uninstall | In-app installer → `%LOCALAPPDATA%\Programs`, Add/Remove Programs | OS installs/removes the package |
 | `.pdf` association | `RegisterFileHandler()` writes `HKCU\Software\Classes` | Declared in `AppxManifest.xml` (`windows.fileTypeAssociation`) |
@@ -99,7 +99,7 @@ Microsoft's OSS policy also forbids charging for freely-available OSS you didn't
 
 ## 6. What is NOT solved by packaging
 
-- **Authenticode signing of the loose EXE** (`release.ps1`) still applies to the portable/winget/choco channels. The Store channel is signed by the Store and doesn't use `release.ps1`'s signing.
+- **Authenticode signing of the loose EXE** (`release.ps1`) still applies to the portable / Inno installer channels. The Store channel is signed by the Store and doesn't use `release.ps1`'s signing.
 - **Auto-update**: Store handles updates for the Store channel; the in-app downgrade guard/installer only governs the portable channel.
 - **`pdfium.dll` integrity check** still runs in packaged mode (it validates the Costura-embedded resource inside the same EXE) — keep `BuildInfo.PdfiumSha256` correct for signed builds.
 

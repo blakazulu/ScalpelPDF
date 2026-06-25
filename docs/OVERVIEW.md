@@ -15,7 +15,7 @@ Design pillars:
 - **Offline and private.** Nothing phones home. All state lives in the registry and `%LOCALAPPDATA%`.
 - **GPLv3.** Forks/redistributions must stay GPLv3 with source available; `dotnet publish` automatically produces a corresponding-source zip.
 
-**Target platform:** Windows 10/11 x64. Landing page: [scalpel.example.com](https://scalpel.example.com). Distributed via direct download, `winget install scalpel`, and Chocolatey.
+**Target platform:** Windows 10/11 x64. Landing page: [scalpel-pdf.netlify.app](https://scalpel-pdf.netlify.app). Distributed via direct download (portable EXE), the Inno installer, and the Microsoft Store.
 
 ---
 
@@ -142,7 +142,7 @@ dotnet test --filter "FullyQualifiedName~SearchService"   # a single test class
 - **Publish** triggers the `BundleSource` MSBuild target (`build/bundle-source.ps1`) → `Scalpel-<version>-src.zip` for GPL3 corresponding source.
 - **Tests** (`Scalpel.Tests`, xUnit) link the source files directly into the test project (`<Compile Include="..\Services\..">`) rather than referencing the WinExe. Moving a tested file means updating those link paths. Covered today: `SearchService`, `SignatureStore`.
 - **`release.ps1`** is the production pipeline: locate/pre-hash `pdfium.dll` → write `BuildInfo.cs` → build (Release/net48/x64) → Authenticode sign (SimplySign/signtool) → **`signtool verify /pa` gate that aborts the release on failure** → SHA256 → summary. Not for everyday dev.
-- **Distribution automation:** `.github/workflows/chocolatey-release.yml` and `winget-release.yml`; packaging metadata under `choco/`.
+- **Distribution:** direct download + Inno installer via GitHub Releases (`installer/`), and the Microsoft Store (`packaging/build-msix.ps1`).
 
 ---
 
