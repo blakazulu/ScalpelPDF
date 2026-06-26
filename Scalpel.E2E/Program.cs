@@ -33,11 +33,11 @@ internal static class Program
         bool all = suite == "all";
         var requested = suite.Split(',')
             .Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
-        var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts" }
+        var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts", "save" }
             .Where(s => all || requested.Contains(s)).ToList();
         if (selected.Count == 0)
         {
-            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|all, or a comma-separated subset.");
+            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|save|all, or a comma-separated subset.");
             return 2;
         }
 
@@ -91,6 +91,7 @@ internal static class Program
                 case "pairwise": PairwiseSuite.Run(driver, runner, report); break;
                 case "monkey":   MonkeySuite.Run(driver, runner, report, seed); break;
                 case "fonts":    FontHebrewSuite.Run(driver, runner, report, openWith, hebrewPath, missingFontPath); break;
+                case "save":     SaveVerifySuite.Run(driver, report, openWith); break;
             }
         }
         return report;
