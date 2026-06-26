@@ -41,6 +41,25 @@ namespace Scalpel.Services
             finally { try { File.Delete(tmpImg); } catch { } }
         }
 
+        /// <summary>
+        /// Builds the tesseract command line for TSV-on-stdout. We request TSV via
+        /// <c>-c tessedit_create_tsv=1</c> rather than the <c>tsv</c> config file, because when
+        /// <c>--tessdata-dir</c> is overridden to Scalpel's own folder (the portable download dir,
+        /// which holds only the language data) the <c>configs/tsv</c> file is absent — tesseract then
+        /// errors with "Can't open tsv" and silently emits plain text, yielding a non-searchable OCR
+        /// layer. Setting the parameter directly needs no config file. net48 has no ArgumentList, so
+        /// this is a quoted argument string.
+        /// </summary>
+        internal static string BuildArguments(string imagePath, string tessdataDir, string lang)
+        {
+            var sb = new StringBuilder();
+            sb.Append('"').Append(imagePath).Append("\" stdout");
+            if (!string.IsNullOrEmpty(tessdataDir))
+                sb.Append(" --tessdata-dir \"").Append(tessdataDir).Append('"');
+            sb.Append(" -l ").Append(lang).Append(" -c tessedit_create_tsv=1");
+            return sb.ToString();
+        }
+
         private string RunTesseract(string imagePath)
         {
             var psi = new ProcessStartInfo
@@ -51,15 +70,8 @@ namespace Scalpel.Services
                 RedirectStandardError = true,
                 CreateNoWindow = true,
                 StandardOutputEncoding = Encoding.UTF8,
+                Arguments = BuildArguments(imagePath, _tessdataDir, _lang),
             };
-            // tesseract <img> stdout --tessdata-dir <dir> -l <lang> tsv
-            // net48 has no ArgumentList — build a quoted argument string.
-            var sb = new StringBuilder();
-            sb.Append('"').Append(imagePath).Append("\" stdout");
-            if (!string.IsNullOrEmpty(_tessdataDir))
-                sb.Append(" --tessdata-dir \"").Append(_tessdataDir).Append('"');
-            sb.Append(" -l ").Append(_lang).Append(" tsv");
-            psi.Arguments = sb.ToString();
 
             using var proc = Process.Start(psi)!;
             string stdout = proc.StandardOutput.ReadToEnd();

@@ -18,6 +18,30 @@ namespace Scalpel.Tests
                 GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
         }
 
+        // Regression: TSV must be requested via the -c parameter, NOT the `tsv` config file.
+        // When --tessdata-dir is overridden to Scalpel's download folder (language data only, no
+        // configs/), the `tsv` config is absent and tesseract silently emits plain text instead of
+        // TSV — producing an OCR'd PDF with no searchable text layer.
+        [Fact]
+        public void BuildArguments_RequestsTsvViaParameter_NotConfigFile()
+        {
+            string args = TesseractCliOcrEngine.BuildArguments(@"C:\tmp\page.png", @"C:\data\tessdata", "eng");
+
+            Assert.Contains("-c tessedit_create_tsv=1", args);
+            Assert.Contains("--tessdata-dir \"C:\\data\\tessdata\"", args);
+            Assert.Contains("-l eng", args);
+            // Must NOT pass a bare `tsv` config token (the bug) — that needs configs/tsv on disk.
+            Assert.DoesNotContain(" tsv", args);
+        }
+
+        [Fact]
+        public void BuildArguments_OmitsTessdataDir_WhenBlank()
+        {
+            string args = TesseractCliOcrEngine.BuildArguments(@"C:\tmp\page.png", "", "eng");
+            Assert.DoesNotContain("--tessdata-dir", args);
+            Assert.Contains("-c tessedit_create_tsv=1", args);
+        }
+
         private sealed class FakeRasterizer : IPageRasterizer
         {
             private readonly int _pages;

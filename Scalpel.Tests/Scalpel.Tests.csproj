@@ -48,6 +48,7 @@
     <Compile Include="..\Services\RedactionService.cs" Link="Services\RedactionService.cs" />
     <Compile Include="..\Services\OcrService.cs" Link="Services\OcrService.cs" />
     <Compile Include="..\Services\TesseractTsv.cs" Link="Services\TesseractTsv.cs" />
+    <Compile Include="..\Services\TesseractCliOcrEngine.cs" Link="Services\TesseractCliOcrEngine.cs" />
     <Compile Include="..\Services\ThemeMigration.cs" Link="Services\ThemeMigration.cs" />
     <Compile Include="..\Services\Installer.cs" Link="Services\Installer.cs" />
     <Compile Include="..\Services\SampleDocument.cs" Link="Services\SampleDocument.cs" />
