@@ -454,26 +454,31 @@ namespace Scalpel
             foreach (var list in _annotations.Values)
                 list.RemoveAll(a => a is HighlightAnnotation);
 
-            string src = BuildWorkingSourceFile();
+            // Everything below — building the working copy, the native pdfium rasterization, and
+            // adopting the result — is inside one try so ANY managed failure surfaces as a dialog
+            // instead of an unhandled exception (which would crash the app). NOTE: a true native
+            // AccessViolation inside pdfium still can't be caught here (see App.xaml.cs crash notes),
+            // but capping the render size keeps memory bounded so we don't provoke one.
             string outPath = App.MakeTempFile("redacted");
             SetStatus("Redacting…");
             try
             {
+                string src = BuildWorkingSourceFile();
                 await Task.Run(() =>
                 {
                     using var rasterizer = new DocnetPageRasterizer(src, 2200);
                     RedactionService.Redact(src, rasterizer, rects, outPath);
                 });
+                AdoptTransformedFile(outPath,
+                    $"Redacted {rects.Count} area(s) — affected pages are now flattened images.");
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("Tools", "redact.fail", ex.Message, ex);
+                SetStatus("Redaction failed");
                 ScalpelDialog.Show(this, $"Redaction failed:\n{ex.Message}", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
             }
-
-            AdoptTransformedFile(outPath,
-                $"Redacted {rects.Count} area(s) — affected pages are now flattened images.");
         }
 
         // ---- generic run helper -----------------------------------------------------------------

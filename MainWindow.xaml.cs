@@ -6352,6 +6352,8 @@ namespace Scalpel
                         FontSize = Math.Max(existingEdit.FontSize, 10),
                         FontWeight = ToWeight(existingEdit.IsBold),
                         FontStyle = ToStyle(existingEdit.IsItalic),
+                        FlowDirection = Scalpel.Services.BidiReorder.ContainsRtl(existingEdit.NewContent)
+                            ? FlowDirection.RightToLeft : FlowDirection.LeftToRight,
                         MinWidth = Math.Max(reb.Width + 20, 100),
                         // Height from the font size so the box fits the text at any size
                         // (see EditTextAtPosition new-edit path for the rationale).
@@ -6498,7 +6500,11 @@ namespace Scalpel
                 double cWidth = cRight - cLeft;
                 double cHeight = cBottom - cTop;
 
-                string lineText = string.Join(" ", lineWords.Select(w => w.Word.Text));
+                // Reconstruct the line in LOGICAL order. PdfPig returns words left-to-right, so a
+                // Hebrew/Arabic line's words would join reversed; JoinWordsLogical walks RTL lines
+                // right-to-left so the edit box (and the burned-in edit) reads correctly.
+                string lineText = Scalpel.Services.BidiReorder.JoinWordsLogical(
+                    [.. lineWords.Select(w => (w.Word.Text, w.Rect.Left))]);
 
                 // Get actual font info from PdfPig letter data
                 double canvasFontSize = cHeight * 0.75; // fallback
@@ -6548,6 +6554,10 @@ namespace Scalpel
                     FontWeight = ToWeight(isBold),
                     FontStyle = ToStyle(isItalic),
                     FontSize = Math.Max(canvasFontSize, 10),
+                    // Hebrew/Arabic lines read right-to-left: base the box direction on the text
+                    // so the caret, alignment and typing behave naturally while editing.
+                    FlowDirection = Scalpel.Services.BidiReorder.ContainsRtl(lineText)
+                        ? FlowDirection.RightToLeft : FlowDirection.LeftToRight,
                     MinWidth = Math.Max(cWidth + 20, 100),
                     // Fit the box height to the FONT (line height ~1.35em + borders), not the
                     // measured glyph bbox + a constant — the constant under-sizes big text and

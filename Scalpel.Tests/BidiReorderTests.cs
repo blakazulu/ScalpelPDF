@@ -93,5 +93,40 @@ namespace Scalpel.Tests
         [Fact]
         public void ToVisual_ArabicThenDigits_DigitsStayLtrOnLeft()
             => Assert.Equal("42 " + Reverse(Salam), BidiReorder.ToVisual(Salam + " 42"));
+
+        // --- JoinWordsLogical: reconstruct a logical-order line from positioned words ----------
+        // olam (logical: ayin vav lamed final-mem) + its VISUAL (reversed) form, as a PDF text
+        // extractor returns it.
+        private const string Olam = "\u05E2\u05D5\u05DC\u05DD";
+        private const string OlamVisual = "\u05DD\u05DC\u05D5\u05E2";
+
+        [Fact]
+        public void JoinWordsLogical_Hebrew_RebuildsLogicalLine()
+        {
+            // As PdfPig returns "shalom olam": words left-to-right (olam at smaller x, shalom at
+            // larger x), each word's chars in VISUAL order. Reconstruction must yield the logical
+            // line "shalom olam" (words right-to-left, each RTL word un-reversed).
+            var words = new (string, double)[] { (OlamVisual, 100.0), (ShalomVisual, 300.0) };
+            Assert.Equal(Shalom + " " + Olam, BidiReorder.JoinWordsLogical(words));
+        }
+
+        [Fact]
+        public void JoinWordsLogical_English_KeepsLeftToRight()
+        {
+            var words = new (string, double)[] { ("hello", 100.0), ("world", 200.0) };
+            Assert.Equal("hello world", BidiReorder.JoinWordsLogical(words));
+        }
+
+        [Fact]
+        public void JoinWordsLogical_SingleHebrewWord_RebuildsLogical()
+        {
+            // A single Hebrew word arrives visual (reversed); reconstruction restores logical.
+            var words = new (string, double)[] { (ShalomVisual, 50.0) };
+            Assert.Equal(Shalom, BidiReorder.JoinWordsLogical(words));
+        }
+
+        [Fact]
+        public void JoinWordsLogical_Empty_ReturnsEmpty()
+            => Assert.Equal("", BidiReorder.JoinWordsLogical(System.Array.Empty<(string, double)>()));
     }
 }

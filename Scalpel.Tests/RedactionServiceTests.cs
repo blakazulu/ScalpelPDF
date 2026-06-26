@@ -124,6 +124,29 @@ namespace Scalpel.Tests
             finally { Cleanup(input, output); }
         }
 
+        [Fact]
+        public void Redact_MalformedInput_StillRedacts_ByFlatteningAllPages()
+        {
+            // Real-world reproduction of the customer's "Unexpected token 'xref' in PDF stream"
+            // error: PdfSharpCore's parser rejects the file. PDFium (the rasterizer) is tolerant,
+            // so redaction must still succeed by flattening every page rather than throwing.
+            EnsureResolver();
+            string input = Path.Combine(Path.GetTempPath(), $"scalpel_redact_bad_{Guid.NewGuid():N}.pdf");
+            File.WriteAllText(input, "%PDF-1.4\nthis is not a parseable body\nxref\ntrailer\n%%EOF\n");
+            string output = Path.Combine(Path.GetTempPath(), $"scalpel_redact_out_{Guid.NewGuid():N}.pdf");
+            try
+            {
+                RedactionService.Redact(input, new FakeRasterizer(3), new[]
+                {
+                    new RedactRect { PageIndex = 0, XPt = 10, YPt = 10, WidthPt = 50, HeightPt = 20 },
+                }, output);
+
+                using var doc = PdfReader.Open(output, PdfDocumentOpenMode.ReadOnly);
+                Assert.Equal(3, doc.PageCount); // page count + images came from the rasterizer
+            }
+            finally { Cleanup(input, output); }
+        }
+
         private static void Cleanup(params string[] paths)
         {
             foreach (var p in paths)

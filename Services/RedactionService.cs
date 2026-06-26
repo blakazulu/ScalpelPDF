@@ -37,38 +37,55 @@ namespace Scalpel.Services
                 .GroupBy(r => r.PageIndex)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            using var input = PdfReader.Open(inputPath, PdfDocumentOpenMode.Import);
-            using var outDoc = new PdfDocument();
+            // Real-world PDFs frequently have malformed cross-reference tables that PdfSharpCore's
+            // parser rejects (e.g. "Unexpected token 'xref' in PDF stream"). PDFium — which backs the
+            // rasterizer — is far more tolerant and has already opened the file to render it. So if we
+            // can't read the page structure we don't fail: we flatten EVERY page to an image, which is
+            // strictly safer (nothing stays selectable) and mirrors the app's PDFium repair fallback.
+            // Pages stay vector-copied only when the structure parses AND the page isn't redacted.
+            PdfDocument? input = null;
+            try { input = PdfReader.Open(inputPath, PdfDocumentOpenMode.Import); }
+            catch { input = null; }
 
-            for (int p = 0; p < input.PageCount; p++)
+            try
             {
-                if (byPage.TryGetValue(p, out var pageRects) && pageRects.Count > 0)
+                using var outDoc = new PdfDocument();
+                int pageCount = input?.PageCount ?? rasterizer.PageCount;
+
+                for (int p = 0; p < pageCount; p++)
                 {
-                    // Flatten this page to an image so all underlying text/objects are destroyed,
-                    // then paint opaque black boxes over the redaction rectangles.
-                    var raster = rasterizer.RenderPage(p);
-                    var (wPt, hPt) = rasterizer.PageSizePt(p);
+                    bool redacted = byPage.TryGetValue(p, out var pageRects) && pageRects.Count > 0;
 
-                    var page = outDoc.AddPage();
-                    page.Width = XUnit.FromPoint(wPt);
-                    page.Height = XUnit.FromPoint(hPt);
+                    // Flatten when the page is redacted, or when the structure is unreadable (no
+                    // way to copy a vector page through, so the whole document is rasterized).
+                    if (redacted || input is null)
+                    {
+                        var raster = rasterizer.RenderPage(p);
+                        var (wPt, hPt) = rasterizer.PageSizePt(p);
 
-                    using var gfx = XGraphics.FromPdfPage(page);
-                    byte[] copy = (byte[])raster.ImageBytes.Clone();
-                    var ximg = XImage.FromStream(() => new MemoryStream(copy));
-                    gfx.DrawImage(ximg, 0, 0, wPt, hPt);
+                        var page = outDoc.AddPage();
+                        page.Width = XUnit.FromPoint(wPt);
+                        page.Height = XUnit.FromPoint(hPt);
 
-                    foreach (var r in pageRects)
-                        gfx.DrawRectangle(XBrushes.Black, r.XPt, r.YPt, r.WidthPt, r.HeightPt);
+                        using var gfx = XGraphics.FromPdfPage(page);
+                        byte[] copy = (byte[])raster.ImageBytes.Clone();
+                        var ximg = XImage.FromStream(() => new MemoryStream(copy));
+                        gfx.DrawImage(ximg, 0, 0, wPt, hPt);
+
+                        if (pageRects is not null)
+                            foreach (var r in pageRects)
+                                gfx.DrawRectangle(XBrushes.Black, r.XPt, r.YPt, r.WidthPt, r.HeightPt);
+                    }
+                    else
+                    {
+                        // No redactions on this page — copy it through unchanged (text stays selectable).
+                        outDoc.AddPage(input.Pages[p]);
+                    }
                 }
-                else
-                {
-                    // No redactions on this page — copy it through unchanged (text stays selectable).
-                    outDoc.AddPage(input.Pages[p]);
-                }
+
+                outDoc.Save(outputPath);
             }
-
-            outDoc.Save(outputPath);
+            finally { input?.Dispose(); }
         }
     }
 }

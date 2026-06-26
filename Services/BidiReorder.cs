@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Scalpel.Services
@@ -17,6 +18,38 @@ namespace Scalpel.Services
             if (string.IsNullOrEmpty(s)) return false;
             foreach (char c in s!) if (IsRtl(c)) return true;
             return false;
+        }
+
+        /// <summary>
+        /// Reconstructs a single LOGICAL-order line from words as a PDF text extractor (PdfPig)
+        /// returns them: words ordered left-to-right by x, and each word's characters in VISUAL
+        /// order. For a Hebrew/Arabic line both axes are flipped from logical — the logical-first
+        /// word sits at the largest x, and within a word the logical-first letter is the rightmost.
+        /// So for an RTL line we walk words right-to-left AND reverse each RTL word's characters;
+        /// LTR words/numbers keep their order. An LTR line is returned left-to-right unchanged.
+        /// Pure and defensive: never throws.
+        /// </summary>
+        public static string JoinWordsLogical(IReadOnlyList<(string Text, double Left)> words)
+        {
+            if (words is null || words.Count == 0) return "";
+            try
+            {
+                bool rtl = ContainsRtl(string.Concat(words.Select(w => w.Text)));
+                if (!rtl)
+                    return string.Join(" ", words.OrderBy(w => w.Left).Select(w => w.Text));
+
+                return string.Join(" ", words
+                    .OrderByDescending(w => w.Left)
+                    .Select(w => ContainsRtl(w.Text) ? ReverseChars(w.Text) : w.Text));
+            }
+            catch { return string.Join(" ", words.Select(w => w.Text)); }
+        }
+
+        private static string ReverseChars(string s)
+        {
+            char[] a = s.ToCharArray();
+            System.Array.Reverse(a);
+            return new string(a);
         }
 
         public static string ToVisual(string? logical)
