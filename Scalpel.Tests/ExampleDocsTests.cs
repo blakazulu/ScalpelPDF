@@ -242,18 +242,120 @@ namespace Scalpel.Tests
             doc.Save(path);
         }
 
+        // A 3-page bilingual user handbook.
+        private static void BuildHandbook(string path)
+        {
+            using var doc = new PdfDocument { };
+            doc.Info.Title = "Scalpel — User Handbook / מדריך למשתמש";
+            var p = new Pager { Doc = doc };
+
+            // ---- Page 1 ----
+            p.NewPage();
+            p.Banner("User Handbook", "מדריך למשתמש", Steel);
+            p.Heading("1. מבוא / Introduction", rtl: true, 13);
+            p.Para("סקאלפל הוא עורך PDF מקומי לחלוטין: הוא פועל ללא חיבור לאינטרנט, אינו אוסף נתונים, ואינו דורש התקנה — קובץ הפעלה יחיד וקטן.", rtl: true);
+            p.Para("Scalpel is a fully local PDF editor: it runs offline, collects no data, and needs no installation — a single small executable.", rtl: false);
+            p.Space(6);
+            p.Para("מדריך זה מסביר כיצד לפתוח מסמך, לערוך טקסט עברי קיים, לחתום, ולהשתמש בתפריט הכלים.", rtl: true);
+            p.Para(ProofLine + ".", rtl: true);
+
+            // ---- Page 2 ----
+            p.NewPage();
+            p.Heading("2. עריכת טקסט עברי / Editing Hebrew text", rtl: true, 13);
+            p.Para("כדי לערוך טקסט קיים, לחצו פעמיים על השורה הרצויה. תיבת עריכה תיפתח מעל הטקסט, מיושרת לימין, והמילים יישמרו בסדר הלוגי הנכון.", rtl: true);
+            p.Para("To edit existing text, double-click the line. An edit box opens over it, right-aligned, and the words keep their correct logical order.", rtl: false);
+            p.Space(6);
+            p.Para("לאחר העריכה, הטקסט המקורי מוסתר והטקסט החדש מצויר במקומו באמצעות גופן התומך בעברית.", rtl: true);
+            p.Para("בסיום, שמרו את המסמך חזרה לקובץ PDF דרך כפתור השמירה.", rtl: true);
+
+            // ---- Page 3 ----
+            p.NewPage();
+            p.Heading("3. תפריט הכלים / The Tools menu", rtl: true, 13);
+            p.Para("תפריט הכלים כולל מספור עמודים, דחיסה, זיהוי תווים אופטי (OCR), הגנת סיסמה, השחרה והסרת מטא-נתונים — כולם פועלים מקומית.", rtl: true);
+            p.Para("The Tools menu offers page numbering, compression, OCR, password protection, redaction, and metadata removal — all running locally.", rtl: false);
+            p.Space(6);
+            p.Para("תודה שבחרתם בסקאלפל. נשמח לשמוע משוב ולשפר את התוכנה עבורכם.", rtl: true);
+            p.Para("Thank you for choosing Scalpel.", rtl: false);
+            p.Gfx.Dispose();
+            doc.Save(path);
+        }
+
+        // A 5-page bilingual license agreement (numbered clauses).
+        private static void BuildContract(string path)
+        {
+            using var doc = new PdfDocument { };
+            doc.Info.Title = "Scalpel — License Agreement / הסכם רישיון";
+            var p = new Pager { Doc = doc };
+
+            // ---- Page 1: parties + preamble ----
+            p.NewPage();
+            p.Banner("License Agreement", "הסכם רישיון", Surgical);
+            p.Heading("הצדדים / Parties", rtl: true, 13);
+            p.Row("בין:", "Scalpel Software Ltd.");
+            p.Row("לבין:", "Dr. A. Levi Clinic");
+            p.Row("תאריך:", "26 June 2026");
+            p.Space(8);
+            p.Para("הסכם זה קובע את תנאי השימוש בתוכנת סקאלפל. בחתימה על מסמך זה, הצדדים מאשרים את הבנת התנאים והסכמתם להם.", rtl: true);
+            p.Para("This agreement sets out the terms for using the Scalpel software. By signing, the parties confirm they understand and accept the terms.", rtl: false);
+            p.Para(ProofLine + ".", rtl: true);
+
+            // ---- Page 2: clauses 1-2 ----
+            p.NewPage();
+            p.Heading("1. הענקת רישיון / Grant of license", rtl: true, 13);
+            p.Para("מוענק בזאת רישיון אישי, לא בלעדי ולא ניתן להעברה, לשימוש בתוכנה על מספר בלתי מוגבל של מחשבים בבעלות בעל הרישיון.", rtl: true);
+            p.Para("A personal, non-exclusive, non-transferable license is granted to use the software on any number of computers owned by the licensee.", rtl: false);
+            p.Space(8);
+            p.Heading("2. פרטיות / Privacy", rtl: true, 13);
+            p.Para("התוכנה אינה אוספת מידע על המשתמש או על הקבצים שלו, ואינה שולחת נתונים לרשת. כל העיבוד מתבצע במחשב המקומי בלבד.", rtl: true);
+            p.Para("The software collects no information about the user or their files and sends no data over the network. All processing is local.", rtl: false);
+
+            // ---- Page 3: clauses 3-4 ----
+            p.NewPage();
+            p.Heading("3. עדכונים / Updates", rtl: true, 13);
+            p.Para("ניתן להפעיל בדיקת עדכונים אופציונלית בהגדרות. הבדיקה אינה שולחת מידע מזהה ומיועדת רק להודיע על גרסה חדשה.", rtl: true);
+            p.Para("An optional update check can be enabled in Settings. It sends no identifying information and only notifies you of a new version.", rtl: false);
+            p.Space(8);
+            p.Heading("4. אחריות / Warranty", rtl: true, 13);
+            p.Para("התוכנה מסופקת כמות שהיא, ללא אחריות מכל סוג. בעל הרישיון אחראי לגיבוי המסמכים שלו לפני עריכה.", rtl: true);
+            p.Para("The software is provided as-is, without warranty of any kind. The licensee is responsible for backing up documents before editing.", rtl: false);
+
+            // ---- Page 4: clauses 5-6 ----
+            p.NewPage();
+            p.Heading("5. רישיון קוד פתוח / Open-source license", rtl: true, 13);
+            p.Para("סקאלפל מופץ תחת רישיון GPLv3. קוד המקור זמין, וכל משתמש רשאי ללמוד אותו, לשנותו ולהפיצו בהתאם לתנאי הרישיון.", rtl: true);
+            p.Para("Scalpel is distributed under the GPLv3 license. The source code is available, and anyone may study, modify, and share it under those terms.", rtl: false);
+            p.Space(8);
+            p.Heading("6. סיום / Termination", rtl: true, 13);
+            p.Para("הרישיון תקף כל עוד המשתמש פועל בהתאם לתנאים. הפרת תנאי מהותי עשויה להביא לסיום הרישיון.", rtl: true);
+            p.Para("The license remains valid as long as the user complies with the terms. A material breach may end the license.", rtl: false);
+
+            // ---- Page 5: signatures ----
+            p.NewPage();
+            p.Heading("7. חתימות / Signatures", rtl: true, 13);
+            p.Para("הצדדים מאשרים כי קראו את ההסכם, הבינו את תנאיו, וחתמו עליו מרצונם החופשי.", rtl: true);
+            p.Para("The parties confirm they have read this agreement, understood its terms, and signed it of their own free will.", rtl: false);
+            p.Space(24);
+            p.Row("חתימת הספק:", "______________________");
+            p.Space(10);
+            p.Row("חתימת הלקוח:", "______________________");
+            p.Gfx.Dispose();
+            doc.Save(path);
+        }
+
         // ---- the test -------------------------------------------------------------------------
 
         public static IEnumerable<object[]> Docs()
         {
-            yield return new object[] { "scalpel-sample-invoice.pdf", (Action<string>)BuildInvoice };
-            yield return new object[] { "scalpel-sample-letter.pdf", (Action<string>)BuildLetter };
-            yield return new object[] { "scalpel-sample-report.pdf", (Action<string>)BuildReport };
+            yield return new object[] { "scalpel-sample-invoice.pdf", (Action<string>)BuildInvoice, 1 };
+            yield return new object[] { "scalpel-sample-letter.pdf", (Action<string>)BuildLetter, 1 };
+            yield return new object[] { "scalpel-sample-report.pdf", (Action<string>)BuildReport, 1 };
+            yield return new object[] { "scalpel-sample-handbook.pdf", (Action<string>)BuildHandbook, 3 };
+            yield return new object[] { "scalpel-sample-contract.pdf", (Action<string>)BuildContract, 5 };
         }
 
         [Theory]
         [MemberData(nameof(Docs))]
-        public void ExampleDoc_Generates_Embeds_AndHebrewRoundTripsLogical(string fileName, Action<string> build)
+        public void ExampleDoc_Generates_Embeds_AndHebrewRoundTripsLogical(string fileName, Action<string> build, int expectedPages)
         {
             EnsureFonts();
             string outDir = Path.Combine(RepoRoot(), "docs", "samples");
@@ -270,6 +372,7 @@ namespace Scalpel.Tests
             // SAME path the editor uses (words left-to-right + visual order -> JoinWordsLogical).
             // It must come back in LOGICAL order, identical to what we drew.
             using var pdf = PigDocument.Open(path);
+            Assert.Equal(expectedPages, pdf.NumberOfPages);
             string[] target = ProofLine.Split(' ');
 
             string? recovered = null;
