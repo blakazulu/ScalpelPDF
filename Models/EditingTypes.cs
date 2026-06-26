@@ -74,6 +74,10 @@ namespace Scalpel
         public string FontName { get; set; } = "Segoe UI";
         public bool IsBold { get; set; }
         public bool IsItalic { get; set; }
+        /// <summary>When set, the resolver family of the document's OWN embedded font (extracted
+        /// because the original font isn't installed) that covers this text — drawn exactly, bypassing
+        /// the script-substitution heuristic. Null = use <see cref="FontName"/> (installed or substitute).</summary>
+        public string? ExactFontFamily { get; set; }
     }
 
     /// <summary>

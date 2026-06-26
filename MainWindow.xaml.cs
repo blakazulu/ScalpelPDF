@@ -6371,6 +6371,9 @@ namespace Scalpel
                             FontName = existingEdit.FontName,
                             IsBold = existingEdit.IsBold,
                             IsItalic = existingEdit.IsItalic,
+                            // Carry the embedded font forward so re-edits re-gate against the new text
+                            // (bytes are fetched from the resolver at commit via this key).
+                            EmbeddedFamilyKey = existingEdit.ExactFontFamily,
                             ExistingAnnotation = existingEdit
                         }
                     };
@@ -6510,6 +6513,9 @@ namespace Scalpel
                 double canvasFontSize = cHeight * 0.75; // fallback
                 string fontName = "Segoe UI"; // fallback
                 bool isBold = false, isItalic = false;
+                byte[]? embeddedBytes = null;   // the document's own font, when not installed
+                string? embeddedKey = null;
+                string fontDisplay = "";
                 var firstWord = lineWords.First().Word;
                 try
                 {
@@ -6536,8 +6542,27 @@ namespace Scalpel
                         fontName = resolved.FamilyName;
                         isBold = resolved.IsBold;
                         isItalic = resolved.IsItalic;
+                        fontDisplay = resolved.DisplayName;
                         if (!resolved.IsInstalled)
-                            ShowToast(string.Format(Loc("Str_FontMissing_Body"), resolved.DisplayName), resolved.DisplayName);
+                        {
+                            // The font isn't installed. Try to use the DOCUMENT'S OWN embedded font so
+                            // the edit looks identical. Usable only when the embedded program carries a
+                            // Unicode cmap covering the line (subset CID fonts usually don't — then we
+                            // fall back to a substitute and tell the user to install the font).
+                            byte[]? emb = _currentFile is null ? null
+                                : Scalpel.Services.EmbeddedFontExtractor.TryExtract(_currentFile, rawFont ?? resolved.DisplayName, out _);
+                            if (emb is { Length: > 0 } && Scalpel.Services.TrueTypeCmap.CoversAllText(emb, lineText))
+                            {
+                                embeddedBytes = emb;
+                                embeddedKey = "__emb_" + Scalpel.Services.EmbeddedFontExtractor.Normalize(resolved.DisplayName) + "_" + emb.Length;
+                                Scalpel.Services.PdfFontResolver.Instance.RegisterBundledFont(embeddedKey, emb, isBold, isItalic);
+                                // Exact font available — no toast.
+                            }
+                            else
+                            {
+                                ShowToast(string.Format(Loc("Str_FontMissing_Body"), resolved.DisplayName), resolved.DisplayName);
+                            }
+                        }
                     }
                 }
                 catch { /* use fallbacks */ }
@@ -6575,7 +6600,10 @@ namespace Scalpel
                         FontSize = Math.Max(canvasFontSize, 10),
                         FontName = fontName,
                         IsBold = isBold,
-                        IsItalic = isItalic
+                        IsItalic = isItalic,
+                        EmbeddedFontBytes = embeddedBytes,
+                        EmbeddedFamilyKey = embeddedKey,
+                        FontDisplay = fontDisplay,
                     }
                 };
                 Canvas.SetLeft(tb, cLeft);
@@ -6633,6 +6661,12 @@ namespace Scalpel
             public string FontName { get; set; } = "Segoe UI";
             public bool IsBold { get; set; }
             public bool IsItalic { get; set; }
+            /// <summary>The document's own embedded font bytes (extracted when the original font isn't
+            /// installed), and the resolver key it was registered under. Used to redraw the edit in the
+            /// exact font when it covers the typed text; null when unavailable/unusable.</summary>
+            public byte[]? EmbeddedFontBytes { get; set; }
+            public string? EmbeddedFamilyKey { get; set; }
+            public string FontDisplay { get; set; } = "";
             /// <summary>Non-null when re-editing an already-committed annotation; update in place instead of adding a new one.</summary>
             public TextEditAnnotation? ExistingAnnotation { get; set; }
         }
@@ -6694,10 +6728,24 @@ namespace Scalpel
                 return;
             }
 
+            // If we have the document's own embedded font, use it for the EDIT only when it covers
+            // every character the user actually typed (a subset font can't render brand-new glyphs).
+            // Otherwise fall back to the substitute font and warn that the original isn't installed.
+            byte[]? embBytes = ctx.EmbeddedFontBytes;
+            if (embBytes is null && ctx.EmbeddedFamilyKey is not null)
+                Scalpel.Services.PdfFontResolver.Instance.TryGetExactFontBytes(ctx.EmbeddedFamilyKey, ctx.IsBold, ctx.IsItalic, out embBytes);
+            string? exactFamily = (ctx.EmbeddedFamilyKey is not null && embBytes is { Length: > 0 }
+                                   && Scalpel.Services.TrueTypeCmap.CoversAllText(embBytes, newText))
+                ? ctx.EmbeddedFamilyKey : null;
+            // Had an exact font for the original text, but the new text adds glyphs it lacks → substitute + warn.
+            if (exactFamily is null && ctx.EmbeddedFamilyKey is not null && !string.IsNullOrEmpty(ctx.FontDisplay))
+                ShowToast(string.Format(Loc("Str_FontMissing_Body"), ctx.FontDisplay), ctx.FontDisplay);
+
             if (ctx.ExistingAnnotation is not null)
             {
                 // Update the existing annotation in place — avoids duplicate whiteout layers
                 ctx.ExistingAnnotation.NewContent = newText;
+                ctx.ExistingAnnotation.ExactFontFamily = exactFamily;
             }
             else
             {
@@ -6711,7 +6759,8 @@ namespace Scalpel
                     FontSize = ctx.FontSize,
                     FontName = ctx.FontName,
                     IsBold = ctx.IsBold,
-                    IsItalic = ctx.IsItalic
+                    IsItalic = ctx.IsItalic,
+                    ExactFontFamily = exactFamily,
                 };
                 AddAnnotation(edit);
             }
@@ -8137,7 +8186,7 @@ namespace Scalpel
         /// (edits with known bounds); otherwise left-align at leftX. LTR text is unchanged.</summary>
         private static void DrawTextRun(XGraphics gfx, string text, string candidateFamily,
             double fontSizePx, XFontStyle style, XBrush brush,
-            double leftX, double rightX, double baselineY)
+            double leftX, double rightX, double baselineY, bool forceCandidate = false)
         {
             bool bold = style == XFontStyle.Bold || style == XFontStyle.BoldItalic;
             bool italic = style == XFontStyle.Italic || style == XFontStyle.BoldItalic;
@@ -8145,7 +8194,9 @@ namespace Scalpel
             if (!Scalpel.Services.BidiReorder.ContainsRtl(text))
             {
                 // LTR (incl. Cyrillic): pick a covering face so Russian doesn't render as boxes.
-                string ltrFace = PickFace(text, candidateFamily, bold, italic);
+                // forceCandidate (an extracted embedded font already verified to cover the text)
+                // bypasses the script-substitution heuristic so the exact font is used.
+                string ltrFace = forceCandidate ? candidateFamily : PickFace(text, candidateFamily, bold, italic);
                 gfx.DrawString(text, new XFont(ltrFace, fontSizePx, style), brush, leftX, baselineY);
                 return;
             }
@@ -8154,7 +8205,7 @@ namespace Scalpel
             string shaped = Scalpel.Services.ArabicShaper.ContainsArabic(text)
                 ? Scalpel.Services.ArabicShaper.Shape(text)
                 : text;
-            string family = PickFace(shaped, candidateFamily, bold, italic);
+            string family = forceCandidate ? candidateFamily : PickFace(shaped, candidateFamily, bold, italic);
             var font = new XFont(family, fontSizePx, style);
             string visual = Scalpel.Services.BidiReorder.ToVisual(shaped);
             double width = gfx.MeasureString(visual, font).Width;
@@ -8241,8 +8292,11 @@ namespace Scalpel
                             double etyB = tea.Position.Y * sy + tea.FontSize * sy;
                             double eLeft = tea.OriginalBounds.X * sx;
                             double eRight = (tea.OriginalBounds.X + tea.OriginalBounds.Width) * sx;
-                            DrawTextRun(gfx, tea.NewContent, tea.FontName, tea.FontSize * sy, editStyle,
-                                XBrushes.Black, eLeft, eRight, etyB);
+                            // Use the document's own embedded font when we have it (exact match),
+                            // forcing it past the substitution heuristic; else the resolved family.
+                            string editCandidate = tea.ExactFontFamily ?? tea.FontName;
+                            DrawTextRun(gfx, tea.NewContent, editCandidate, tea.FontSize * sy, editStyle,
+                                XBrushes.Black, eLeft, eRight, etyB, forceCandidate: tea.ExactFontFamily is not null);
                             break;
 
                         case SignatureAnnotation sa:

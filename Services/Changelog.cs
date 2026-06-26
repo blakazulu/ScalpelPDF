@@ -16,6 +16,7 @@ namespace Scalpel.Services
             {
                 "Fixed: editing existing Hebrew (and other right-to-left) text now keeps the words in their correct order — a line with more than one Hebrew word used to come back reversed in the edit box.",
                 "Hebrew and Arabic edit boxes now read and align right-to-left while you type, so editing existing text feels natural.",
+                "Editing existing text now matches the original font: if that font isn't installed, Scalpel uses the document's own embedded font when it can, and otherwise tells you exactly which font to install and uses a close substitute in the meantime — for any language.",
                 "Fixed: Redact now works on PDFs with damaged or unusual internal structure that previously failed with an \"Unexpected token 'xref'\" error — such files are now safely flattened and redacted instead.",
                 "Fixed: OCR (Make Searchable) now actually produces searchable text. Previously the recognized text could be silently dropped, leaving the saved PDF non-searchable; the page text is now selectable and searchable as intended.",
                 "The Tools operations (Redact, Compress, Make Searchable) are also more robust: if something goes wrong they now show a clear message instead of closing the app.",

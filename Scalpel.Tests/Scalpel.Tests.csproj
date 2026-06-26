@@ -39,6 +39,7 @@
     <Compile Include="..\Services\BidiReorder.cs" Link="Services\BidiReorder.cs" />
     <Compile Include="..\Services\ArabicShaper.cs" Link="Services\ArabicShaper.cs" />
     <Compile Include="..\Services\TrueTypeCmap.cs" Link="Services\TrueTypeCmap.cs" />
+    <Compile Include="..\Services\EmbeddedFontExtractor.cs" Link="Services\EmbeddedFontExtractor.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\BatesNumberingService.cs" Link="Services\BatesNumberingService.cs" />
     <Compile Include="..\Services\PdfEncryptionService.cs" Link="Services\PdfEncryptionService.cs" />

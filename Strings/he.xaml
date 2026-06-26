@@ -93,7 +93,7 @@
     <sys:String x:Key="Str_KS_ThisList">רשימת קיצורים זו</sys:String>
 
     <!-- ── Status bar ────────────────────────────────────────────────── -->
-    <sys:String x:Key="Str_FontMissing_Body">הגופן "{0}" אינו מותקן — ייעשה שימוש בגופן חלופי.</sys:String>
+    <sys:String x:Key="Str_FontMissing_Body">הגופן "{0}" אינו מותקן — בינתיים נעשה שימוש בגופן חלופי. התקן את "{0}" כדי להתאים במדויק.</sys:String>
     <sys:String x:Key="Str_FontMissing_CopyName">העתקת השם</sys:String>
     <sys:String x:Key="Str_Ready">מוכן</sys:String>
     <sys:String x:Key="Str_Portable">נייד</sys:String>

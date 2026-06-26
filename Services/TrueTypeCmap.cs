@@ -9,6 +9,22 @@ namespace Scalpel.Services
     /// </summary>
     public static class TrueTypeCmap
     {
+        /// <summary>True when the font maps EVERY non-whitespace character of <paramref name="text"/>
+        /// to a real glyph — i.e. it can render the whole string. Subset embedded fonts often can't
+        /// render newly-typed characters, so this gates whether an extracted font is usable for an
+        /// edit. Empty/whitespace text is trivially covered. BMP characters only.</summary>
+        public static bool CoversAllText(byte[] data, string? text, int faceIndex = 0)
+        {
+            if (data is null || data.Length == 0) return false;
+            if (string.IsNullOrEmpty(text)) return true;
+            foreach (char c in text!)
+            {
+                if (char.IsWhiteSpace(c) || char.IsControl(c)) continue;
+                if (!CoversCodepoint(data, c, faceIndex)) return false;
+            }
+            return true;
+        }
+
         public static bool CoversCodepoint(byte[] data, int codepoint, int faceIndex = 0)
         {
             try
