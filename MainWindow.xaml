@@ -576,6 +576,14 @@
                     <Button x:Name="ToolDrawBtn" Style="{StaticResource RibbonButton}" Click="ToolDraw_Click" ToolTip="{DynamicResource Str_TT_DrawTool}">
                       <StackPanel><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="23" Text="{StaticResource Ico_Draw}" HorizontalAlignment="Center"/><TextBlock Text="{DynamicResource Str_Lbl_Draw}" Margin="0,5,0,0" HorizontalAlignment="Center"/></StackPanel>
                     </Button>
+                    <Button x:Name="ToolLineBtn" Style="{StaticResource RibbonButton}" Click="ToolLine_Click" ToolTip="{DynamicResource Str_TT_LineTool}">
+                      <StackPanel>
+                        <Line X1="3" Y1="20" X2="20" Y2="3" StrokeThickness="2.2" Width="23" Height="23"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Str_Lbl_Line}" Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                      </StackPanel>
+                    </Button>
                     <Button x:Name="ToolImageBtn" Style="{StaticResource RibbonButton}" Click="ToolImage_Click" ToolTip="{DynamicResource Str_TT_ImageTool}">
                       <StackPanel><TextBlock FontFamily="{DynamicResource FontIcon}" FontSize="23" Text="{StaticResource Ico_Image}" HorizontalAlignment="Center"/><TextBlock Text="{DynamicResource Str_Lbl_Image}" Margin="0,5,0,0" HorizontalAlignment="Center"/></StackPanel>
                     </Button>

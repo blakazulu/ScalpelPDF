@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">文本工具 - 点击以添加文本</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">高亮工具 - 拖动以高亮标记</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">绘图工具 - 自由手绘</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">直线工具 - 拖动绘制直线；按住 Shift 锁定角度</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">签名 - 创建并放置签名</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">图片工具 - 点击以插入图片到页面</sys:String>
     <sys:String x:Key="Str_TT_CropTool">裁剪工具 - 拖动设置裁剪区域，然后应用到页面</sys:String>
@@ -184,6 +185,7 @@
     <sys:String x:Key="Str_Lbl_Text">文本</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">高亮</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">绘图</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">直线</sys:String>
     <sys:String x:Key="Str_Lbl_Image">图片</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">裁剪</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">撤销</sys:String>

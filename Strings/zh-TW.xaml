@@ -24,6 +24,7 @@
     <sys:String x:Key="Str_TT_TextTool">文字工具 - 點選以新增文字</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">螢光筆工具 - 拖曳以螢光標記</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">繪圖工具 - 自由手繪</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">直線工具 - 拖曳繪製直線；按住 Shift 鎖定角度</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">簽名 - 建立並放置簽名</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">圖片工具 - 點選以插入圖片至頁面</sys:String>
     <sys:String x:Key="Str_TT_CropTool">裁切工具 - 拖曳設定裁切區域，然後套用至頁面</sys:String>
@@ -186,6 +187,7 @@
     <sys:String x:Key="Str_Lbl_Text">文字</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">螢光筆</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">繪圖</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">直線</sys:String>
     <sys:String x:Key="Str_Lbl_Image">圖片</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">裁切</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">復原</sys:String>

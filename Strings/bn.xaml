@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">টেক্সট টুল - টেক্সট যোগ করতে ক্লিক করুন</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">হাইলাইট টুল - হাইলাইট করতে টেনে আনুন</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">আঁকার টুল - ফ্রিহ্যান্ড কালি</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">রেখা টুল - সরলরেখা আঁকতে টেনে আনুন; কোণ স্ন্যাপ করতে Shift ধরে রাখুন</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">স্বাক্ষর - স্বাক্ষর তৈরি ও স্থাপন করুন</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">ছবি টুল - পৃষ্ঠায় ছবি সন্নিবেশ করতে ক্লিক করুন</sys:String>
     <sys:String x:Key="Str_TT_CropTool">ক্রপ টুল - ক্রপ এলাকা নির্ধারণে টেনে আনুন, তারপর পৃষ্ঠায় প্রয়োগ করুন</sys:String>
@@ -184,6 +185,7 @@
     <sys:String x:Key="Str_Lbl_Text">টেক্সট</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">হাইলাইট</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">আঁকুন</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">রেখা</sys:String>
     <sys:String x:Key="Str_Lbl_Image">ছবি</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">ক্রপ</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">পূর্বাবস্থা</sys:String>

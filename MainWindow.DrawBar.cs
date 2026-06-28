@@ -66,7 +66,7 @@ namespace Scalpel
             panel.Children.Add(colorLbl);
 
             // Color swatches
-            var activeColor = tool == EditTool.Draw ? _drawColor : Color.FromRgb(_highlightColor.R, _highlightColor.G, _highlightColor.B);
+            var activeColor = (tool == EditTool.Draw || tool == EditTool.Line) ? _drawColor : Color.FromRgb(_highlightColor.R, _highlightColor.G, _highlightColor.B);
             foreach (var color in SwatchColors)
             {
                 bool isActive = color == activeColor;
@@ -87,7 +87,7 @@ namespace Scalpel
                 swatch.MouseLeftButtonDown += (s, e) =>
                 {
                     var c = (Color)((Border)s!).Tag;
-                    if (tool == EditTool.Draw)
+                    if (tool == EditTool.Draw || tool == EditTool.Line)
                         _drawColor = Color.FromArgb(_drawOpacity, c.R, c.G, c.B);
                     else
                         _highlightColor = Color.FromArgb(_highlightColor.A, c.R, c.G, c.B);
@@ -101,8 +101,8 @@ namespace Scalpel
             sep1.SetResourceReference(Rectangle.FillProperty, "BorderDim");
             panel.Children.Add(sep1);
 
-            // Size slider (draw only)
-            if (tool == EditTool.Draw)
+            // Size slider (draw / line only)
+            if (tool == EditTool.Draw || tool == EditTool.Line)
             {
                 var sizeLbl = new TextBlock
                 {
@@ -147,7 +147,7 @@ namespace Scalpel
             opacityLbl.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
             panel.Children.Add(opacityLbl);
 
-            byte currentOpacity = tool == EditTool.Draw ? _drawOpacity : _highlightColor.A;
+            byte currentOpacity = (tool == EditTool.Draw || tool == EditTool.Line) ? _drawOpacity : _highlightColor.A;
             var opacitySlider = new Slider
             {
                 Minimum = 10, Maximum = 255, Value = currentOpacity,
@@ -164,7 +164,7 @@ namespace Scalpel
             {
                 byte a = (byte)e.NewValue;
                 opacityLabel.Text = $"{(int)(a / 255.0 * 100)}%";
-                if (tool == EditTool.Draw)
+                if (tool == EditTool.Draw || tool == EditTool.Line)
                 {
                     _drawOpacity = a;
                     _drawColor = Color.FromArgb(a, _drawColor.R, _drawColor.G, _drawColor.B);

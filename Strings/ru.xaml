@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">Инструмент текста - щёлкните, чтобы добавить текст</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">Инструмент выделения - перетащите для выделения</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">Инструмент рисования - произвольное рисование</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">Инструмент линии - перетащите для рисования прямой линии; удерживайте Shift для привязки угла</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">Подпись - создание и размещение подписей</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">Инструмент изображения - щёлкните, чтобы вставить изображение на страницу</sys:String>
     <sys:String x:Key="Str_TT_CropTool">Инструмент обрезки - перетащите, чтобы задать область обрезки, затем примените к страницам</sys:String>
@@ -194,6 +195,7 @@
     <sys:String x:Key="Str_Lbl_Text">Текст</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">Выделение</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">Рисование</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">Линия</sys:String>
     <sys:String x:Key="Str_Lbl_Image">Изображение</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">Обрезка</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">Отменить</sys:String>

@@ -3,7 +3,7 @@ using System.Windows.Media;
 
 namespace Scalpel
 {
-    public enum EditTool { Select, Text, Highlight, Draw, Signature, Image, Crop }
+    public enum EditTool { Select, Text, Highlight, Draw, Signature, Image, Crop, Line }
 
     public abstract class PageAnnotation
     {

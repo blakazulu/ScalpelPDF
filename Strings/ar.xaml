@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">أداة النص - انقر لإضافة نص</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">أداة التظليل - اسحب للتظليل</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">أداة الرسم - حبر يدوي حر</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">أداة الخط - اسحب لرسم خط مستقيم؛ اضغط Shift لضبط الزاوية</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">التوقيع - إنشاء التواقيع ووضعها</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">أداة الصورة - انقر لإدراج صورة في الصفحة</sys:String>
     <sys:String x:Key="Str_TT_CropTool">أداة الاقتصاص - اسحب لتحديد منطقة الاقتصاص، ثم طبّق على الصفحات</sys:String>
@@ -194,6 +195,7 @@
     <sys:String x:Key="Str_Lbl_Text">نص</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">تظليل</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">رسم</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">خط</sys:String>
     <sys:String x:Key="Str_Lbl_Image">صورة</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">اقتصاص</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">تراجع</sys:String>

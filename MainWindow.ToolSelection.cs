@@ -33,6 +33,7 @@ namespace Scalpel
             EditTool.Text => Cursors.IBeam,
             EditTool.Highlight => Cursors.Cross,
             EditTool.Draw => Cursors.Pen,
+            EditTool.Line => Cursors.Cross,
             EditTool.Signature => Cursors.Pen,
             EditTool.Image => Cursors.Hand,
             EditTool.Crop => Cursors.Cross,
@@ -52,6 +53,7 @@ namespace Scalpel
                 (_toolTextBtn, EditTool.Text),
                 (_toolHighlightBtn, EditTool.Highlight),
                 (_toolDrawBtn, EditTool.Draw),
+                (_toolLineBtn, EditTool.Line),
                 (_toolSignatureBtn, EditTool.Signature),
                 (_toolImageBtn, EditTool.Image),
                 (_toolCropBtn, EditTool.Crop)
@@ -80,7 +82,7 @@ namespace Scalpel
                 overlay.Cursor = toolCursor;
 
             // Show/hide draw settings bar
-            if (tool == EditTool.Draw || tool == EditTool.Highlight)
+            if (tool == EditTool.Draw || tool == EditTool.Highlight || tool == EditTool.Line)
                 ShowDrawSettings(tool);
             else
                 HideDrawSettings();

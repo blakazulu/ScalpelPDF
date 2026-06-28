@@ -118,6 +118,7 @@ namespace Scalpel
         private readonly List<System.Windows.Shapes.Path> _cropBrackets = []; // L-bracket corner visuals
         private Border? _cropConfirmBar;
         private readonly Button _toolCropBtn = null!;
+        private readonly Button _toolLineBtn = null!;
         private readonly List<Rectangle> _cropHandles = [];
         private string? _activeCropHandleTag; // "NW" | "NE" | "SE" | "SW"
         private Point _cropHandleDragStart;
@@ -207,6 +208,7 @@ namespace Scalpel
             _toolSignatureBtn = (Button)FindName("ToolSignatureBtn")!;
             _toolImageBtn = (Button)FindName("ToolImageBtn")!;
             _toolCropBtn = (Button)FindName("ToolCropBtn")!;
+            _toolLineBtn = (Button)FindName("ToolLineBtn")!;
             _sidebarToggleBtn = (Button)FindName("SidebarToggleBtn")!;
             _sidebarBorder = (Border)FindName("SidebarBorder")!;
             _sidebarCol = (ColumnDefinition)FindName("SidebarCol")!;

@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">Metin Aracı - metin eklemek için tıkla</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">Vurgulama Aracı - vurgulamak için sürükle</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">Çizim Aracı - serbest çizim</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">Çizgi Aracı - düz çizgi çizmek için sürükle; açıyı sabitlemek için Shift tut</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">İmza - imza oluştur ve yerleştir</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">Görsel Aracı - sayfaya görsel eklemek için tıkla</sys:String>
     <sys:String x:Key="Str_TT_CropTool">Kırpma Aracı - kırpma alanını belirlemek için sürükle, ardından sayfa(lar)a uygula</sys:String>
@@ -184,6 +185,7 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Lbl_Text">Metin</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">Vurgula</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">Çiz</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">Çizgi</sys:String>
     <sys:String x:Key="Str_Lbl_Image">Görsel</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">Kırp</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">Geri Al</sys:String>

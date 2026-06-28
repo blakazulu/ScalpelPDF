@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">Text Tool - click to add text</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">Highlight Tool - drag to highlight</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">Draw Tool - freehand ink</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">Line Tool - drag to draw a straight line; hold Shift to snap the angle</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">Signature - create and place signatures</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">Image Tool - click to insert an image onto the page</sys:String>
     <sys:String x:Key="Str_TT_CropTool">Crop Tool - drag to set crop area, then apply to page(s)</sys:String>
@@ -194,6 +195,7 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Lbl_Text">Text</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">Highlight</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">Draw</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">Line</sys:String>
     <sys:String x:Key="Str_Lbl_Image">Image</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">Crop</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">Undo</sys:String>

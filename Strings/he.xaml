@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">כלי טקסט - לחיצה להוספת טקסט</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">כלי הדגשה - גרירה להדגשה</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">כלי ציור - דיו חופשי</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">כלי קו - גרור לציור קו ישר; החזק Shift לנעילת הזווית</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">חתימה - יצירה והצבה של חתימות</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">כלי תמונה - לחיצה להוספת תמונה לעמוד</sys:String>
     <sys:String x:Key="Str_TT_CropTool">כלי חיתוך - גרירה להגדרת אזור החיתוך, ואז החלה על העמודים</sys:String>
@@ -194,6 +195,7 @@
     <sys:String x:Key="Str_Lbl_Text">טקסט</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">הדגשה</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">ציור</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">קו</sys:String>
     <sys:String x:Key="Str_Lbl_Image">תמונה</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">חיתוך</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">ביטול</sys:String>

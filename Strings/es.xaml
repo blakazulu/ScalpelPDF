@@ -22,6 +22,7 @@
     <sys:String x:Key="Str_TT_TextTool">Herramienta de texto - clic para agregar texto</sys:String>
     <sys:String x:Key="Str_TT_HighlightTool">Herramienta de resaltado - arrastrar para resaltar</sys:String>
     <sys:String x:Key="Str_TT_DrawTool">Herramienta de dibujo - tinta a mano alzada</sys:String>
+    <sys:String x:Key="Str_TT_LineTool">Herramienta de línea - arrastrar para trazar una línea recta; mantén Shift para bloquear el ángulo</sys:String>
     <sys:String x:Key="Str_TT_SignatureTool">Firma - crear y colocar firmas</sys:String>
     <sys:String x:Key="Str_TT_ImageTool">Herramienta de imagen - clic para insertar una imagen en la página</sys:String>
     <sys:String x:Key="Str_TT_CropTool">Herramienta de recorte - arrastrar para definir el área, luego aplicar a la(s) página(s)</sys:String>
@@ -184,6 +185,7 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Lbl_Text">Texto</sys:String>
     <sys:String x:Key="Str_Lbl_Highlight">Resaltar</sys:String>
     <sys:String x:Key="Str_Lbl_Draw">Dibujar</sys:String>
+    <sys:String x:Key="Str_Lbl_Line">Línea</sys:String>
     <sys:String x:Key="Str_Lbl_Image">Imagen</sys:String>
     <sys:String x:Key="Str_Lbl_Crop">Recortar</sys:String>
     <sys:String x:Key="Str_Lbl_Undo">Deshacer</sys:String>
