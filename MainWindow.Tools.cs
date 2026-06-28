@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -228,6 +228,53 @@ namespace Scalpel
         }
 
         // ---- Tools menu handlers ----------------------------------------------------------------
+
+        private static string L(string key) => Application.Current?.TryFindResource(key) as string ?? key;
+
+        private static string TryInfo(Func<string?> get)
+        {
+            try { return get() ?? ""; } catch { return ""; }
+        }
+
+        private void ShowDocumentInfo()
+        {
+            if (!RequireOpenDoc()) return;
+
+            string title    = TryInfo(() => _doc!.Info.Title);
+            string author   = TryInfo(() => _doc!.Info.Author);
+            string subject  = TryInfo(() => _doc!.Info.Subject);
+            string keywords = TryInfo(() => _doc!.Info.Keywords);
+            string creator  = TryInfo(() => _doc!.Info.Creator);
+
+            // read-only summary
+            var parts = new List<string>();
+            string producer = TryInfo(() => _doc!.Info.Producer);
+            if (producer.Length > 0) parts.Add($"{L("Str_DocInfo_Producer")}: {producer}");
+            try { parts.Add($"{_doc!.PageCount} {L("Str_DocInfo_Pages")}  ·  PDF {_doc.Version / 10}.{_doc.Version % 10}"); } catch { }
+            try { var d = _doc!.Info.CreationDate; if (d != default) parts.Add($"{L("Str_DocInfo_Created")} {d:yyyy-MM-dd HH:mm}"); } catch { }
+            try { var p = _originalFile ?? _currentFile; if (!string.IsNullOrEmpty(p) && File.Exists(p)) parts.Add($"{new FileInfo(p).Length / 1024.0:N0} KB"); } catch { }
+            string note = string.Join("\n", parts);
+
+            var fTitle    = new ToolField(L("Str_DocInfo_FldTitle"),    ToolFieldKind.Text, value: title);
+            var fAuthor   = new ToolField(L("Str_DocInfo_FldAuthor"),   ToolFieldKind.Text, value: author);
+            var fSubject  = new ToolField(L("Str_DocInfo_FldSubject"),  ToolFieldKind.Text, value: subject);
+            var fKeywords = new ToolField(L("Str_DocInfo_FldKeywords"), ToolFieldKind.Text, value: keywords);
+            var fCreator  = new ToolField(L("Str_DocInfo_FldCreator"),  ToolFieldKind.Text, value: creator);
+
+            if (!ShowToolForm(L("Str_Tool_DocInfo"), new[] { fTitle, fAuthor, fSubject, fKeywords, fCreator },
+                              L("Str_DocInfo_Save"), string.IsNullOrEmpty(note) ? null : note))
+                return;
+
+            _doc!.Info.Title    = fTitle.Value;
+            _doc.Info.Author    = fAuthor.Value;
+            _doc.Info.Subject   = fSubject.Value;
+            _doc.Info.Keywords  = fKeywords.Value;
+            _doc.Info.Creator   = fCreator.Value;
+            MarkDirty(true);
+            SetStatus(L("Str_DocInfo_Updated"));
+        }
+
+        private void ToolsDocumentInfo_Click(object sender, RoutedEventArgs e) => ShowDocumentInfo();
 
         private void ToolsNumbering_Click(object sender, RoutedEventArgs e)
         {
