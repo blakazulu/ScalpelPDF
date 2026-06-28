@@ -244,5 +244,6 @@
     <sys:String x:Key="Str_Log_Enable">লগিং সক্রিয় করুন</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">লগ ফোল্ডার খুলুন</sys:String>
     <sys:String x:Key="Str_Log_Clear">লগ মুছুন</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">পূর্ণ স্ক্রিন থেকে বের হতে F11 চাপুন</sys:String>
 
 </ResourceDictionary>

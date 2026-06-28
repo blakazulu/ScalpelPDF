@@ -244,5 +244,6 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Log_Enable">Günlüğü etkinleştir</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">Günlük klasörünü aç</sys:String>
     <sys:String x:Key="Str_Log_Clear">Günlükleri temizle</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">Tam ekrandan çıkmak için F11'e basın</sys:String>
 
 </ResourceDictionary>

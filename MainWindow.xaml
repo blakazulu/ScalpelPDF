@@ -433,7 +433,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="Auto"/>
@@ -443,7 +443,7 @@
         </Grid.RowDefinitions>
 
         <!-- Title bar + Quick Access Toolbar -->
-        <Border Grid.Row="0" Background="{DynamicResource ChromeBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1"
+        <Border x:Name="TitleBarBorder" Grid.Row="0" Background="{DynamicResource ChromeBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1"
                 MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
@@ -484,7 +484,7 @@
         </Border>
 
         <!-- Ribbon tab strip — mode tabs (left) connect into the band below; utilities (right) -->
-        <Border Grid.Row="1" Background="{DynamicResource RibbonBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1">
+        <Border x:Name="RibbonTabBorder" Grid.Row="1" Background="{DynamicResource RibbonBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1">
             <DockPanel LastChildFill="False" Margin="12,4,12,0">
                 <!-- RadioButtons (grouped) so clicking the active tab can't deselect it; RibbonTab targets ToggleButton (RadioButton's base). -->
                 <RadioButton x:Name="ModeViewTab"  GroupName="AppModeTabs" Style="{StaticResource RibbonTab}" Content="{DynamicResource Str_Mode_View}"  Checked="ModeTab_Checked" Tag="View"/>
@@ -525,7 +525,7 @@
         </Border>
 
         <!-- Ribbon band (contextual command groups; one mode panel visible at a time) -->
-        <Border Grid.Row="2" Background="{DynamicResource RibbonBand}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1" Padding="10,8,10,6">
+        <Border x:Name="RibbonBandBorder" Grid.Row="2" Background="{DynamicResource RibbonBand}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1" Padding="10,8,10,6">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False">
             <Grid HorizontalAlignment="Left">
               <!-- View panel: Layout group + Display group -->
@@ -920,7 +920,7 @@
         </Grid>
 
         <!-- Status bar -->
-        <Border Grid.Row="4" Background="{DynamicResource ChromeBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,1,0,0">
+        <Border x:Name="StatusBarBorder" Grid.Row="4" Background="{DynamicResource ChromeBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,1,0,0">
             <Grid Margin="14,0">
                 <TextBlock x:Name="StatusText" Text="{DynamicResource Str_Ready}"
                            Foreground="{DynamicResource ChromeTextDim}"

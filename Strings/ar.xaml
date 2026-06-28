@@ -244,5 +244,6 @@
     <sys:String x:Key="Str_Log_Enable">تمكين التسجيل</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">فتح مجلد السجلات</sys:String>
     <sys:String x:Key="Str_Log_Clear">مسح السجلات</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">اضغط F11 للخروج من وضع ملء الشاشة</sys:String>
 
 </ResourceDictionary>

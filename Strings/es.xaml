@@ -244,5 +244,6 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Log_Enable">Activar registro</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">Abrir carpeta de registros</sys:String>
     <sys:String x:Key="Str_Log_Clear">Borrar registros</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">Presiona F11 para salir de pantalla completa</sys:String>
 
 </ResourceDictionary>

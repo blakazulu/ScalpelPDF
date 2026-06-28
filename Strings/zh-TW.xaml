@@ -246,5 +246,6 @@
     <sys:String x:Key="Str_Log_Enable">啟用記錄</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">開啟記錄資料夾</sys:String>
     <sys:String x:Key="Str_Log_Clear">清除記錄</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">按 F11 退出全螢幕</sys:String>
 
 </ResourceDictionary>

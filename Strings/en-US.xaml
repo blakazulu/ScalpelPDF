@@ -244,5 +244,6 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Log_Enable">Enable logging</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">Open logs folder</sys:String>
     <sys:String x:Key="Str_Log_Clear">Clear logs</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">Press F11 to exit full screen</sys:String>
 
 </ResourceDictionary>

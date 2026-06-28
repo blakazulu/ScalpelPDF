@@ -244,5 +244,6 @@
     <sys:String x:Key="Str_Log_Enable">Включить ведение журнала</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">Открыть папку журналов</sys:String>
     <sys:String x:Key="Str_Log_Clear">Очистить журналы</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">Нажмите F11 для выхода из полноэкранного режима</sys:String>
 
 </ResourceDictionary>

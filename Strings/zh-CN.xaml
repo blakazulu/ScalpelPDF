@@ -244,5 +244,6 @@
     <sys:String x:Key="Str_Log_Enable">启用日志</sys:String>
     <sys:String x:Key="Str_Log_OpenFolder">打开日志文件夹</sys:String>
     <sys:String x:Key="Str_Log_Clear">清除日志</sys:String>
+    <sys:String x:Key="Str_FullScreen_Hint">按 F11 退出全屏</sys:String>
 
 </ResourceDictionary>
