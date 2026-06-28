@@ -8,6 +8,8 @@ Scalpel is a local-only, portable Windows PDF editor (view, annotate, merge/spli
 
 ## Build / run / test
 
+> **📦 Releasing/publishing any channel (portable EXE, Inno installer, or Microsoft Store)? STOP and follow [`docs/RELEASING.md`](docs/RELEASING.md) — the canonical runbook.** It covers version bumping (the two sources of truth + pre-push auto-bump), the exact build commands, the GitHub-Release/Netlify/`version.json` distribution wiring, the publish order (website **last**), signing posture, Store-identity verification, and every gotcha. Do not improvise a release.
+
 ```powershell
 dotnet build                      # debug build
 dotnet publish -c Release         # single-file Costura EXE -> bin/Release/net48/publish/
@@ -25,10 +27,10 @@ dotnet test --filter "FullyQualifiedName~SearchService"   # single test class
 
 ```powershell
 pwsh -File packaging\build-msix.ps1 -SelfSign   # local sideload test package (self-signed)
-pwsh -File packaging\build-msix.ps1 -NoSign -IdentityName ... -Publisher ... -PublisherDisplayName ...   # Store submission
+pwsh -File packaging\build-msix.ps1 -Store      # Store submission (bakes in the real Partner Center identity, unsigned)
 ```
 
-`packaging/build-msix.ps1` publishes the EXE, stages a layout, runs `makepri`/`makeappx`, and signs. Needs the Windows 10/11 SDK (`makeappx`, `signtool`). See `docs/STORE-PUBLISHING.md`. The same `Scalpel.exe` goes inside the package; only the manifest (`packaging/AppxManifest.xml`, `{token}`-substituted) and assets are added.
+`packaging/build-msix.ps1` publishes the EXE, stages a layout, runs `makepri`/`makeappx`, and signs. Needs the Windows 10/11 SDK (`makeappx`, `signtool`). **For a real submission use `-Store` and follow [`docs/RELEASING.md`](docs/RELEASING.md) §5 — verify the Partner Center identity (the `PublisherDisplayName` changes if you rename your publisher) before every upload.** See also `docs/STORE-PUBLISHING.md`. The same `Scalpel.exe` goes inside the package; only the manifest (`packaging/AppxManifest.xml`, `{token}`-substituted) and assets are added.
 
 ## Architecture
 
@@ -105,5 +107,6 @@ small frames use the glyph), `packaging/Assets/*` (MSIX/Store tiles), and
 - `docs/UI-REFERENCE.md` — every button/control, mapped to its handler.
 - `docs/system-design.md` — **the current "Clinical" ribbon redesign:** layout, typography, full color-token tables (all themes + accents), component styles, code-behind contract, and the brand-asset catalog. Start here for UI/theme/asset work.
 - `docs/DESIGN-SYSTEM.md` — the underlying "Studio" design-system mechanics (fonts, icons, type scale, `_Shared.xaml`); still accurate for those primitives, but the toolbar layout it describes is superseded by `system-design.md`.
-- `docs/STORE-PUBLISHING.md` — MSIX build + Store submission (incl. the GPLv3-on-Store licensing note).
+- **`docs/RELEASING.md` — the canonical release runbook for all three channels (portable / installer / Store). Always follow it when publishing.**
+- `docs/STORE-PUBLISHING.md` — MSIX build + Store submission deep-dive (incl. the GPLv3-on-Store licensing note).
 - `docs/LOGGING.md` — the local-only JSONL session logging system: per-user log location, format, categories, retention, and QA usage.
