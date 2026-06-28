@@ -256,4 +256,16 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_KS_Tools">Herramientas de edición (Seleccionar / Texto / Resaltar / Dibujar / Línea / Imagen)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">Información del documento</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">Idioma de OCR…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">OCR de página al portapapeles</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">Extraer todo el texto…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">Idioma</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">Calidad</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">Rápido</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">Óptimo (más lento, más preciso)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">Idioma de OCR guardado.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">Texto OCR copiado al portapapeles.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">Texto extraído al archivo.</sys:String>
+
 </ResourceDictionary>

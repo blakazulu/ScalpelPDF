@@ -256,4 +256,16 @@
     <sys:String x:Key="Str_KS_Tools">Инструменты редактирования (Выбор / Текст / Выделение / Рисование / Линия / Изображение)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">Свойства документа</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">Язык OCR…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">OCR страницы в буфер обмена</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">Извлечь весь текст…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">Язык</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">Качество</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">Быстро</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">Лучшее (медленнее, точнее)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">Язык OCR сохранён.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">Текст OCR скопирован в буфер обмена.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">Текст извлечён в файл.</sys:String>
+
 </ResourceDictionary>

@@ -256,4 +256,16 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_KS_Tools">Düzenleme araçları (Seçim / Metin / Vurgu / Çizim / Çizgi / Görsel)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">Belge bilgisi</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">OCR Dili…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">Sayfayı OCR ile Panoya Kopyala</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">Tüm Metni Çıkart…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">Dil</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">Kalite</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">Hızlı</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">En İyi (daha yavaş, daha doğru)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">OCR dili kaydedildi.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">OCR metni panoya kopyalandı.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">Metin dosyaya çıkartıldı.</sys:String>
+
 </ResourceDictionary>

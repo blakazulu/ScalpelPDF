@@ -256,4 +256,16 @@
     <sys:String x:Key="Str_KS_Tools">כלי עריכה (בחירה / טקסט / סימון / ציור / קו / תמונה)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">פרטי מסמך</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">שפת OCR…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">OCR של עמוד ללוח</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">חילוץ כל הטקסט…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">שפה</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">איכות</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">מהיר</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">הטוב ביותר (איטי יותר, מדויק יותר)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">שפת OCR נשמרה.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">טקסט OCR הועתק ללוח.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">הטקסט חולץ לקובץ.</sys:String>
+
 </ResourceDictionary>

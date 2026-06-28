@@ -256,4 +256,16 @@
     <sys:String x:Key="Str_KS_Tools">সম্পাদনা সরঞ্জাম (নির্বাচন / পাঠ্য / হাইলাইট / আঁকা / রেখা / ছবি)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">নথি তথ্য</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">OCR ভাষা…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">পৃষ্ঠার OCR ক্লিপবোর্ডে কপি করুন</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">সমস্ত টেক্সট বের করুন…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">ভাষা</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">গুণমান</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">দ্রুত</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">সেরা (ধীরগতি, আরও নির্ভুল)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">OCR ভাষা সংরক্ষিত হয়েছে।</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">OCR টেক্সট ক্লিপবোর্ডে কপি করা হয়েছে।</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">ফাইলে টেক্সট বের করা হয়েছে।</sys:String>
+
 </ResourceDictionary>

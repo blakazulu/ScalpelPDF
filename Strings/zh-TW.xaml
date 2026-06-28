@@ -258,4 +258,16 @@
     <sys:String x:Key="Str_KS_Tools">編輯工具（選取 / 文字 / 螢光筆 / 繪圖 / 直線 / 圖片）</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">文件資訊</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">OCR 語言…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">OCR 頁面到剪貼簿</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">擷取所有文字…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">語言</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">品質</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">快速</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">最佳（較慢，更準確）</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">OCR 語言已儲存。</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">已複製 OCR 文字到剪貼簿。</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">文字已擷取至檔案。</sys:String>
+
 </ResourceDictionary>

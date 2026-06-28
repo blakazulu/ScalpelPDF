@@ -256,4 +256,16 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_KS_Tools">Edit tools (Select / Text / Highlight / Draw / Line / Image)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">Document info</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">OCR Language…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">OCR Page to Clipboard</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">Extract All Text…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">Language</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">Quality</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">Fast</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">Best (slower, more accurate)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">OCR language saved.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">Copied OCR text to clipboard.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">Extracted text to file.</sys:String>
+
 </ResourceDictionary>

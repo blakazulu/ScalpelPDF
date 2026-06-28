@@ -256,4 +256,16 @@
     <sys:String x:Key="Str_KS_Tools">أدوات التحرير (تحديد / نص / تمييز / رسم / خط / صورة)</sys:String>
     <sys:String x:Key="Str_KS_DocInfo">معلومات المستند</sys:String>
 
+    <!-- ── OCR tools ────────────────────────────────────────────── -->
+    <sys:String x:Key="Str_Tool_OcrLanguage">لغة التعرف الضوئي…</sys:String>
+    <sys:String x:Key="Str_Tool_OcrClipboard">التعرف الضوئي للصفحة إلى الحافظة</sys:String>
+    <sys:String x:Key="Str_Tool_OcrExtract">استخراج كل النص…</sys:String>
+    <sys:String x:Key="Str_Ocr_LangLabel">اللغة</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityLabel">الجودة</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityFast">سريع</sys:String>
+    <sys:String x:Key="Str_Ocr_QualityBest">الأفضل (أبطأ، أكثر دقة)</sys:String>
+    <sys:String x:Key="Str_Ocr_LangSaved">تم حفظ لغة التعرف الضوئي.</sys:String>
+    <sys:String x:Key="Str_Ocr_Copied">تم نسخ نص التعرف الضوئي إلى الحافظة.</sys:String>
+    <sys:String x:Key="Str_Ocr_ExtractDone">تم استخراج النص إلى الملف.</sys:String>
+
 </ResourceDictionary>
