@@ -552,7 +552,7 @@ namespace Scalpel
                         var (wPt, hPt) = rast.PageSizePt(i);
                         var text = OcrTextJoiner.Join(engine.Recognize(raster.ImageBytes, wPt, hPt).Words);
                         if (md) sb.Append("## Page ").Append(i + 1).Append("\n\n");
-                        sb.Append(text).Append(md ? "\n\n" : "\n\n");
+                        sb.Append(text).Append("\n\n");
                     }
                     File.WriteAllText(outPath, sb.ToString().TrimEnd() + "\n");
                 });

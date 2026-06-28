@@ -60,12 +60,8 @@ namespace Scalpel.Services
         /// when false the full priority chain (bundled → sibling → fast download dir) is used.</summary>
         public static string ResolveTessdataDir(string lang, bool best = false)
         {
-            if (best)
-            {
-                if (File.Exists(Path.Combine(DownloadTessdataDirBest, $"{lang}.traineddata")))
-                    return DownloadTessdataDirBest;
-                return DownloadTessdataDirBest;
-            }
+            // Best-quality data only ever lives in its own download dir (bundled/system tessdata is fast).
+            if (best) return DownloadTessdataDirBest;
             foreach (var dir in TessdataDirs())
                 if (File.Exists(Path.Combine(dir, $"{lang}.traineddata"))) return dir;
             return DownloadTessdataDir;
