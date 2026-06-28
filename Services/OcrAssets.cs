@@ -25,12 +25,18 @@ namespace Scalpel.Services
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "Scalpel", "ocr");
 
-        /// <summary>Where on-demand downloads are written (always the writable per-user location).</summary>
+        /// <summary>Where on-demand fast-quality downloads are written (always the writable per-user location).</summary>
         public static string DownloadTessdataDir => Path.Combine(UserOcrDir, "tessdata");
 
-        /// <summary>Official tessdata_fast language file (trusted source; data, not executable code).</summary>
-        public static string LanguageUrl(string lang) =>
-            $"https://github.com/tesseract-ocr/tessdata_fast/raw/main/{lang}.traineddata";
+        /// <summary>Where on-demand best-quality downloads are written (sibling of <see cref="DownloadTessdataDir"/>).</summary>
+        public static string DownloadTessdataDirBest => Path.Combine(UserOcrDir, "tessdata-best");
+
+        /// <summary>Official tessdata language file URL. Uses <c>tessdata_best</c> repo when <paramref name="best"/> is true,
+        /// otherwise <c>tessdata_fast</c> (trusted source; data, not executable code).</summary>
+        public static string LanguageUrl(string lang, bool best = false) =>
+            best
+                ? $"https://github.com/tesseract-ocr/tessdata_best/raw/main/{lang}.traineddata"
+                : $"https://github.com/tesseract-ocr/tessdata_fast/raw/main/{lang}.traineddata";
 
         /// <summary>Candidate tessdata directories, in priority order: the bundled <c>ocr</c> folder
         /// (installed build), the located engine's OWN sibling <c>tessdata</c> (a full Tesseract
@@ -49,16 +55,29 @@ namespace Scalpel.Services
         }
 
         /// <summary>The tessdata directory that actually contains <paramref name="lang"/>, or the
-        /// writable download dir if none yet. Pass this to the engine via <c>--tessdata-dir</c>.</summary>
-        public static string ResolveTessdataDir(string lang)
+        /// appropriate writable download dir if none yet. Pass this to the engine via <c>--tessdata-dir</c>.
+        /// When <paramref name="best"/> is true only the best-quality download dir is searched;
+        /// when false the full priority chain (bundled → sibling → fast download dir) is used.</summary>
+        public static string ResolveTessdataDir(string lang, bool best = false)
         {
+            if (best)
+            {
+                if (File.Exists(Path.Combine(DownloadTessdataDirBest, $"{lang}.traineddata")))
+                    return DownloadTessdataDirBest;
+                return DownloadTessdataDirBest;
+            }
             foreach (var dir in TessdataDirs())
                 if (File.Exists(Path.Combine(dir, $"{lang}.traineddata"))) return dir;
             return DownloadTessdataDir;
         }
 
-        public static bool HasLanguage(string lang)
+        /// <summary>Returns true if the given language data file is already present on disk.
+        /// When <paramref name="best"/> is true only the best-quality download dir is checked;
+        /// when false the full priority chain is searched.</summary>
+        public static bool HasLanguage(string lang, bool best = false)
         {
+            if (best)
+                return File.Exists(Path.Combine(DownloadTessdataDirBest, $"{lang}.traineddata"));
             foreach (var dir in TessdataDirs())
                 if (File.Exists(Path.Combine(dir, $"{lang}.traineddata"))) return true;
             return false;
@@ -95,18 +114,20 @@ namespace Scalpel.Services
             return null;
         }
 
-        /// <summary>Downloads the given language's data into <see cref="DownloadTessdataDir"/>.
+        /// <summary>Downloads the given language's data into <see cref="DownloadTessdataDir"/> (fast)
+        /// or <see cref="DownloadTessdataDirBest"/> (best), depending on <paramref name="best"/>.
         /// Returns true on success. Caller must have obtained the user's consent first.</summary>
-        public static bool DownloadLanguage(string lang)
+        public static bool DownloadLanguage(string lang, bool best = false)
         {
             try
             {
-                Directory.CreateDirectory(DownloadTessdataDir);
+                string targetDir = best ? DownloadTessdataDirBest : DownloadTessdataDir;
+                Directory.CreateDirectory(targetDir);
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                string dest = Path.Combine(DownloadTessdataDir, $"{lang}.traineddata");
+                string dest = Path.Combine(targetDir, $"{lang}.traineddata");
                 string tmp = dest + ".part";
                 using (var wc = new WebClient())
-                    wc.DownloadFile(LanguageUrl(lang), tmp);
+                    wc.DownloadFile(LanguageUrl(lang, best), tmp);
 
                 // Basic sanity: traineddata files are well over 100 KB.
                 if (new FileInfo(tmp).Length < 100_000) { try { File.Delete(tmp); } catch { } return false; }
@@ -116,5 +137,25 @@ namespace Scalpel.Services
             }
             catch { return false; }
         }
+
+        /// <summary>Supported OCR languages: (ISO 639-2 code, display name) pairs.</summary>
+        public static readonly (string Code, string Name)[] Languages =
+        {
+            ("eng",     "English"),
+            ("spa",     "Spanish"),
+            ("fra",     "French"),
+            ("deu",     "German"),
+            ("por",     "Portuguese"),
+            ("ita",     "Italian"),
+            ("nld",     "Dutch"),
+            ("rus",     "Russian"),
+            ("chi_sim", "Chinese (Simplified)"),
+            ("chi_tra", "Chinese (Traditional)"),
+            ("jpn",     "Japanese"),
+            ("kor",     "Korean"),
+            ("ara",     "Arabic"),
+            ("heb",     "Hebrew"),
+            ("hin",     "Hindi"),
+        };
     }
 }
