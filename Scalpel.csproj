@@ -51,6 +51,12 @@
   <ItemGroup>
     <Compile Remove="Scalpel.Tests\**" />
     <Compile Remove="Scalpel.E2E\**" />
+    <!-- Upstream KillerPDF source dump kept under docs/ for reference only; never compiled. -->
+    <Compile Remove="docs\**" />
+    <Page Remove="docs\**" />
+    <Resource Remove="docs\**" />
+    <EmbeddedResource Remove="docs\**" />
+    <None Remove="docs\**" />
   </ItemGroup>
 
   <ItemGroup>
