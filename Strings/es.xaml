@@ -246,4 +246,14 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Log_Clear">Borrar registros</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">Presiona F11 para salir de pantalla completa</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">Pantalla completa</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">Vista de página única</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">Vista continua</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">Vista de dos páginas</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">Vista de cuadrícula</sys:String>
+    <sys:String x:Key="Str_KS_About">Acerca de</sys:String>
+    <sys:String x:Key="Str_KS_Tools">Herramientas de edición (Seleccionar / Texto / Resaltar / Dibujar / Línea / Imagen)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">Información del documento</sys:String>
+
 </ResourceDictionary>

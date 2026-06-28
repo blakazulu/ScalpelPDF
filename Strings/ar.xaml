@@ -246,4 +246,14 @@
     <sys:String x:Key="Str_Log_Clear">مسح السجلات</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">اضغط F11 للخروج من وضع ملء الشاشة</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">ملء الشاشة</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">عرض صفحة واحدة</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">العرض المتواصل</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">عرض صفحتين</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">عرض الشبكة</sys:String>
+    <sys:String x:Key="Str_KS_About">حول</sys:String>
+    <sys:String x:Key="Str_KS_Tools">أدوات التحرير (تحديد / نص / تمييز / رسم / خط / صورة)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">معلومات المستند</sys:String>
+
 </ResourceDictionary>

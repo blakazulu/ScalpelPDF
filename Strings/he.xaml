@@ -246,4 +246,14 @@
     <sys:String x:Key="Str_Log_Clear">ניקוי יומנים</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">לחץ F11 ליציאה ממסך מלא</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">מסך מלא</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">תצוגת עמוד בודד</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">תצוגה רציפה</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">תצוגת שני עמודים</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">תצוגת רשת</sys:String>
+    <sys:String x:Key="Str_KS_About">אודות</sys:String>
+    <sys:String x:Key="Str_KS_Tools">כלי עריכה (בחירה / טקסט / סימון / ציור / קו / תמונה)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">פרטי מסמך</sys:String>
+
 </ResourceDictionary>

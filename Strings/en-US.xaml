@@ -246,4 +246,14 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Log_Clear">Clear logs</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">Press F11 to exit full screen</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">Full screen</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">Single page view</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">Continuous view</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">Two-page view</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">Grid view</sys:String>
+    <sys:String x:Key="Str_KS_About">About</sys:String>
+    <sys:String x:Key="Str_KS_Tools">Edit tools (Select / Text / Highlight / Draw / Line / Image)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">Document info</sys:String>
+
 </ResourceDictionary>

@@ -246,4 +246,14 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Log_Clear">Günlükleri temizle</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">Tam ekrandan çıkmak için F11'e basın</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">Tam ekran</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">Tek sayfa görünümü</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">Sürekli görünüm</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">İki sayfa görünümü</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">Izgara görünümü</sys:String>
+    <sys:String x:Key="Str_KS_About">Hakkında</sys:String>
+    <sys:String x:Key="Str_KS_Tools">Düzenleme araçları (Seçim / Metin / Vurgu / Çizim / Çizgi / Görsel)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">Belge bilgisi</sys:String>
+
 </ResourceDictionary>

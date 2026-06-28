@@ -246,4 +246,14 @@
     <sys:String x:Key="Str_Log_Clear">Очистить журналы</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">Нажмите F11 для выхода из полноэкранного режима</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">Полноэкранный режим</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">Вид одной страницы</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">Непрерывный вид</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">Вид двух страниц</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">Вид сетки</sys:String>
+    <sys:String x:Key="Str_KS_About">О программе</sys:String>
+    <sys:String x:Key="Str_KS_Tools">Инструменты редактирования (Выбор / Текст / Выделение / Рисование / Линия / Изображение)</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">Свойства документа</sys:String>
+
 </ResourceDictionary>

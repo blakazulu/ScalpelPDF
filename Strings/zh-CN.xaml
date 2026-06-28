@@ -246,4 +246,14 @@
     <sys:String x:Key="Str_Log_Clear">清除日志</sys:String>
     <sys:String x:Key="Str_FullScreen_Hint">按 F11 退出全屏</sys:String>
 
+    <!-- ── New shortcut description keys ────────────────────────────── -->
+    <sys:String x:Key="Str_KS_FullScreen">全屏</sys:String>
+    <sys:String x:Key="Str_KS_ViewSingle">单页视图</sys:String>
+    <sys:String x:Key="Str_KS_ViewContinuous">连续视图</sys:String>
+    <sys:String x:Key="Str_KS_ViewTwoPage">双页视图</sys:String>
+    <sys:String x:Key="Str_KS_ViewGrid">网格视图</sys:String>
+    <sys:String x:Key="Str_KS_About">关于</sys:String>
+    <sys:String x:Key="Str_KS_Tools">编辑工具（选择 / 文字 / 高亮 / 绘图 / 直线 / 图片）</sys:String>
+    <sys:String x:Key="Str_KS_DocInfo">文档信息</sys:String>
+
 </ResourceDictionary>
