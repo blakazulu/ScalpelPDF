@@ -18,6 +18,8 @@ namespace Scalpel
         private bool _fsPrevTopmost;
         private ResizeMode _fsPrevResize;
         private double _fsPrevLeft, _fsPrevTop, _fsPrevW, _fsPrevH;
+        private Visibility _fsSidebarVis, _fsSplitterVis;
+        private Border? _fsHintBorder;
 
         private void ToggleFullScreen() => ApplyFullScreen(!_fullScreen);
 
@@ -30,11 +32,16 @@ namespace Scalpel
             RibbonTabBorder.Visibility  = v;
             RibbonBandBorder.Visibility = v;
             StatusBarBorder.Visibility  = v;
-            _sidebarBorder.Visibility   = v;
-            SidebarSplitter.Visibility  = v;
 
             if (entering)
             {
+                // Save the sidebar elements' current visibility so a pre-collapsed sidebar is restored
+                // as-is on exit (rather than force-shown).
+                _fsSidebarVis = _sidebarBorder.Visibility;
+                _fsSplitterVis = SidebarSplitter.Visibility;
+                _sidebarBorder.Visibility = Visibility.Collapsed;
+                SidebarSplitter.Visibility = Visibility.Collapsed;
+
                 _fsRow0 = RootGrid.RowDefinitions[0].Height;
                 _fsRow1 = RootGrid.RowDefinitions[1].Height;
                 _fsRow2 = RootGrid.RowDefinitions[2].Height;
@@ -74,6 +81,8 @@ namespace Scalpel
                 _sidebarCol.MinWidth = _fsSidebarMin;
                 _sidebarCol.Width = _fsSidebarW;
                 MainContentGrid.ColumnDefinitions[1].Width = _fsSplitterW;
+                _sidebarBorder.Visibility = _fsSidebarVis;
+                SidebarSplitter.Visibility = _fsSplitterVis;
                 PagePreviewPanel.Background = Brushes.Transparent;
 
                 Topmost = _fsPrevTopmost;
@@ -100,6 +109,9 @@ namespace Scalpel
 
         private void ShowFullScreenHint()
         {
+            // Clear any still-visible hint from a rapid re-toggle so toasts don't stack.
+            if (_fsHintBorder is not null) { RootGrid.Children.Remove(_fsHintBorder); _fsHintBorder = null; }
+
             var toast = new Border
             {
                 Background = new SolidColorBrush(Color.FromArgb(0xE0, 0x1c, 0x1c, 0x1c)),
@@ -112,13 +124,14 @@ namespace Scalpel
             Grid.SetRowSpan(toast, RootGrid.RowDefinitions.Count);
             Panel.SetZIndex(toast, 99999);
             RootGrid.Children.Add(toast);
+            _fsHintBorder = toast;
             toast.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200)));
             var t = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.2) };
             t.Tick += (_, __) =>
             {
                 t.Stop();
                 var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(400));
-                fade.Completed += (_, ___) => RootGrid.Children.Remove(toast);
+                fade.Completed += (_, ___) => { RootGrid.Children.Remove(toast); if (ReferenceEquals(_fsHintBorder, toast)) _fsHintBorder = null; };
                 toast.BeginAnimation(UIElement.OpacityProperty, fade);
             };
             t.Start();
