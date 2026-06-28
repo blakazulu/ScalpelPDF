@@ -64,6 +64,7 @@
     <Compile Include="..\Scalpel.E2E\Catalog\Catalog.cs" Link="E2E\Catalog.cs" />
     <Compile Include="..\Services\UpdateService.cs" Link="Services\UpdateService.cs" />
     <Compile Include="..\Services\LineSnap.cs" Link="Services\LineSnap.cs" />
+    <Compile Include="..\Services\OcrTextJoiner.cs" Link="Services\OcrTextJoiner.cs" />
   </ItemGroup>
 
 </Project>
