@@ -14,6 +14,7 @@ namespace Scalpel.Services
         {
             new Release("1.9.0", "June 2026", new[]
             {
+                "New Document Info (Tools menu or F12): view and edit a PDF's title, author, subject, keywords, and creator, with a read-only summary of producer, page count, version, date, and size.",
                 "New Line tool in the Edit tab: drag to draw a straight line, and hold Shift to snap it to horizontal, vertical, or 45°. It uses the same color, width, and opacity as the Draw tool.",
                 "Fixed: editing existing Hebrew (and other right-to-left) text now keeps the words in their correct order — a line with more than one Hebrew word used to come back reversed in the edit box.",
                 "Hebrew and Arabic edit boxes now read and align right-to-left while you type, so editing existing text feels natural.",

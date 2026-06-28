@@ -188,6 +188,17 @@
     <sys:String x:Key="Str_Tool_Redact">צנזור אזורים מסומנים…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">הגנה בסיסמה…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">הסרת מטא-נתונים</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">פרטי מסמך</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">כותרת</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">מחבר</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">נושא</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">מילות מפתח</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">יוצר</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">שמור</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">פרטי המסמך עודכנו — שמור את הקובץ כדי לשמור את השינויים.</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">יצרן</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">עמודים</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">נוצר</sys:String>
     <sys:String x:Key="Str_Lbl_New">חדש</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">סגירת קובץ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">שמירה משוטחת</sys:String>

@@ -188,6 +188,17 @@
     <sys:String x:Key="Str_Tool_Redact">حجب المناطق المحددة…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">الحماية بكلمة مرور…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">إزالة البيانات الوصفية</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">معلومات المستند</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">العنوان</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">المؤلف</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">الموضوع</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">الكلمات المفتاحية</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">المنشئ</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">حفظ</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">تم تحديث معلومات المستند — احفظ الملف للاحتفاظ بالتغييرات.</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">المنتج</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">صفحات</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">تاريخ الإنشاء</sys:String>
     <sys:String x:Key="Str_Lbl_New">جديد</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">إغلاق الملف</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">حفظ مسطّح</sys:String>

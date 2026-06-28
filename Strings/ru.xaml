@@ -188,6 +188,17 @@
     <sys:String x:Key="Str_Tool_Redact">Закрасить выделенное…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">Защита паролем…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">Удалить метаданные</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">Сведения о документе</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">Заголовок</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">Автор</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">Тема</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">Ключевые слова</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">Создатель</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">Сохранить</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">Сведения о документе обновлены — сохраните файл, чтобы сохранить изменения.</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">Программа</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">страниц</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">создан</sys:String>
     <sys:String x:Key="Str_Lbl_New">Новый</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Закрыть файл</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Сохранить сведённый</sys:String>

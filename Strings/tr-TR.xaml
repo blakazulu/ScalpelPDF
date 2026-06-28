@@ -178,6 +178,17 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Tool_Redact">İşaretli Alanları Karart…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">Parola Koruması…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">Meta Verileri Kaldır</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">Belge Bilgisi</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">Başlık</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">Yazar</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">Konu</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">Anahtar Kelimeler</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">Oluşturan</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">Kaydet</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">Belge bilgisi güncellendi — değişikliklerinizi korumak için dosyayı kaydedin.</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">Üretici</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">sayfa</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">oluşturuldu</sys:String>
     <sys:String x:Key="Str_Lbl_New">Yeni</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Dosyayı Kapat</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Düzleştirilmiş Kaydet</sys:String>

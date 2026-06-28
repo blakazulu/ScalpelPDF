@@ -188,6 +188,17 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Tool_Redact">Redact Marked Areas…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">Password Protect…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">Remove Metadata</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">Document Info</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">Title</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">Author</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">Subject</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">Keywords</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">Creator</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">Save</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">Document info updated — save the file to keep your changes.</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">Producer</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">pages</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">created</sys:String>
     <sys:String x:Key="Str_Lbl_New">New</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">Close File</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">Save Flattened</sys:String>

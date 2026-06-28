@@ -178,6 +178,17 @@
     <sys:String x:Key="Str_Tool_Redact">চিহ্নিত এলাকা রিড্যাক্ট করুন…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">পাসওয়ার্ড সুরক্ষা…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">মেটাডেটা সরান</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">ডকুমেন্ট তথ্য</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">শিরোনাম</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">লেখক</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">বিষয়</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">কীওয়ার্ড</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">নির্মাতা</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">সংরক্ষণ করুন</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">ডকুমেন্ট তথ্য আপডেট হয়েছে — পরিবর্তন রাখতে ফাইলটি সংরক্ষণ করুন।</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">প্রযোজক</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">পাতা</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">তৈরি</sys:String>
     <sys:String x:Key="Str_Lbl_New">নতুন</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">ফাইল বন্ধ</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">ফ্ল্যাটেন সেভ</sys:String>

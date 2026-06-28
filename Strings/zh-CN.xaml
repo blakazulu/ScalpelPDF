@@ -178,6 +178,17 @@
     <sys:String x:Key="Str_Tool_Redact">遮蔽标记区域…</sys:String>
     <sys:String x:Key="Str_Tool_Protect">密码保护…</sys:String>
     <sys:String x:Key="Str_Tool_Sanitize">移除元数据</sys:String>
+    <sys:String x:Key="Str_Tool_DocInfo">文档信息</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldTitle">标题</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldAuthor">作者</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldSubject">主题</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldKeywords">关键词</sys:String>
+    <sys:String x:Key="Str_DocInfo_FldCreator">创建者</sys:String>
+    <sys:String x:Key="Str_DocInfo_Save">保存</sys:String>
+    <sys:String x:Key="Str_DocInfo_Updated">文档信息已更新 — 请保存文件以保留更改。</sys:String>
+    <sys:String x:Key="Str_DocInfo_Producer">制作者</sys:String>
+    <sys:String x:Key="Str_DocInfo_Pages">页</sys:String>
+    <sys:String x:Key="Str_DocInfo_Created">创建于</sys:String>
     <sys:String x:Key="Str_Lbl_New">新建</sys:String>
     <sys:String x:Key="Str_Lbl_CloseFile">关闭文件</sys:String>
     <sys:String x:Key="Str_Lbl_SaveFlattened">保存平面化</sys:String>
