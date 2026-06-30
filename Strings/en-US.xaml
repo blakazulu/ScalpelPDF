@@ -209,6 +209,7 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Sign_Continue">Continue</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">Certificate</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">No usable signing certificate was found in your Windows certificate store.</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">Add a trusted timestamp (needs internet)</sys:String>
     <sys:String x:Key="Str_Sign_Password">Certificate password</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Sign</sys:String>
     <sys:String x:Key="Str_Sign_Note">Adds an invisible cryptographic signature using your certificate. The signed copy is written to a new file and is not changed afterwards, so the signature stays valid.</sys:String>

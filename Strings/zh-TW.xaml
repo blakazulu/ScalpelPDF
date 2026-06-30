@@ -201,6 +201,7 @@
     <sys:String x:Key="Str_Sign_Continue">繼續</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">憑證</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">在 Windows 憑證存放區中找不到可用的簽署憑證。</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">加入受信任的時間戳記（需要網際網路）</sys:String>
     <sys:String x:Key="Str_Sign_Password">憑證密碼</sys:String>
     <sys:String x:Key="Str_Sign_Apply">簽署</sys:String>
     <sys:String x:Key="Str_Sign_Note">使用您的憑證加入一個隱形的加密簽章。已簽署的副本會寫入新檔案，之後不會被更動，因此簽章保持有效。</sys:String>

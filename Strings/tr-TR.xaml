@@ -199,6 +199,7 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Sign_Continue">Devam</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">Sertifika</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">Windows sertifika deponuzda kullanılabilir bir imzalama sertifikası bulunamadı.</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">Güvenilir zaman damgası ekle (internet gerekir)</sys:String>
     <sys:String x:Key="Str_Sign_Password">Sertifika parolası</sys:String>
     <sys:String x:Key="Str_Sign_Apply">İmzala</sys:String>
     <sys:String x:Key="Str_Sign_Note">Sertifikanızı kullanarak görünmez bir kriptografik imza ekler. İmzalı kopya yeni bir dosyaya yazılır ve sonradan değiştirilmez, böylece imza geçerli kalır.</sys:String>

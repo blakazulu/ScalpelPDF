@@ -491,9 +491,15 @@ namespace Scalpel
             var sourceField = new ToolField(Loc("Str_Sign_Source"), ToolFieldKind.Combo,
                 value: fileOpt,
                 options: storeAvailable ? new[] { fileOpt, storeOpt } : new[] { fileOpt });
-            if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { sourceField }, Loc("Str_Sign_Continue"),
+            var timestampField = new ToolField(Loc("Str_Sign_Timestamp"), ToolFieldKind.Check, isChecked: false);
+            if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { sourceField, timestampField }, Loc("Str_Sign_Continue"),
                     note: Loc("Str_Sign_Note")))
                 return;
+
+            // Optional RFC-3161 trusted timestamp (PAdES-T). Uses the configured TSA URL or a default.
+            Scalpel.Services.ITimestampClient? timestamp = timestampField.Checked
+                ? new Scalpel.Services.Signing.HttpTimestampClient(App.GetSetting("SignTimestampUrl"))
+                : null;
 
             // 2) Acquire the signer — either a selected store certificate (+chain) or a .pfx path+password.
             System.Security.Cryptography.X509Certificates.X509Certificate2? storeSigner = null;
@@ -544,9 +550,9 @@ namespace Scalpel
                 SetStatus(Loc("Str_Sign_Working"));
                 string src = BuildWorkingSourceFile();
                 if (storeSigner is not null)
-                    PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain);
+                    PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain, timestamp);
                 else
-                    PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword);
+                    PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword, timestamp);
                 SetStatus(string.Format(Loc("Str_Sign_Done"), System.IO.Path.GetFileName(dlg.FileName)));
                 ScalpelDialog.Show(this, Loc("Str_Sign_DoneMsg"));
             }

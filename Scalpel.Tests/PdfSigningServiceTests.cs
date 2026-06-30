@@ -6,8 +6,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Cms;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Cms;
+using Org.BouncyCastle.Tsp;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Operators;
@@ -166,6 +168,78 @@ namespace Scalpel.Tests
                 foreach (var p in new[] { pfxPath, inPath, outPath })
                     try { File.Delete(p); } catch { }
             }
+        }
+
+        // A self-contained RFC-3161 timestamp authority used to test timestamping without network.
+        private sealed class FakeTsaClient : Scalpel.Services.ITimestampClient
+        {
+            private readonly AsymmetricCipherKeyPair _kp;
+            private readonly BcX509Certificate _cert;
+
+            public FakeTsaClient()
+            {
+                var rng = new SecureRandom();
+                var kpGen = new RsaKeyPairGenerator();
+                kpGen.Init(new Org.BouncyCastle.Crypto.KeyGenerationParameters(rng, 2048));
+                _kp = kpGen.GenerateKeyPair();
+
+                var certGen = new X509V3CertificateGenerator();
+                certGen.SetSerialNumber(BigIntegers.CreateRandomInRange(
+                    BigInteger.One, BigInteger.ValueOf(long.MaxValue), rng));
+                var dn = new X509Name("CN=Scalpel Test TSA, O=Scalpel");
+                certGen.SetIssuerDN(dn);
+                certGen.SetSubjectDN(dn);
+                certGen.SetNotBefore(DateTime.UtcNow.AddDays(-1));
+                certGen.SetNotAfter(DateTime.UtcNow.AddYears(2));
+                certGen.SetPublicKey(_kp.Public);
+                certGen.AddExtension(X509Extensions.ExtendedKeyUsage, true,
+                    new ExtendedKeyUsage(KeyPurposeID.IdKPTimeStamping));
+                _cert = certGen.Generate(new Asn1SignatureFactory("SHA256WITHRSA", _kp.Private, rng));
+            }
+
+            public byte[] GetTimestampToken(byte[] data)
+            {
+                byte[] digest = SHA256.Create().ComputeHash(data);
+                var reqGen = new TimeStampRequestGenerator();
+                reqGen.SetCertReq(true);
+                TimeStampRequest req = reqGen.Generate(TspAlgorithms.Sha256, digest, BigInteger.ValueOf(1));
+
+                var tokenGen = new TimeStampTokenGenerator(_kp.Private, _cert, TspAlgorithms.Sha256, "1.2.3.4.1");
+                tokenGen.SetCertificates(Org.BouncyCastle.Utilities.Collections.CollectionUtilities.CreateStore(
+                    new System.Collections.Generic.List<BcX509Certificate> { _cert }));
+                var respGen = new TimeStampResponseGenerator(tokenGen, TspAlgorithms.Allowed);
+                TimeStampResponse resp = respGen.Generate(req, BigInteger.ValueOf(1), DateTime.UtcNow);
+                return resp.TimeStampToken.GetEncoded();
+            }
+        }
+
+        [Fact]
+        public void SignBytes_WithTimestamp_AttachesTokenAndStillVerifies()
+        {
+            byte[] pdf = MakeBlankPdf(1);
+            DotNetX509 cert = MakeSelfSignedCert();
+
+            byte[] signed = PdfSigningService.SignBytes(pdf, cert, null, new FakeTsaClient());
+
+            string text = Latin1.GetString(signed);
+            int[] byteRange = ParseByteRange(text);
+            byte[] signedContent = ConcatRanges(signed, byteRange);
+            byte[] cms = ExtractContentsDer(signed);
+
+            var cmsData = new CmsSignedData(new CmsProcessableByteArray(signedContent), cms);
+            SignerInformation si = cmsData.GetSignerInfos().GetSigners().Cast<SignerInformation>().Single();
+
+            // The original signature still verifies (unsigned attrs are outside the signed digest).
+            BcX509Certificate bcSigner = new X509CertificateParser().ReadCertificate(cert.RawData);
+            Assert.True(si.Verify(bcSigner), "signature must still verify after timestamping");
+
+            // The id-aa-signatureTimeStampToken unsigned attribute is present and parses as a token.
+            Assert.NotNull(si.UnsignedAttributes);
+            var tsAttr = si.UnsignedAttributes[PkcsObjectIdentifiers.IdAASignatureTimeStampToken];
+            Assert.NotNull(tsAttr);
+            byte[] tokenDer = tsAttr.AttrValues[0].ToAsn1Object().GetEncoded();
+            var tst = new TimeStampToken(new CmsSignedData(tokenDer));
+            Assert.NotNull(tst.TimeStampInfo);
         }
 
         [Fact]

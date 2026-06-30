@@ -199,6 +199,7 @@
     <sys:String x:Key="Str_Sign_Continue">继续</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">证书</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">在 Windows 证书存储中找不到可用的签名证书。</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">添加可信时间戳（需要互联网）</sys:String>
     <sys:String x:Key="Str_Sign_Password">证书密码</sys:String>
     <sys:String x:Key="Str_Sign_Apply">签名</sys:String>
     <sys:String x:Key="Str_Sign_Note">使用您的证书添加一个隐形的加密签名。已签名的副本会写入新文件，之后不会被更改，因此签名保持有效。</sys:String>

@@ -209,6 +209,7 @@
     <sys:String x:Key="Str_Sign_Continue">متابعة</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">الشهادة</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">لم يتم العثور على شهادة توقيع قابلة للاستخدام في مخزن شهادات Windows.</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">إضافة ختم زمني موثوق (يتطلب إنترنت)</sys:String>
     <sys:String x:Key="Str_Sign_Password">كلمة مرور الشهادة</sys:String>
     <sys:String x:Key="Str_Sign_Apply">توقيع</sys:String>
     <sys:String x:Key="Str_Sign_Note">يضيف توقيعًا تشفيريًا غير مرئي باستخدام شهادتك. تُكتب النسخة الموقّعة إلى ملف جديد ولا تتغير بعد ذلك، لذا يبقى التوقيع صالحًا.</sys:String>

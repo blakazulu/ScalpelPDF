@@ -209,6 +209,7 @@
     <sys:String x:Key="Str_Sign_Continue">המשך</sys:String>
     <sys:String x:Key="Str_Sign_CertLabel">אישור</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">לא נמצא אישור חתימה שמיש במאגר האישורים של Windows.</sys:String>
+    <sys:String x:Key="Str_Sign_Timestamp">הוסף חותמת זמן מהימנה (דורש אינטרנט)</sys:String>
     <sys:String x:Key="Str_Sign_Password">סיסמת האישור</sys:String>
     <sys:String x:Key="Str_Sign_Apply">חתום</sys:String>
     <sys:String x:Key="Str_Sign_Note">מוסיף חתימה קריפטוגרפית בלתי נראית באמצעות האישור שלך. העותק החתום נכתב לקובץ חדש ואינו משתנה לאחר מכן, כך שהחתימה נשארת תקפה.</sys:String>

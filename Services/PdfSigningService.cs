@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Cms;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Cms;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
@@ -31,15 +32,26 @@ namespace Scalpel.Services
     ///
     /// Pure, WPF-free, fully local — no online timestamp authority is contacted.
     /// </summary>
+    /// <summary>
+    /// Fetches an RFC-3161 timestamp token (DER) over the SHA-256 of the supplied data — typically a
+    /// CMS signer's signature bytes. Implemented over HTTP against a TSA (<see cref="Signing.HttpTimestampClient"/>);
+    /// injected so signing is testable without network access.
+    /// </summary>
+    public interface ITimestampClient
+    {
+        byte[] GetTimestampToken(byte[] data);
+    }
+
     public static class PdfSigningService
     {
         // Latin-1 maps every byte 1:1 to a char, so string offsets == byte offsets.
         // This lets us parse/build the PDF structure as text while keeping exact byte math.
         private static readonly Encoding Latin1 = Encoding.GetEncoding("ISO-8859-1");
 
-        // Reserved /Contents hole: 16 KiB of signature bytes -> 32 KiB of hex digits.
-        // Generous for an RSA-2048/3072 CMS blob incl. cert chain.
-        private const int ContentsReservedBytes = 16384;
+        // Reserved /Contents hole: 32 KiB of signature bytes -> 64 KiB of hex digits.
+        // Generous for an RSA-2048/3072 CMS blob incl. cert chain AND an RFC-3161 timestamp
+        // token (itself a small CMS with the TSA's cert), which adds several KiB.
+        private const int ContentsReservedBytes = 32768;
         private const int ContentsHexChars = ContentsReservedBytes * 2;
 
         // Width of each dynamic /ByteRange field, zero-padded so length never shifts.
@@ -52,7 +64,8 @@ namespace Scalpel.Services
         /// <paramref name="outputPath"/>. Defensive: throws a clear exception on bad password,
         /// missing private key, or an unsupported PDF structure.
         /// </summary>
-        public static void SignFile(string inputPath, string outputPath, string pfxPath, string? pfxPassword)
+        public static void SignFile(string inputPath, string outputPath, string pfxPath, string? pfxPassword,
+            ITimestampClient? timestamp = null)
         {
             if (string.IsNullOrEmpty(inputPath)) throw new ArgumentNullException(nameof(inputPath));
             if (string.IsNullOrEmpty(outputPath)) throw new ArgumentNullException(nameof(outputPath));
@@ -77,7 +90,7 @@ namespace Scalpel.Services
             var chain = collection.Cast<DotNetX509>().Where(c => !ReferenceEquals(c, signer)).ToArray();
 
             byte[] pdf = File.ReadAllBytes(inputPath);
-            byte[] signed = SignBytes(pdf, signer, chain);
+            byte[] signed = SignBytes(pdf, signer, chain, timestamp);
             File.WriteAllBytes(outputPath, signed);
         }
 
@@ -88,7 +101,7 @@ namespace Scalpel.Services
         /// the certificate differs (here it is supplied directly rather than loaded from a .pfx).
         /// </summary>
         public static void SignFileWithCertificate(string inputPath, string outputPath,
-            DotNetX509 signer, IEnumerable<DotNetX509>? chain = null)
+            DotNetX509 signer, IEnumerable<DotNetX509>? chain = null, ITimestampClient? timestamp = null)
         {
             if (string.IsNullOrEmpty(inputPath)) throw new ArgumentNullException(nameof(inputPath));
             if (string.IsNullOrEmpty(outputPath)) throw new ArgumentNullException(nameof(outputPath));
@@ -97,7 +110,7 @@ namespace Scalpel.Services
                 throw new InvalidOperationException("The selected certificate has no usable private key.");
 
             byte[] pdf = File.ReadAllBytes(inputPath);
-            byte[] signed = SignBytes(pdf, signer, chain);
+            byte[] signed = SignBytes(pdf, signer, chain, timestamp);
             File.WriteAllBytes(outputPath, signed);
         }
 
@@ -108,7 +121,8 @@ namespace Scalpel.Services
         /// <param name="pdf">An existing PDF with a classic <c>xref</c> table + trailer.</param>
         /// <param name="signerCertWithKey">Signing certificate (must carry the private key).</param>
         /// <param name="chain">Optional extra certificates (intermediates/root) to embed.</param>
-        public static byte[] SignBytes(byte[] pdf, DotNetX509 signerCertWithKey, IEnumerable<DotNetX509>? chain = null)
+        public static byte[] SignBytes(byte[] pdf, DotNetX509 signerCertWithKey, IEnumerable<DotNetX509>? chain = null,
+            ITimestampClient? timestamp = null)
         {
             if (pdf is null || pdf.Length == 0) throw new ArgumentException("Empty PDF.", nameof(pdf));
             if (signerCertWithKey is null) throw new ArgumentNullException(nameof(signerCertWithKey));
@@ -267,7 +281,7 @@ namespace Scalpel.Services
 
             // ---- hash the two ByteRange spans + produce the detached CMS -------------------------
             byte[] toSign = ConcatRanges(full, byteRange);
-            byte[] cms = BuildDetachedCms(toSign, signerCertWithKey, chain);
+            byte[] cms = BuildDetachedCms(toSign, signerCertWithKey, chain, timestamp);
             if (cms.Length > ContentsReservedBytes)
                 throw new InvalidOperationException(
                     $"Signature is larger ({cms.Length} bytes) than the reserved space ({ContentsReservedBytes}).");
@@ -311,7 +325,8 @@ namespace Scalpel.Services
 
         // ---- CMS / PKCS#7 detached signature ----------------------------------------------------
 
-        private static byte[] BuildDetachedCms(byte[] content, DotNetX509 signer, IEnumerable<DotNetX509>? chain)
+        private static byte[] BuildDetachedCms(byte[] content, DotNetX509 signer, IEnumerable<DotNetX509>? chain,
+            ITimestampClient? timestamp)
         {
             BcX509Certificate bcSigner = new X509CertificateParser().ReadCertificate(signer.RawData);
 
@@ -336,8 +351,33 @@ namespace Scalpel.Services
             gen.AddCertificates(CollectionUtilities.CreateStore(certList));
 
             CmsSignedData signed = gen.Generate(new CmsProcessableByteArray(content), false /* detached */);
+
+            // Optional RFC-3161 trusted timestamp: attach a token over the signer's signature bytes as
+            // the id-aa-signatureTimeStampToken unsigned attribute, so the signature proves *when* it was
+            // made and stays verifiable after the signer certificate expires (PAdES-T).
+            if (timestamp is not null)
+                signed = AddTimestamp(signed, timestamp);
+
             // PAdES requires definite-length DER; GetEncoded() alone can emit indefinite-length BER.
             return signed.GetEncoded("DER");
+        }
+
+        // Re-issues each SignerInformation with an added id-aa-signatureTimeStampToken (1.2.840.113549.1.9.16.2.14)
+        // unsigned attribute carrying the RFC-3161 token. Unsigned attributes are outside the signed digest, so
+        // the original signature remains valid.
+        private static CmsSignedData AddTimestamp(CmsSignedData signed, ITimestampClient timestamp)
+        {
+            var updated = new List<SignerInformation>();
+            foreach (SignerInformation si in signed.GetSignerInfos().GetSigners())
+            {
+                byte[] token = timestamp.GetTimestampToken(si.GetSignature());
+                var tsAttr = new Org.BouncyCastle.Asn1.Cms.Attribute(
+                    PkcsObjectIdentifiers.IdAASignatureTimeStampToken,
+                    new DerSet(Asn1Object.FromByteArray(token)));
+                var unsigned = new AttributeTable(new Asn1EncodableVector { tsAttr });
+                updated.Add(SignerInformation.ReplaceUnsignedAttributes(si, unsigned));
+            }
+            return CmsSignedData.ReplaceSigners(signed, new SignerInformationStore(updated));
         }
 
         private static RsaPrivateCrtKeyParameters ExtractBcPrivateKey(DotNetX509 signer)
