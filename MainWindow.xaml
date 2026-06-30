@@ -516,6 +516,7 @@
                             <MenuItem Header="{DynamicResource Str_Tool_Compress}" Click="ToolsCompress_Click"/>
                             <MenuItem Header="{DynamicResource Str_Tool_Ocr}" Click="ToolsOcr_Click"/>
                             <MenuItem Header="{DynamicResource Str_Tool_OcrClipboard}" Click="ToolsOcrPageToClipboard_Click"/>
+                            <MenuItem Header="{DynamicResource Str_Tool_OcrRegion}" Click="ToolsOcrRegion_Click"/>
                             <MenuItem Header="{DynamicResource Str_Tool_OcrExtract}" Click="ToolsOcrExtractText_Click"/>
                             <MenuItem Header="{DynamicResource Str_Tool_OcrLanguage}" Click="ToolsOcrLanguage_Click"/>
                             <MenuItem Header="{DynamicResource Str_Tool_DocInfo}" Click="ToolsDocumentInfo_Click"/>

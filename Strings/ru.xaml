@@ -283,6 +283,10 @@
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">Язык OCR…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">OCR страницы в буфер обмена</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">OCR области…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">Выделите прямоугольник над текстом для OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">Область слишком мала — выделите больший прямоугольник.</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">В этой области текст не распознан.</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">Извлечь весь текст…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">Язык</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">Качество</sys:String>

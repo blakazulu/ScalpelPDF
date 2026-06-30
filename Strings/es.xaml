@@ -283,6 +283,10 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">Idioma de OCR…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">OCR de página al portapapeles</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">OCR de región…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">Arrastra un rectángulo sobre el texto para aplicar OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">Región demasiado pequeña: arrastra un cuadro más grande.</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">No se reconoció texto en esa región.</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">Extraer todo el texto…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">Idioma</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">Calidad</sys:String>

@@ -70,6 +70,32 @@ namespace Scalpel
             int pageIdx = _activeCanvas.Tag is int tagPage ? tagPage : PageList.SelectedIndex;
             if (pageIdx < 0) return;
 
+            // OCR-region capture (armed by Tools ▸ "OCR region"): rubber-band a rectangle on this page,
+            // then OCR just that area to the clipboard. Reuses the _isSelecting rubber band; mouse-up
+            // diverts to FinishOcrRegion instead of text selection.
+            if (_ocrRegionArmed)
+            {
+                ClearSelection();
+                ClearTextSelection();
+                _isSelecting = true;
+                _selectStart = pos;
+                _ocrRegionPage = pageIdx;
+                _selectRect = new Rectangle
+                {
+                    Fill = new SolidColorBrush(Color.FromArgb(40, 225, 29, 56)),
+                    Stroke = new SolidColorBrush(Color.FromArgb(160, 225, 29, 56)),
+                    StrokeThickness = 1,
+                    Width = 0, Height = 0,
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(_selectRect, pos.X);
+                Canvas.SetTop(_selectRect, pos.Y);
+                _activeCanvas.Children.Add(_selectRect);
+                _activeCanvas.CaptureMouse();
+                e.Handled = true;
+                return;
+            }
+
             // Crop corner handles live in the outer panel and have direct MouseLeftButtonDown
             // handlers attached in AddCropHandles() — no detection needed here.
 
@@ -544,6 +570,15 @@ namespace Scalpel
                 var pos = e.GetPosition(_activeCanvas);
                 double dragW = Math.Abs(pos.X - _selectStart.X);
                 double dragH = Math.Abs(pos.Y - _selectStart.Y);
+
+                if (_ocrRegionArmed)
+                {
+                    var regionBounds = new Rect(
+                        Math.Min(pos.X, _selectStart.X), Math.Min(pos.Y, _selectStart.Y), dragW, dragH);
+                    if (_selectRect is not null) { _activeCanvas.Children.Remove(_selectRect); _selectRect = null; }
+                    FinishOcrRegion(_ocrRegionPage, regionBounds, dragW, dragH);
+                    return;
+                }
 
                 if (dragW < 5 && dragH < 5)
                 {

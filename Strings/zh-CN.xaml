@@ -283,6 +283,10 @@
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">OCR 语言…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">OCR 页面到剪贴板</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">区域 OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">在文字上拖动矩形以进行 OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">区域太小，请拖动更大的方框。</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">该区域未识别到文字。</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">提取所有文字…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">语言</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">质量</sys:String>

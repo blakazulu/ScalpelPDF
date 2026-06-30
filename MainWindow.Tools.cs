@@ -722,6 +722,64 @@ namespace Scalpel
             }
         }
 
+        // ── OCR region: drag a rectangle, OCR just that area to the clipboard ──────────────────
+        private bool _ocrRegionArmed;
+        private int _ocrRegionPage;
+
+        private void ToolsOcrRegion_Click(object sender, RoutedEventArgs e)
+        {
+            if (!RequireOpenDoc()) return;
+            _ocrRegionArmed = true;
+            Mouse.OverrideCursor = Cursors.Cross;
+            SetStatus(Loc("Str_Ocr_RegionArmed"));
+        }
+
+        /// <summary>
+        /// Mouse-up commit of an armed OCR-region drag. <paramref name="canvasRect"/> is in the page's
+        /// canvas space; it is mapped to native page fractions (rotation-aware via <c>CanvasToPdfRect</c>)
+        /// and OCR'd off-thread, with the recognized text placed on the clipboard.
+        /// </summary>
+        private async void FinishOcrRegion(int pageIdx, Rect canvasRect, double dragW, double dragH)
+        {
+            _ocrRegionArmed = false;
+            Mouse.OverrideCursor = null;
+            if (dragW < 8 || dragH < 8) { SetStatus(Loc("Str_Ocr_RegionTooSmall")); return; }
+            if (_doc is null || pageIdx < 0 || pageIdx >= _doc.PageCount) return;
+            if (!_renderDims.TryGetValue(pageIdx, out var dims)) return;
+
+            var r = await EnsureOcrReady(); if (r is null) return;
+
+            _pageRotations.TryGetValue(pageIdx, out int rot);
+            var page = _doc.Pages[pageIdx];
+            double pdfW = page.Width.Point, pdfH = page.Height.Point;
+            var (x1, y1, x2, y2) = CanvasToPdfRect(canvasRect, pdfW, pdfH, dims.w, dims.h, rot);
+            // Native top-left-origin fractions (PDF y is bottom-up; the raster is top-down).
+            double fracX = x1 / pdfW;
+            double fracW = (x2 - x1) / pdfW;
+            double fracY = (pdfH - y2) / pdfH;
+            double fracH = (y2 - y1) / pdfH;
+
+            SetStatus("Running OCR…");
+            try
+            {
+                var src = App.MakeTempFile("ocrregion"); _doc!.Save(src);
+                string text = await Task.Run(() =>
+                {
+                    using var rast = new DocnetPageRasterizer(src, 3000);
+                    var engine = new TesseractCliOcrEngine(r.Value.exe, r.Value.tessdata, r.Value.lang);
+                    return OcrService.RecognizeRegionText(rast, engine, pageIdx, fracX, fracY, fracW, fracH, rot);
+                });
+                if (string.IsNullOrWhiteSpace(text)) { SetStatus(Loc("Str_Ocr_RegionEmpty")); return; }
+                Clipboard.SetText(text);
+                SetStatus(Loc("Str_Ocr_Copied"));
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Tools", "ocr.region.fail", ex.Message, ex);
+                ScalpelDialog.Show(this, $"OCR failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private async void ToolsOcrExtractText_Click(object sender, RoutedEventArgs e)
         {
             if (!RequireOpenDoc()) return;

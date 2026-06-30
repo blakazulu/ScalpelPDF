@@ -283,6 +283,10 @@
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">لغة التعرف الضوئي…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">التعرف الضوئي للصفحة إلى الحافظة</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">التعرف الضوئي لمنطقة…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">اسحب مستطيلًا فوق النص لإجراء التعرف الضوئي…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">المنطقة صغيرة جدًا — اسحب مربعًا أكبر.</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">لم يتم التعرف على نص في تلك المنطقة.</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">استخراج كل النص…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">اللغة</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">الجودة</sys:String>

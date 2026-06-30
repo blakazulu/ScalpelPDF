@@ -63,6 +63,58 @@ namespace Scalpel.Tests
                 };
         }
 
+        // Records the image + point-size it was handed, and returns two words on one line.
+        private sealed class CaptureOcrEngine : IOcrEngine
+        {
+            public byte[]? LastImage;
+            public double LastWidthPt, LastHeightPt;
+            public OcrPageResult Recognize(byte[] imageBytes, double pageWidthPt, double pageHeightPt)
+            {
+                LastImage = imageBytes;
+                LastWidthPt = pageWidthPt; LastHeightPt = pageHeightPt;
+                return new OcrPageResult
+                {
+                    Words =
+                    {
+                        new OcrWord { Text = "HELLO", XPt = 10, YPt = 10, WidthPt = 40, HeightPt = 18 },
+                        new OcrWord { Text = "WORLD", XPt = 60, YPt = 10, WidthPt = 40, HeightPt = 18 },
+                    }
+                };
+            }
+        }
+
+        [Fact]
+        public void RecognizeRegionText_CropsToRegionPixels_AndJoinsText()
+        {
+            var engine = new CaptureOcrEngine();
+            // FakeRasterizer renders 400x520 px @ 612x792 pt.
+            string text = OcrService.RecognizeRegionText(
+                new FakeRasterizer(1), engine, 0,
+                fracX: 0.25, fracY: 0.5, fracW: 0.5, fracH: 0.25, rotationDegrees: 0);
+
+            Assert.Equal("HELLO WORLD", text);
+            using var img = SixLabors.ImageSharp.Image.Load(engine.LastImage!);
+            Assert.Equal(200, img.Width);   // 0.5 * 400
+            Assert.Equal(130, img.Height);  // 0.25 * 520
+            Assert.Equal(306, engine.LastWidthPt, 1);   // 0.5 * 612
+            Assert.Equal(198, engine.LastHeightPt, 1);  // 0.25 * 792
+        }
+
+        [Fact]
+        public void RecognizeRegionText_Rotates90_SwapsCropDimensions()
+        {
+            var engine = new CaptureOcrEngine();
+            OcrService.RecognizeRegionText(
+                new FakeRasterizer(1), engine, 0,
+                fracX: 0.25, fracY: 0.5, fracW: 0.5, fracH: 0.25, rotationDegrees: 90);
+
+            using var img = SixLabors.ImageSharp.Image.Load(engine.LastImage!);
+            Assert.Equal(130, img.Width);   // 200x130 crop rotated 90° -> 130x200
+            Assert.Equal(200, img.Height);
+            Assert.Equal(198, engine.LastWidthPt, 1);   // point dims swapped too
+            Assert.Equal(306, engine.LastHeightPt, 1);
+        }
+
         private static string PageText(string path, int pageNumber1Based)
         {
             using var doc = UglyToad.PdfPig.PdfDocument.Open(path);

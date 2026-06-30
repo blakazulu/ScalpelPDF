@@ -283,6 +283,10 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">OCR Language…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">OCR Page to Clipboard</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">OCR Region…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">Drag a rectangle over the text to OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">Region too small — drag a larger box.</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">No text recognized in that region.</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">Extract All Text…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">Language</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">Quality</sys:String>

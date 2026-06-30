@@ -283,6 +283,10 @@
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">OCR ভাষা…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">পৃষ্ঠার OCR ক্লিপবোর্ডে কপি করুন</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">অঞ্চল OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">OCR করতে লেখার উপর একটি আয়তক্ষেত্র টানুন…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">অঞ্চল খুব ছোট — বড় বাক্স টানুন।</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">সেই অঞ্চলে কোনো লেখা শনাক্ত হয়নি।</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">সমস্ত টেক্সট বের করুন…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">ভাষা</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">গুণমান</sys:String>

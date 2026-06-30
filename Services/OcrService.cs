@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing;
 
 namespace Scalpel.Services
 {
@@ -113,6 +116,62 @@ namespace Scalpel.Services
             cancel.ThrowIfCancellationRequested();
             onProgress?.Invoke(total, total);
             SearchableLayerWriter.Write(pages, outputPath);
+        }
+
+        /// <summary>
+        /// OCRs a sub-region of one page and returns the recognized text (lines joined).
+        /// The region is given as fractions (0..1) of the page in its native (unrotated) space with a
+        /// top-left origin — exactly what <c>CanvasToPdfRect</c> produces once normalized. The page is
+        /// rasterized, cropped to that rectangle, rotated by <paramref name="rotationDegrees"/>
+        /// (0/90/180/270 — the user's display rotation) so text reaches the engine upright, then
+        /// recognized. Pure given fakes: the crop/rotate/join logic runs without native code.
+        /// </summary>
+        public static string RecognizeRegionText(IPageRasterizer source, IOcrEngine engine, int pageIndex,
+            double fracX, double fracY, double fracW, double fracH, int rotationDegrees = 0)
+        {
+            if (source is null) throw new ArgumentNullException(nameof(source));
+            if (engine is null) throw new ArgumentNullException(nameof(engine));
+
+            var raster = source.RenderPage(pageIndex);
+            var (wPt, hPt) = source.PageSizePt(pageIndex);
+
+            // Clamp the fractional rect into the page and to a non-empty size.
+            fracX = Math.Max(0, Math.Min(1, fracX));
+            fracY = Math.Max(0, Math.Min(1, fracY));
+            fracW = Math.Max(0, Math.Min(1 - fracX, fracW));
+            fracH = Math.Max(0, Math.Min(1 - fracY, fracH));
+            if (fracW <= 0 || fracH <= 0) return string.Empty;
+
+            int px = (int)Math.Round(fracX * raster.PixelWidth);
+            int py = (int)Math.Round(fracY * raster.PixelHeight);
+            int pw = Math.Max(1, (int)Math.Round(fracW * raster.PixelWidth));
+            int ph = Math.Max(1, (int)Math.Round(fracH * raster.PixelHeight));
+            px = Math.Min(px, raster.PixelWidth - 1);
+            py = Math.Min(py, raster.PixelHeight - 1);
+            pw = Math.Min(pw, raster.PixelWidth - px);
+            ph = Math.Min(ph, raster.PixelHeight - py);
+
+            byte[] cropBytes;
+            using (var image = Image.Load(raster.ImageBytes))
+            {
+                image.Mutate(c => c.Crop(new Rectangle(px, py, pw, ph)));
+                var mode = (((rotationDegrees % 360) + 360) % 360) switch
+                {
+                    90 => RotateMode.Rotate90,
+                    180 => RotateMode.Rotate180,
+                    270 => RotateMode.Rotate270,
+                    _ => RotateMode.None,
+                };
+                if (mode != RotateMode.None) image.Mutate(c => c.Rotate(mode));
+                using var ms = new MemoryStream();
+                image.Save(ms, new PngEncoder());
+                cropBytes = ms.ToArray();
+            }
+
+            double regionWpt = fracW * wPt, regionHpt = fracH * hPt;
+            if (rotationDegrees % 180 != 0) (regionWpt, regionHpt) = (regionHpt, regionWpt);
+            var result = engine.Recognize(cropBytes, regionWpt, regionHpt);
+            return OcrTextJoiner.Join(result.Words);
         }
     }
 }

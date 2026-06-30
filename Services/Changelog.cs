@@ -12,6 +12,10 @@ namespace Scalpel.Services
 
         public static IReadOnlyList<Release> Releases { get; } = new[]
         {
+            new Release("2.1.0", "July 2026", new[]
+            {
+                "New OCR Region tool (Tools ▸ OCR Region): drag a rectangle over any part of a page to copy just that area's text to the clipboard — handy for grabbing a single paragraph, table cell, or caption from a scan.",
+            }),
             new Release("2.0.0", "June 2026", new[]
             {
                 "Make Searchable (OCR) now shows live progress (\"Recognizing page X of Y\") and can be cancelled with the button or Esc, so long scans no longer leave you waiting with no feedback.",

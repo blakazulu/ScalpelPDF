@@ -283,6 +283,10 @@
     <!-- ── OCR tools ────────────────────────────────────────────── -->
     <sys:String x:Key="Str_Tool_OcrLanguage">שפת OCR…</sys:String>
     <sys:String x:Key="Str_Tool_OcrClipboard">OCR של עמוד ללוח</sys:String>
+    <sys:String x:Key="Str_Tool_OcrRegion">OCR לאזור…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionArmed">גרור מלבן מעל הטקסט כדי לבצע OCR…</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionTooSmall">האזור קטן מדי — גרור תיבה גדולה יותר.</sys:String>
+    <sys:String x:Key="Str_Ocr_RegionEmpty">לא זוהה טקסט באזור זה.</sys:String>
     <sys:String x:Key="Str_Tool_OcrExtract">חילוץ כל הטקסט…</sys:String>
     <sys:String x:Key="Str_Ocr_LangLabel">שפה</sys:String>
     <sys:String x:Key="Str_Ocr_QualityLabel">איכות</sys:String>
