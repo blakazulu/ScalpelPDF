@@ -135,6 +135,25 @@ namespace Scalpel.Services
         }
 
         /// <summary>
+        /// Loads every certificate from a PFX/P12 (the private-key holder placed first), for embedding
+        /// the chain into a DSS for long-term validation. Throws a clear error on a bad password.
+        /// </summary>
+        public static DotNetX509[] LoadCertificates(string pfxPath, string? password)
+        {
+            var collection = new X509Certificate2Collection();
+            try { collection.Import(pfxPath, password ?? "", X509KeyStorageFlags.Exportable); }
+            catch (CryptographicException ex)
+            {
+                throw new InvalidOperationException(
+                    "Could not open the certificate. The password may be wrong, or the file is not a valid .pfx/.p12.", ex);
+            }
+            var all = collection.Cast<DotNetX509>().ToList();
+            var signer = all.FirstOrDefault(c => c.HasPrivateKey);
+            if (signer is not null) { all.Remove(signer); all.Insert(0, signer); }
+            return all.ToArray();
+        }
+
+        /// <summary>
         /// Produces a new PDF byte array equal to <paramref name="pdf"/> plus an appended
         /// incremental update carrying an invisible <c>adbe.pkcs7.detached</c> signature.
         /// </summary>
@@ -345,6 +364,103 @@ namespace Scalpel.Services
             int hexStart = contentsOpenAngle + 1;
             WriteHex(full, hexStart, cms, ContentsHexChars);
 
+            return full;
+        }
+
+        /// <summary>
+        /// Appends a second incremental update adding a Document Security Store (<c>/DSS</c>) carrying the
+        /// signer's certificate chain — and, when supplied, CRLs and OCSP responses — so a validator can
+        /// build and check the signature's trust offline. This is the foundation of PAdES long-term
+        /// validation (LTV); combine with a trusted timestamp (<see cref="ITimestampClient"/>) for full
+        /// PAdES-LT. No <c>/VRI</c> is written (document-level material only), which keeps the update
+        /// robust and is sufficient for validators to locate the chain.
+        /// </summary>
+        /// <param name="pdf">An already-signed PDF (classic xref + trailer).</param>
+        /// <param name="certs">Certificates to embed (signer + intermediates + root).</param>
+        /// <param name="crls">Optional CRLs (raw DER) covering the chain.</param>
+        /// <param name="ocsps">Optional OCSP responses (raw DER) covering the chain.</param>
+        public static byte[] AddDss(byte[] pdf, IEnumerable<DotNetX509> certs,
+            IEnumerable<byte[]>? crls = null, IEnumerable<byte[]>? ocsps = null)
+        {
+            if (pdf is null || pdf.Length == 0) throw new ArgumentException("Empty PDF.", nameof(pdf));
+            var certList = (certs ?? Array.Empty<DotNetX509>()).Where(c => c is not null).ToList();
+            var crlList = (crls ?? Array.Empty<byte[]>()).Where(b => b is { Length: > 0 }).ToList();
+            var ocspList = (ocsps ?? Array.Empty<byte[]>()).Where(b => b is { Length: > 0 }).ToList();
+            if (certList.Count == 0 && crlList.Count == 0 && ocspList.Count == 0)
+                return pdf; // nothing to embed
+
+            var info = ParsePdf(pdf);
+            int next = info.Size;
+
+            var sb = new StringBuilder();
+            int baseLen = pdf.Length;
+            int OffsetNow() => baseLen + sb.Length;
+            var xref = new List<(int num, int gen, int offset)>();
+
+            int EmitStream(byte[] der)
+            {
+                sb.Append('\n');
+                int off = OffsetNow();
+                int num = next++;
+                sb.Append(num).Append(" 0 obj\n");
+                sb.Append("<< /Length ").Append(der.Length).Append(" >>\n");
+                // DER bytes are 0–255, so Latin-1 round-trips them 1:1 (char offset == byte offset).
+                sb.Append("stream\n").Append(Latin1.GetString(der)).Append("\nendstream\n");
+                sb.Append("endobj\n");
+                xref.Add((num, 0, off));
+                return num;
+            }
+
+            var certNums = certList.Select(c => EmitStream(c.RawData)).ToList();
+            var crlNums = crlList.Select(EmitStream).ToList();
+            var ocspNums = ocspList.Select(EmitStream).ToList();
+
+            // DSS dictionary.
+            sb.Append('\n');
+            int dssOff = OffsetNow();
+            int dssNum = next++;
+            sb.Append(dssNum).Append(" 0 obj\n<< ");
+            void AppendRefArray(string key, List<int> nums)
+            {
+                if (nums.Count == 0) return;
+                sb.Append(key).Append(" [");
+                for (int i = 0; i < nums.Count; i++) { if (i > 0) sb.Append(' '); sb.Append(nums[i]).Append(" 0 R"); }
+                sb.Append("] ");
+            }
+            AppendRefArray("/Certs", certNums);
+            AppendRefArray("/CRLs", crlNums);
+            AppendRefArray("/OCSPs", ocspNums);
+            sb.Append(">>\nendobj\n");
+            xref.Add((dssNum, 0, dssOff));
+
+            // Updated Catalog: existing keys minus any old /DSS, plus our /DSS ref.
+            sb.Append('\n');
+            int catOff = OffsetNow();
+            string catBody = StripKey(info.RootDictBody, "/DSS");
+            sb.Append(info.RootNum).Append(' ').Append(info.RootGen).Append(" obj\n");
+            sb.Append("<< ").Append(catBody.Trim()).Append(" /DSS ").Append(dssNum).Append(" 0 R >>\n");
+            sb.Append("endobj\n");
+            xref.Add((info.RootNum, info.RootGen, catOff));
+
+            int newSize = next;
+            int xrefOffset = OffsetNow();
+            sb.Append("xref\n");
+            foreach (var (start, entries) in GroupConsecutive(xref))
+            {
+                sb.Append(start).Append(' ').Append(entries.Count).Append('\n');
+                foreach (var e in entries)
+                    sb.Append(e.offset.ToString("D10")).Append(' ').Append(e.gen.ToString("D5")).Append(" n\r\n");
+            }
+            sb.Append("trailer\n<< /Size ").Append(newSize)
+              .Append(" /Root ").Append(info.RootNum).Append(' ').Append(info.RootGen).Append(" R");
+            if (info.InfoRef is string infoRef) sb.Append(" /Info ").Append(infoRef);
+            sb.Append(" /Prev ").Append(info.StartXref).Append(" >>\n");
+            sb.Append("startxref\n").Append(xrefOffset).Append("\n%%EOF\n");
+
+            byte[] full = new byte[pdf.Length + sb.Length];
+            Buffer.BlockCopy(pdf, 0, full, 0, pdf.Length);
+            byte[] appended = Latin1.GetBytes(sb.ToString());
+            Buffer.BlockCopy(appended, 0, full, pdf.Length, appended.Length);
             return full;
         }
 

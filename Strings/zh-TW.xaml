@@ -209,6 +209,8 @@
     <sys:String x:Key="Str_Sign_VisTR">右上角</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">左上角</sys:String>
     <sys:String x:Key="Str_Sign_Reason">原因（選填）</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">嵌入長期驗證資訊（LTV）</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">正在嵌入驗證資訊…</sys:String>
     <sys:String x:Key="Str_Sign_Password">憑證密碼</sys:String>
     <sys:String x:Key="Str_Sign_Apply">簽署</sys:String>
     <sys:String x:Key="Str_Sign_Note">使用您的憑證加入一個隱形的加密簽章。已簽署的副本會寫入新檔案，之後不會被更動，因此簽章保持有效。</sys:String>

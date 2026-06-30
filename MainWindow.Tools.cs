@@ -498,8 +498,9 @@ namespace Scalpel
             var visibleField = new ToolField(Loc("Str_Sign_Visible"), ToolFieldKind.Combo, value: visOff,
                 options: new[] { visOff, visBR, visBL, visTR, visTL });
             var reasonField = new ToolField(Loc("Str_Sign_Reason"), ToolFieldKind.Text);
+            var ltvField = new ToolField(Loc("Str_Sign_Ltv"), ToolFieldKind.Check, isChecked: false);
             if (!ShowToolForm(Loc("Str_Tool_Sign"),
-                    new[] { sourceField, timestampField, visibleField, reasonField }, Loc("Str_Sign_Continue"),
+                    new[] { sourceField, timestampField, visibleField, reasonField, ltvField }, Loc("Str_Sign_Continue"),
                     note: Loc("Str_Sign_Note")))
                 return;
 
@@ -581,6 +582,21 @@ namespace Scalpel
                     PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain, timestamp, appearance);
                 else
                     PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword, timestamp, appearance);
+
+                // Optional long-term validation: append a DSS with the chain + any reachable CRLs.
+                if (ltvField.Checked)
+                {
+                    SetStatus(Loc("Str_Sign_LtvWorking"));
+                    var ltvCerts = storeSigner is not null
+                        ? new[] { storeSigner }.Concat(storeChain
+                            ?? Array.Empty<System.Security.Cryptography.X509Certificates.X509Certificate2>()).ToArray()
+                        : PdfSigningService.LoadCertificates(pfxPath!, pfxPassword);
+                    var crls = Scalpel.Services.Signing.RevocationCollector.CollectCrls(ltvCerts);
+                    byte[] signedBytes = System.IO.File.ReadAllBytes(dlg.FileName);
+                    byte[] withDss = PdfSigningService.AddDss(signedBytes, ltvCerts, crls);
+                    System.IO.File.WriteAllBytes(dlg.FileName, withDss);
+                }
+
                 SetStatus(string.Format(Loc("Str_Sign_Done"), System.IO.Path.GetFileName(dlg.FileName)));
                 ScalpelDialog.Show(this, Loc("Str_Sign_DoneMsg"));
             }

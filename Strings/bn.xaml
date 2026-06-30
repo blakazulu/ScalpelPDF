@@ -207,6 +207,8 @@
     <sys:String x:Key="Str_Sign_VisTR">উপরে-ডান কোণ</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">উপরে-বাঁ কোণ</sys:String>
     <sys:String x:Key="Str_Sign_Reason">কারণ (ঐচ্ছিক)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">দীর্ঘমেয়াদী যাচাই তথ্য যুক্ত করুন (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">যাচাই তথ্য যুক্ত করা হচ্ছে…</sys:String>
     <sys:String x:Key="Str_Sign_Password">সার্টিফিকেট পাসওয়ার্ড</sys:String>
     <sys:String x:Key="Str_Sign_Apply">স্বাক্ষর করুন</sys:String>
     <sys:String x:Key="Str_Sign_Note">আপনার সার্টিফিকেট ব্যবহার করে একটি অদৃশ্য ক্রিপ্টোগ্রাফিক স্বাক্ষর যোগ করে। স্বাক্ষরিত অনুলিপি একটি নতুন ফাইলে লেখা হয় এবং পরে পরিবর্তিত হয় না, তাই স্বাক্ষর বৈধ থাকে।</sys:String>

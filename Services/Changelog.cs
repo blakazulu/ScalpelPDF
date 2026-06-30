@@ -18,6 +18,7 @@ namespace Scalpel.Services
                 "Digitally Sign can now use a certificate already installed in Windows — pick \"Windows certificate store\" and choose from a list (smart cards and enterprise-issued certificates included), instead of locating a .pfx/.p12 file and typing its password.",
                 "Digitally Sign can optionally add a trusted RFC-3161 timestamp, so the signature proves *when* it was made and stays valid even after your certificate expires. Tick \"Add a trusted timestamp\" when signing (it contacts a timestamp authority over the internet).",
                 "Digitally Sign can now show a visible signature on the first page — a small captioned box (signer name, date, and an optional reason) placed in the corner you choose, instead of an invisible signature. Pick a corner under \"Visible signature\" when signing.",
+                "Digitally Sign can optionally embed long-term validation (LTV) info — the certificate chain plus any reachable revocation lists — into the signed PDF, so it can still be validated years later. Tick \"Embed long-term validation info\" (best paired with a trusted timestamp and a CA-issued certificate).",
             }),
             new Release("2.0.0", "June 2026", new[]
             {

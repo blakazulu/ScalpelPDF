@@ -217,6 +217,8 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Sign_VisTR">Top-right corner</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">Top-left corner</sys:String>
     <sys:String x:Key="Str_Sign_Reason">Reason (optional)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">Embed long-term validation info (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">Embedding validation info…</sys:String>
     <sys:String x:Key="Str_Sign_Password">Certificate password</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Sign</sys:String>
     <sys:String x:Key="Str_Sign_Note">Adds an invisible cryptographic signature using your certificate. The signed copy is written to a new file and is not changed afterwards, so the signature stays valid.</sys:String>

@@ -207,6 +207,8 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Sign_VisTR">Esquina superior derecha</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">Esquina superior izquierda</sys:String>
     <sys:String x:Key="Str_Sign_Reason">Motivo (opcional)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">Incluir información de validación a largo plazo (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">Incluyendo información de validación…</sys:String>
     <sys:String x:Key="Str_Sign_Password">Contraseña del certificado</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Firmar</sys:String>
     <sys:String x:Key="Str_Sign_Note">Añade una firma criptográfica invisible con tu certificado. La copia firmada se guarda en un archivo nuevo y no se modifica después, por lo que la firma sigue siendo válida.</sys:String>

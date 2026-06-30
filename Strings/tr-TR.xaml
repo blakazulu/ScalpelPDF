@@ -207,6 +207,8 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Sign_VisTR">Sağ üst köşe</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">Sol üst köşe</sys:String>
     <sys:String x:Key="Str_Sign_Reason">Neden (isteğe bağlı)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">Uzun vadeli doğrulama bilgisi ekle (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">Doğrulama bilgisi ekleniyor…</sys:String>
     <sys:String x:Key="Str_Sign_Password">Sertifika parolası</sys:String>
     <sys:String x:Key="Str_Sign_Apply">İmzala</sys:String>
     <sys:String x:Key="Str_Sign_Note">Sertifikanızı kullanarak görünmez bir kriptografik imza ekler. İmzalı kopya yeni bir dosyaya yazılır ve sonradan değiştirilmez, böylece imza geçerli kalır.</sys:String>

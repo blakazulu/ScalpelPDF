@@ -207,6 +207,8 @@
     <sys:String x:Key="Str_Sign_VisTR">右上角</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">左上角</sys:String>
     <sys:String x:Key="Str_Sign_Reason">原因（可选）</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">嵌入长期验证信息（LTV）</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">正在嵌入验证信息…</sys:String>
     <sys:String x:Key="Str_Sign_Password">证书密码</sys:String>
     <sys:String x:Key="Str_Sign_Apply">签名</sys:String>
     <sys:String x:Key="Str_Sign_Note">使用您的证书添加一个隐形的加密签名。已签名的副本会写入新文件，之后不会被更改，因此签名保持有效。</sys:String>

@@ -283,6 +283,43 @@ namespace Scalpel.Tests
         }
 
         [Fact]
+        public void AddDss_EmbedsCertChain_AndSignatureStillVerifies()
+        {
+            byte[] pdf = MakeBlankPdf(1);
+            DotNetX509 signer = MakeSelfSignedCert();
+            byte[] signed = PdfSigningService.SignBytes(pdf, signer);
+
+            // Embed the cert plus a stand-in CRL blob to exercise both DSS arrays.
+            byte[] fakeCrl = signer.RawData; // any DER bytes — we only assert the /CRLs array is emitted
+            byte[] ltv = PdfSigningService.AddDss(signed, new[] { signer }, new[] { fakeCrl });
+
+            Assert.True(ltv.Length > signed.Length);
+            string text = Latin1.GetString(ltv);
+            Assert.Contains("/DSS ", text);
+            Assert.Contains("/Certs [", text);
+            Assert.Contains("/CRLs [", text);
+
+            // Re-opens cleanly (the appended DSS incremental update is structurally valid).
+            string outPath = Path.Combine(Path.GetTempPath(), $"scalpel_ltv_{Guid.NewGuid():N}.pdf");
+            try
+            {
+                File.WriteAllBytes(outPath, ltv);
+                using var reopened = PdfReader.Open(outPath, PdfDocumentOpenMode.ReadOnly);
+                Assert.Equal(1, reopened.PageCount);
+            }
+            finally { try { File.Delete(outPath); } catch { } }
+
+            // The signature (an earlier revision) still verifies — the DSS was appended after its ByteRange.
+            int[] byteRange = ParseByteRange(text);
+            byte[] signedContent = ConcatRanges(ltv, byteRange);
+            byte[] cms = ExtractContentsDer(ltv);
+            var cmsData = new CmsSignedData(new CmsProcessableByteArray(signedContent), cms);
+            SignerInformation si = cmsData.GetSignerInfos().GetSigners().Cast<SignerInformation>().Single();
+            BcX509Certificate bc = new X509CertificateParser().ReadCertificate(signer.RawData);
+            Assert.True(si.Verify(bc), "signature must still verify after a DSS incremental update");
+        }
+
+        [Fact]
         public void SignFileWithCertificate_SignsUsingInMemoryCert()
         {
             // Mirrors how a Windows-cert-store certificate reaches the signer: an in-memory

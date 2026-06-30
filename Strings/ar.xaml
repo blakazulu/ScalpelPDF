@@ -217,6 +217,8 @@
     <sys:String x:Key="Str_Sign_VisTR">الزاوية العلوية اليمنى</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">الزاوية العلوية اليسرى</sys:String>
     <sys:String x:Key="Str_Sign_Reason">السبب (اختياري)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">تضمين معلومات التحقق طويل المدى (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">جارٍ تضمين معلومات التحقق…</sys:String>
     <sys:String x:Key="Str_Sign_Password">كلمة مرور الشهادة</sys:String>
     <sys:String x:Key="Str_Sign_Apply">توقيع</sys:String>
     <sys:String x:Key="Str_Sign_Note">يضيف توقيعًا تشفيريًا غير مرئي باستخدام شهادتك. تُكتب النسخة الموقّعة إلى ملف جديد ولا تتغير بعد ذلك، لذا يبقى التوقيع صالحًا.</sys:String>

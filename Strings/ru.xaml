@@ -217,6 +217,8 @@
     <sys:String x:Key="Str_Sign_VisTR">Верхний правый угол</sys:String>
     <sys:String x:Key="Str_Sign_VisTL">Верхний левый угол</sys:String>
     <sys:String x:Key="Str_Sign_Reason">Причина (необязательно)</sys:String>
+    <sys:String x:Key="Str_Sign_Ltv">Встроить данные долгосрочной проверки (LTV)</sys:String>
+    <sys:String x:Key="Str_Sign_LtvWorking">Встраивание данных проверки…</sys:String>
     <sys:String x:Key="Str_Sign_Password">Пароль сертификата</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Подписать</sys:String>
     <sys:String x:Key="Str_Sign_Note">Добавляет невидимую криптографическую подпись с помощью вашего сертификата. Подписанная копия записывается в новый файл и далее не изменяется, поэтому подпись остаётся действительной.</sys:String>
