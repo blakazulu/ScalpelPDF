@@ -286,6 +286,7 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Recent_Clear">Son kullanılanları temizle</sys:String>
     <sys:String x:Key="Str_Recent_Remove">Son kullanılanlardan kaldır</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">Dosya bulunamadı — Son kullanılanlardan kaldırıldı</sys:String>
+    <sys:String x:Key="Str_TT_CloseTab">Sekmeyi kapat</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Bir renk seçin</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Özel renk…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Ekranın herhangi bir yerinden renk seçin</sys:String>

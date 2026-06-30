@@ -14,6 +14,7 @@ namespace Scalpel.Services
         {
             new Release("1.9.0", "June 2026", new[]
             {
+                "Document tabs: open several PDFs and switch between them from a tab strip above the page — click a tab, press Ctrl+Tab to cycle, or close one with its ×. Switching prompts you to save any unsaved changes first. The strip stays hidden until you have more than one file open.",
                 "Form fields are now positioned correctly on cropped PDFs and appear in every view mode — including the continuous scroll, two-page, and grid views, not just single-page view.",
                 "New Transform Pages tool (Tools menu): rotate pages in 90° steps, fine-deskew by a small angle, scale up or down, and flip horizontally or vertically — over the whole document or a page range. A plain 90° rotation stays crisp and text-selectable; deskew, scale, and flip re-render the affected pages as images.",
                 "New Watermark / Stamp tool (Tools menu): add a semi-transparent text watermark like \"CONFIDENTIAL\" — diagonal, tiled, or pinned to any corner — and optionally stamp an image or logo, with adjustable opacity, size, rotation, and a page range.",

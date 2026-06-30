@@ -286,6 +286,7 @@
     <sys:String x:Key="Str_Recent_Clear">Очистить недавние</sys:String>
     <sys:String x:Key="Str_Recent_Remove">Убрать из недавних</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">Файл не найден — удалён из недавних</sys:String>
+    <sys:String x:Key="Str_TT_CloseTab">Закрыть вкладку</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Выбор цвета</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Свой цвет…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Выберите цвет в любом месте экрана</sys:String>

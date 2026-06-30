@@ -861,6 +861,17 @@
 
             <!-- Preview area -->
             <Border Grid.Column="2" Background="{DynamicResource BgCanvas}">
+                <DockPanel LastChildFill="True">
+                    <!-- Document tab strip: only shown when 2+ files are open. Chips are built
+                         in code-behind (MainWindow.Tabs.cs). Hidden = byte-identical single-doc UI. -->
+                    <Border x:Name="TabStripHost" DockPanel.Dock="Top" Visibility="Collapsed"
+                            Background="{DynamicResource RibbonBand}"
+                            BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                      Padding="6,4">
+                            <StackPanel x:Name="TabStrip" Orientation="Horizontal"/>
+                        </ScrollViewer>
+                    </Border>
                 <Grid>
                     <!-- Drop zone -->
                     <Border x:Name="DropZone" Background="Transparent"
@@ -949,6 +960,7 @@
                         </Border>
                     </ScrollViewer>
                 </Grid>
+                </DockPanel>
             </Border>
         </Grid>
 

@@ -288,6 +288,7 @@
     <sys:String x:Key="Str_Recent_Clear">清除最近</sys:String>
     <sys:String x:Key="Str_Recent_Remove">從最近移除</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">找不到檔案 — 已從最近移除</sys:String>
+    <sys:String x:Key="Str_TT_CloseTab">關閉分頁</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">選擇顏色</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">自訂顏色…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">從螢幕上任何位置選取顏色</sys:String>

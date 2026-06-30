@@ -44,6 +44,14 @@ namespace Scalpel
         private void CloseFile()
         {
             if (_doc is null) return;
+            // With multiple tabs open, the Close button / Ctrl+W closes just the active tab and
+            // moves to an adjacent one (CloseTab reuses this same method for the last tab). With
+            // 0 or 1 tab this guard is skipped, so single-document behavior is unchanged.
+            if (_openTabs.Count > 1 && _originalFile != null && _openTabs.Any(p => PathEq(p, _originalFile)))
+            {
+                CloseTab(_originalFile);
+                return;
+            }
             if (_isDirty)
             {
                 var res = ScalpelDialog.Show(this,
@@ -88,6 +96,8 @@ namespace Scalpel
             SidebarOutlinesTab.IsEnabled = false;
             if (_sidebarShowingOutlines) SwitchSidebarToPagesTab();
             MarkDirty(false);
+            _openTabs.Clear();
+            RefreshTabStrip();
             SetStatus("Ready");
         }
 

@@ -598,6 +598,7 @@ namespace Scalpel
             }
             SetStatus(string.Format(Loc("Str_Opened"), System.IO.Path.GetFileName(displayPath), _doc.PageCount));
             Scalpel.Services.Logger.Info("File", "open.success", "PDF opened", new { path = displayPath, pages = _doc.PageCount });
+            AddTab(_originalFile); // register/refresh the document tab (no-op for non-disk paths)
         }
 
         private static bool IsPasswordException(Exception ex) =>

@@ -110,6 +110,16 @@ namespace Scalpel
                 Open_Click(this, e);
                 e.Handled = true;
             }
+            else if (e.Key == Key.Tab && Keyboard.Modifiers == ModifierKeys.Control && _openTabs.Count > 1)
+            {
+                CycleTab(true);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Tab && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift) && _openTabs.Count > 1)
+            {
+                CycleTab(false);
+                e.Handled = true;
+            }
             else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 NewDocument();
