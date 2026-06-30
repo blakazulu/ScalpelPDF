@@ -1,12 +1,12 @@
 {
-  "version": "2.0.0",
+  "version": "2.1.0",
   "siteUrl": "https://scalpel-pdf.netlify.app",
   "storeUrl": "https://apps.microsoft.com/detail/9n9hn8xw4lf3",
   "notes": [
-    "New Digitally Sign tool: add a real cryptographic signature with your own certificate (.pfx/.p12).",
-    "Document tabs — open several PDFs and switch between them; plus a Recent files list on the start screen.",
-    "New Watermark/Stamp and Transform Pages (rotate, deskew, scale, flip) tools.",
-    "A full color picker with an on-screen eyedropper for the Draw, Line, and Text tools.",
-    "Make Searchable (OCR) now shows live page-by-page progress and can be cancelled."
+    "New OCR Region tool: drag a rectangle over any part of a page to copy just that area's text.",
+    "Digitally Sign can now use a certificate from the Windows certificate store (smart cards, enterprise certs).",
+    "Signatures can include a trusted RFC-3161 timestamp, so they stay valid after the certificate expires.",
+    "Add a visible signature box (name, date, reason) in a corner of the first page.",
+    "Optionally embed long-term validation (LTV) info so signatures can be checked years later."
   ]
 }

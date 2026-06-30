@@ -50,8 +50,8 @@ The "Clinical" ribbon interface — organized into **View · Edit · Pages · Si
 - **Watermark & image stamp** — a semi-transparent text watermark (rotated, tiled, any opacity) and/or a logo image placed on every page
 - **Transform pages** — rotate in 90° steps, fine-deskew, scale, and flip horizontal/vertical (lossless for plain rotation)
 - **Compression** (Low / Medium / High image down-sampling)
-- **OCR** — make scans searchable with a bundled, offline Tesseract engine (portable builds fetch language data once, on demand); live per-page progress with cancel, a language picker, a high-quality mode, copy-page-text to clipboard, and extract-all-text to `.txt`/`.md`
-- **Digitally sign (PKI)** — add a real cryptographic signature (PAdES / PKCS#7 detached) with your own `.pfx`/`.p12` certificate, appended via incremental update so the signed copy stays valid in PDF readers — distinct from the drawn signatures above
+- **OCR** — make scans searchable with a bundled, offline Tesseract engine (portable builds fetch language data once, on demand); live per-page progress with cancel, a language picker, a high-quality mode, copy-page-text to clipboard, extract-all-text to `.txt`/`.md`, and **OCR a dragged region** straight to the clipboard
+- **Digitally sign (PKI)** — add a real cryptographic signature (PAdES / PKCS#7 detached) with your own `.pfx`/`.p12` certificate **or a certificate from the Windows certificate store** (smart cards, enterprise certs), appended via incremental update so the signed copy stays valid in PDF readers. Options: a trusted **RFC-3161 timestamp** (stays valid after the cert expires), a **visible signature** box in a page corner, and embedded **long-term validation (LTV)** info — distinct from the drawn signatures above
 - **Redaction** — permanently remove content (pixels gone, not just hidden)
 - **Password protection** — encrypt with a password and set viewing/editing permissions
 - **Metadata removal** — strip author, timestamps, and hidden data before sharing

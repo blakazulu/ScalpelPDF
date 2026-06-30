@@ -4,6 +4,18 @@ All notable changes to Scalpel are documented here.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0 - 2026-07-01
+
+### Added
+- **Region OCR** (`OcrService.RecognizeRegionText`) — a Tools ▸ "OCR Region" command that arms a rubber-band capture on the page; the dragged rectangle is mapped to native page fractions (rotation-aware via `CanvasToPdfRect`), rendered, cropped, rotated upright, and OCR'd off-thread, with the recognized text placed on the clipboard.
+- **Sign from the Windows certificate store** (`Services/Signing/WindowsCertificateStore.cs`) — Digitally Sign offers a certificate-source step: a `.pfx`/`.p12` file (as before) or a certificate already installed in Windows (smart cards, enterprise-issued certs). The store path lists signing-capable certs from `CurrentUser\My`, shows a themed picker (subject — issuer — expiry), builds the issuer chain, and signs via the new `PdfSigningService.SignFileWithCertificate` (the crypto core is unchanged). OS-guarded so the flow stays portable.
+- **RFC-3161 trusted timestamp (PAdES-T)** — an optional "Add a trusted timestamp" toggle attaches a timestamp token (over the signer's signature) as the `id-aa-signatureTimeStampToken` unsigned CMS attribute, so the signature proves *when* it was made and survives the signer cert's expiry. BouncyCastle TSP over HTTP (`Services/Signing/HttpTimestampClient.cs`, default DigiCert TSA, overridable via the `SignTimestampUrl` setting); the `/Contents` reserve grew 16 KiB → 32 KiB to fit the token.
+- **Visible signature appearance** — an optional captioned box (signer name, date, and an optional reason) placed in a chosen corner of the first page, instead of an invisible signature. The incremental update emits a Form XObject (`/AP /N`) and gives the widget a real `/Rect` and the Print flag; the appearance is cosmetic and does not change the CMS.
+- **Long-term validation (LTV)** (`PdfSigningService.AddDss`) — an optional second incremental update adding a Document Security Store (`/DSS`) with the certificate chain plus any reachable CRLs (`Services/Signing/RevocationCollector.cs`, best-effort CRL fetch from CRL Distribution Points), so a signature can be validated offline years later. Best paired with a trusted timestamp and a CA-issued certificate.
+
+### Notes
+- The signing additions are covered by unit tests against in-memory / in-test certificates and a self-contained in-test timestamp authority (the CMS still verifies after timestamping, a visible appearance, and a DSS update). Full Adobe-Acrobat "LTV enabled" validation and OCSP collection remain a follow-up; the DSS currently embeds document-level material (no `/VRI`).
+
 ## 2.0.0 - 2026-06-30
 
 ### Added
