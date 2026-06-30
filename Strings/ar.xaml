@@ -272,4 +272,7 @@
     <sys:String x:Key="Str_Recent_Clear">مسح الأخيرة</sys:String>
     <sys:String x:Key="Str_Recent_Remove">إزالة من الأخيرة</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">الملف غير موجود — تمت إزالته من الأخيرة</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Title">اختر لونًا</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Custom">لون مخصص…</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Eyedropper">التقط لونًا من أي مكان على الشاشة</sys:String>
 </ResourceDictionary>

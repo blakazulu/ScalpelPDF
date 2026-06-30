@@ -272,4 +272,7 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Recent_Clear">Clear recent</sys:String>
     <sys:String x:Key="Str_Recent_Remove">Remove from recent</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">File not found — removed from Recent</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Title">Pick a color</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Custom">Custom color…</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Eyedropper">Pick a color from anywhere on screen</sys:String>
 </ResourceDictionary>

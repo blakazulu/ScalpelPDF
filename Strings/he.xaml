@@ -272,4 +272,7 @@
     <sys:String x:Key="Str_Recent_Clear">נקה אחרונים</sys:String>
     <sys:String x:Key="Str_Recent_Remove">הסר מאחרונים</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">הקובץ לא נמצא — הוסר מהאחרונים</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Title">בחירת צבע</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Custom">צבע מותאם אישית…</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Eyedropper">בחירת צבע מכל מקום במסך</sys:String>
 </ResourceDictionary>

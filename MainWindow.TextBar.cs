@@ -124,6 +124,14 @@ namespace Scalpel
                 panel.Children.Add(swatch);
             }
 
+            // Custom-color picker affordance ("+"): opens the RGB/eyedropper dialog.
+            panel.Children.Add(MakeCustomColorButton(_textColor, picked =>
+            {
+                _textColor = Color.FromRgb(picked.R, picked.G, picked.B);
+                ApplyTextStyleToActiveBox();
+                ShowTextSettings();
+            }));
+
             _textSettingsBar = new Border
             {
                 BorderThickness = new Thickness(0, 0, 0, 1),

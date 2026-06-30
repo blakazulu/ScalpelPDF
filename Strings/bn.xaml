@@ -272,4 +272,7 @@
     <sys:String x:Key="Str_Recent_Clear">সাম্প্রতিক মুছুন</sys:String>
     <sys:String x:Key="Str_Recent_Remove">সাম্প্রতিক থেকে সরান</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">ফাইল পাওয়া যায়নি — সাম্প্রতিক থেকে সরানো হয়েছে</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Title">একটি রঙ বাছুন</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Custom">কাস্টম রঙ…</sys:String>
+    <sys:String x:Key="Str_ColorPicker_Eyedropper">স্ক্রিনের যেকোনো স্থান থেকে রঙ বাছুন</sys:String>
 </ResourceDictionary>

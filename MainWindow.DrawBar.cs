@@ -96,6 +96,16 @@ namespace Scalpel
                 panel.Children.Add(swatch);
             }
 
+            // Custom-color picker affordance ("+"): opens the RGB/eyedropper dialog.
+            panel.Children.Add(MakeCustomColorButton(activeColor, picked =>
+            {
+                if (tool == EditTool.Draw || tool == EditTool.Line)
+                    _drawColor = Color.FromArgb(_drawOpacity, picked.R, picked.G, picked.B);
+                else
+                    _highlightColor = Color.FromArgb(_highlightColor.A, picked.R, picked.G, picked.B);
+                ShowDrawSettings(tool); // refresh selection
+            }));
+
             // Separator
             var sep1 = new Rectangle { Width = 1, Margin = new Thickness(8, 2, 8, 2) };
             sep1.SetResourceReference(Rectangle.FillProperty, "BorderDim");
@@ -196,6 +206,42 @@ namespace Scalpel
                 Panel.SetZIndex(_drawSettingsBar, 100);
                 previewArea.Children.Add(_drawSettingsBar);
             }
+        }
+
+        /// <summary>
+        /// Builds the "+" custom-color affordance shown at the end of a swatch row. Opens the
+        /// <see cref="ColorPickerDialog"/> seeded with <paramref name="seed"/> (alpha dropped);
+        /// on OK, invokes <paramref name="onPicked"/> with the chosen opaque color.
+        /// </summary>
+        private Border MakeCustomColorButton(Color seed, Action<Color> onPicked)
+        {
+            var plus = new TextBlock
+            {
+                Text = "+",
+                FontFamily = (FontFamily)FindResource("FontUI"), FontSize = 14,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            plus.SetResourceReference(TextBlock.ForegroundProperty, "TextSecondary");
+
+            var btn = new Border
+            {
+                Width = 18, Height = 18,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(3),
+                Margin = new Thickness(1),
+                Cursor = Cursors.Hand,
+                Child = plus,
+                ToolTip = Loc("Str_ColorPicker_Custom")
+            };
+            btn.SetResourceReference(Border.BorderBrushProperty, "BorderDim");
+            btn.MouseLeftButtonDown += (_, _) =>
+            {
+                var dlg = new ColorPickerDialog(this, Color.FromRgb(seed.R, seed.G, seed.B));
+                if (dlg.ShowDialog() == true)
+                    onPicked(dlg.SelectedColor);
+            };
+            return btn;
         }
 
         private void HideDrawSettings()

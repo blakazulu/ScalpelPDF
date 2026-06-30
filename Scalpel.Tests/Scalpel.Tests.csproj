@@ -66,6 +66,7 @@
     <Compile Include="..\Services\UpdateService.cs" Link="Services\UpdateService.cs" />
     <Compile Include="..\Services\LineSnap.cs" Link="Services\LineSnap.cs" />
     <Compile Include="..\Services\OcrTextJoiner.cs" Link="Services\OcrTextJoiner.cs" />
+    <Compile Include="..\Services\ColorConvert.cs" Link="Services\ColorConvert.cs" />
   </ItemGroup>
 
 </Project>
