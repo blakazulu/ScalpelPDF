@@ -210,6 +210,13 @@
     <sys:String x:Key="Str_Sign_CertLabel">الشهادة</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">لم يتم العثور على شهادة توقيع قابلة للاستخدام في مخزن شهادات Windows.</sys:String>
     <sys:String x:Key="Str_Sign_Timestamp">إضافة ختم زمني موثوق (يتطلب إنترنت)</sys:String>
+    <sys:String x:Key="Str_Sign_Visible">توقيع مرئي في الصفحة 1</sys:String>
+    <sys:String x:Key="Str_Sign_VisOff">إيقاف (غير مرئي)</sys:String>
+    <sys:String x:Key="Str_Sign_VisBR">الزاوية السفلية اليمنى</sys:String>
+    <sys:String x:Key="Str_Sign_VisBL">الزاوية السفلية اليسرى</sys:String>
+    <sys:String x:Key="Str_Sign_VisTR">الزاوية العلوية اليمنى</sys:String>
+    <sys:String x:Key="Str_Sign_VisTL">الزاوية العلوية اليسرى</sys:String>
+    <sys:String x:Key="Str_Sign_Reason">السبب (اختياري)</sys:String>
     <sys:String x:Key="Str_Sign_Password">كلمة مرور الشهادة</sys:String>
     <sys:String x:Key="Str_Sign_Apply">توقيع</sys:String>
     <sys:String x:Key="Str_Sign_Note">يضيف توقيعًا تشفيريًا غير مرئي باستخدام شهادتك. تُكتب النسخة الموقّعة إلى ملف جديد ولا تتغير بعد ذلك، لذا يبقى التوقيع صالحًا.</sys:String>

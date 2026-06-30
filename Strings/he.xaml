@@ -210,6 +210,13 @@
     <sys:String x:Key="Str_Sign_CertLabel">אישור</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">לא נמצא אישור חתימה שמיש במאגר האישורים של Windows.</sys:String>
     <sys:String x:Key="Str_Sign_Timestamp">הוסף חותמת זמן מהימנה (דורש אינטרנט)</sys:String>
+    <sys:String x:Key="Str_Sign_Visible">חתימה גלויה בעמוד 1</sys:String>
+    <sys:String x:Key="Str_Sign_VisOff">כבוי (בלתי נראה)</sys:String>
+    <sys:String x:Key="Str_Sign_VisBR">פינה ימנית תחתונה</sys:String>
+    <sys:String x:Key="Str_Sign_VisBL">פינה שמאלית תחתונה</sys:String>
+    <sys:String x:Key="Str_Sign_VisTR">פינה ימנית עליונה</sys:String>
+    <sys:String x:Key="Str_Sign_VisTL">פינה שמאלית עליונה</sys:String>
+    <sys:String x:Key="Str_Sign_Reason">סיבה (אופציונלי)</sys:String>
     <sys:String x:Key="Str_Sign_Password">סיסמת האישור</sys:String>
     <sys:String x:Key="Str_Sign_Apply">חתום</sys:String>
     <sys:String x:Key="Str_Sign_Note">מוסיף חתימה קריפטוגרפית בלתי נראית באמצעות האישור שלך. העותק החתום נכתב לקובץ חדש ואינו משתנה לאחר מכן, כך שהחתימה נשארת תקפה.</sys:String>

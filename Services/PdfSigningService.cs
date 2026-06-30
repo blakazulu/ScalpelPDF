@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -42,6 +43,24 @@ namespace Scalpel.Services
         byte[] GetTimestampToken(byte[] data);
     }
 
+    /// <summary>
+    /// Optional visible appearance for a signature: a rectangle on the first page (PDF user space,
+    /// bottom-left origin) and the text lines to draw inside it. When supplied to
+    /// <see cref="PdfSigningService.SignBytes"/>, the signature widget becomes a visible field with an
+    /// /AP appearance stream instead of the default invisible zero-rect. The appearance is cosmetic —
+    /// it does not affect the cryptographic validity of the signature.
+    /// </summary>
+    public sealed class SignatureAppearance
+    {
+        public double X1 { get; set; }
+        public double Y1 { get; set; }
+        public double X2 { get; set; }
+        public double Y2 { get; set; }
+        public bool ShowName { get; set; } = true;
+        public bool ShowDate { get; set; } = true;
+        public string? Reason { get; set; }
+    }
+
     public static class PdfSigningService
     {
         // Latin-1 maps every byte 1:1 to a char, so string offsets == byte offsets.
@@ -65,7 +84,7 @@ namespace Scalpel.Services
         /// missing private key, or an unsupported PDF structure.
         /// </summary>
         public static void SignFile(string inputPath, string outputPath, string pfxPath, string? pfxPassword,
-            ITimestampClient? timestamp = null)
+            ITimestampClient? timestamp = null, SignatureAppearance? appearance = null)
         {
             if (string.IsNullOrEmpty(inputPath)) throw new ArgumentNullException(nameof(inputPath));
             if (string.IsNullOrEmpty(outputPath)) throw new ArgumentNullException(nameof(outputPath));
@@ -90,7 +109,7 @@ namespace Scalpel.Services
             var chain = collection.Cast<DotNetX509>().Where(c => !ReferenceEquals(c, signer)).ToArray();
 
             byte[] pdf = File.ReadAllBytes(inputPath);
-            byte[] signed = SignBytes(pdf, signer, chain, timestamp);
+            byte[] signed = SignBytes(pdf, signer, chain, timestamp, appearance);
             File.WriteAllBytes(outputPath, signed);
         }
 
@@ -101,7 +120,8 @@ namespace Scalpel.Services
         /// the certificate differs (here it is supplied directly rather than loaded from a .pfx).
         /// </summary>
         public static void SignFileWithCertificate(string inputPath, string outputPath,
-            DotNetX509 signer, IEnumerable<DotNetX509>? chain = null, ITimestampClient? timestamp = null)
+            DotNetX509 signer, IEnumerable<DotNetX509>? chain = null, ITimestampClient? timestamp = null,
+            SignatureAppearance? appearance = null)
         {
             if (string.IsNullOrEmpty(inputPath)) throw new ArgumentNullException(nameof(inputPath));
             if (string.IsNullOrEmpty(outputPath)) throw new ArgumentNullException(nameof(outputPath));
@@ -110,7 +130,7 @@ namespace Scalpel.Services
                 throw new InvalidOperationException("The selected certificate has no usable private key.");
 
             byte[] pdf = File.ReadAllBytes(inputPath);
-            byte[] signed = SignBytes(pdf, signer, chain, timestamp);
+            byte[] signed = SignBytes(pdf, signer, chain, timestamp, appearance);
             File.WriteAllBytes(outputPath, signed);
         }
 
@@ -122,7 +142,7 @@ namespace Scalpel.Services
         /// <param name="signerCertWithKey">Signing certificate (must carry the private key).</param>
         /// <param name="chain">Optional extra certificates (intermediates/root) to embed.</param>
         public static byte[] SignBytes(byte[] pdf, DotNetX509 signerCertWithKey, IEnumerable<DotNetX509>? chain = null,
-            ITimestampClient? timestamp = null)
+            ITimestampClient? timestamp = null, SignatureAppearance? appearance = null)
         {
             if (pdf is null || pdf.Length == 0) throw new ArgumentException("Empty PDF.", nameof(pdf));
             if (signerCertWithKey is null) throw new ArgumentNullException(nameof(signerCertWithKey));
@@ -138,7 +158,9 @@ namespace Scalpel.Services
             int sigDictNum = size;
             int sigFieldNum = size + 1;
             int acroFormNum = size + 2;
-            int newSize = size + 3;
+            // A visible signature needs one extra object: the /AP form XObject.
+            int apXObjNum = appearance is not null ? size + 3 : -1;
+            int newSize = appearance is not null ? size + 4 : size + 3;
 
             string utc = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sigDate = "D:" + utc + "+00'00'";
@@ -171,11 +193,24 @@ namespace Scalpel.Services
             sb.Append(" >>\n");
             sb.Append("endobj\n");
 
-            // 2) Signature field + widget (combined). Invisible: Rect [0 0 0 0], hidden flag.
+            // 2) Signature field + widget (combined). Invisible by default (Rect [0 0 0 0], hidden flag);
+            //    when an appearance is supplied, a real Rect on the first page + /AP /N form XObject and
+            //    the Print flag (/F 4) instead.
             sb.Append('\n');
             sigFieldOffset = OffsetNow();
             sb.Append(sigFieldNum).Append(" 0 obj\n");
-            sb.Append("<< /FT /Sig /Type /Annot /Subtype /Widget /Rect [0 0 0 0] /F 132");
+            sb.Append("<< /FT /Sig /Type /Annot /Subtype /Widget");
+            if (appearance is not null)
+            {
+                sb.Append(" /Rect [").Append(F(appearance.X1)).Append(' ').Append(F(appearance.Y1)).Append(' ')
+                  .Append(F(appearance.X2)).Append(' ').Append(F(appearance.Y2)).Append(']');
+                sb.Append(" /F 4");
+                sb.Append(" /AP << /N ").Append(apXObjNum).Append(" 0 R >>");
+            }
+            else
+            {
+                sb.Append(" /Rect [0 0 0 0] /F 132");
+            }
             sb.Append(" /T (Signature1) /V ").Append(sigDictNum).Append(" 0 R");
             sb.Append(" /P ").Append(info.FirstPageNum).Append(" 0 R >>\n");
             sb.Append("endobj\n");
@@ -237,6 +272,23 @@ namespace Scalpel.Services
                 sb.Append("endobj\n");
             }
 
+            // 6) Optional visible-signature appearance: a Form XObject referenced by the widget's /AP /N.
+            int apXObjOffset = -1;
+            if (appearance is not null)
+            {
+                sb.Append('\n');
+                apXObjOffset = OffsetNow();
+                string content = BuildAppearanceStream(appearance, ComposeAppearanceLines(appearance, signerCertWithKey));
+                double apW = appearance.X2 - appearance.X1, apH = appearance.Y2 - appearance.Y1;
+                sb.Append(apXObjNum).Append(" 0 obj\n");
+                sb.Append("<< /Type /XObject /Subtype /Form /FormType 1 /BBox [0 0 ")
+                  .Append(F(apW)).Append(' ').Append(F(apH)).Append(']');
+                sb.Append(" /Resources << /Font << /Helv << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >>");
+                sb.Append(" /Length ").Append(content.Length).Append(" >>\n");
+                sb.Append("stream\n").Append(content).Append("\nendstream\n");
+                sb.Append("endobj\n");
+            }
+
             // ---- append the new xref section + trailer ------------------------------------------
             var xrefEntries = new List<(int num, int gen, int offset)>
             {
@@ -249,6 +301,8 @@ namespace Scalpel.Services
                 xrefEntries.Add((info.AnnotsArrayNum!.Value, info.AnnotsArrayGen, annotsArrayOffset));
             else
                 xrefEntries.Add((info.FirstPageNum, info.FirstPageGen, pageOffset));
+            if (apXObjOffset >= 0)
+                xrefEntries.Add((apXObjNum, 0, apXObjOffset));
 
             int xrefOffset = OffsetNow();
             sb.Append("xref\n");
@@ -378,6 +432,74 @@ namespace Scalpel.Services
                 updated.Add(SignerInformation.ReplaceUnsignedAttributes(si, unsigned));
             }
             return CmsSignedData.ReplaceSigners(signed, new SignerInformationStore(updated));
+        }
+
+        // ---- visible-signature appearance helpers ----------------------------------------------
+
+        private static string F(double d) => d.ToString("0.###", CultureInfo.InvariantCulture);
+
+        // Escapes a string for a PDF literal: (, ), \ are backslash-escaped; control chars and any
+        // char outside Latin-1 (which the Helvetica base font can't render anyway) become spaces.
+        private static string EscapePdfText(string s)
+        {
+            var sb = new StringBuilder(s.Length);
+            foreach (char c in s)
+            {
+                if (c == '(' || c == ')' || c == '\\') sb.Append('\\').Append(c);
+                else if (c < 32 || c > 255) sb.Append(' ');
+                else sb.Append(c);
+            }
+            return sb.ToString();
+        }
+
+        // Composes the visible-signature text lines from the signer certificate + options. English
+        // labels are conventional for a burned-in digital-signature appearance (and locale-free, as
+        // this service has no access to the UI string table); the user's Reason text is preserved.
+        private static List<string> ComposeAppearanceLines(SignatureAppearance ap, DotNetX509 signer)
+        {
+            var lines = new List<string>();
+            if (ap.ShowName) lines.Add("Digitally signed by " + CertCommonName(signer));
+            if (ap.ShowDate) lines.Add("Date: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm"));
+            if (!string.IsNullOrWhiteSpace(ap.Reason)) lines.Add("Reason: " + ap.Reason!.Trim());
+            if (lines.Count == 0) lines.Add("Digitally signed by " + CertCommonName(signer));
+            return lines;
+        }
+
+        private static string CertCommonName(DotNetX509 cert)
+        {
+            string cn = cert.GetNameInfo(X509NameType.SimpleName, false);
+            return string.IsNullOrWhiteSpace(cn) ? cert.Subject : cn;
+        }
+
+        // Builds the Form XObject content stream: a thin border plus the appearance text lines,
+        // drawn top-down inside the BBox with the standard Helvetica font (/Helv).
+        private static string BuildAppearanceStream(SignatureAppearance ap, IReadOnlyList<string> lines)
+        {
+            double w = Math.Max(1, ap.X2 - ap.X1), h = Math.Max(1, ap.Y2 - ap.Y1);
+            int lineCount = Math.Max(1, lines.Count);
+            double fontSize = Math.Max(6, Math.Min(11, (h - 6) / (lineCount + 0.5)));
+            double leading = fontSize * 1.25;
+
+            var s = new StringBuilder();
+            s.Append("q\n");
+            s.Append("0.7 0.7 0.7 RG 0.5 w\n");
+            s.Append(F(0.5)).Append(' ').Append(F(0.5)).Append(' ')
+             .Append(F(w - 1)).Append(' ').Append(F(h - 1)).Append(" re S\n");
+            s.Append("0.1 0.1 0.1 rg\n");
+            s.Append("BT\n");
+            s.Append("/Helv ").Append(F(fontSize)).Append(" Tf\n");
+            s.Append(F(leading)).Append(" TL\n");
+            s.Append(F(3)).Append(' ').Append(F(h - leading)).Append(" Td\n");
+            bool first = true;
+            foreach (var line in lines)
+            {
+                if (!first) s.Append("T*\n");
+                s.Append('(').Append(EscapePdfText(line ?? "")).Append(") Tj\n");
+                first = false;
+            }
+            s.Append("ET\n");
+            s.Append('Q');
+            return s.ToString();
         }
 
         private static RsaPrivateCrtKeyParameters ExtractBcPrivateKey(DotNetX509 signer)

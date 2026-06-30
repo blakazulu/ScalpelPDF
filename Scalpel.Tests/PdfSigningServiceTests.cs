@@ -243,6 +243,46 @@ namespace Scalpel.Tests
         }
 
         [Fact]
+        public void SignBytes_WithVisibleAppearance_EmitsApStream_AndStillVerifies()
+        {
+            byte[] pdf = MakeBlankPdf(1);
+            DotNetX509 cert = MakeSelfSignedCert();
+            var ap = new SignatureAppearance
+            {
+                X1 = 360, Y1 = 36, X2 = 560, Y2 = 100,
+                ShowName = true, ShowDate = true, Reason = "I approve this document",
+            };
+
+            byte[] signed = PdfSigningService.SignBytes(pdf, cert, null, null, ap);
+
+            string text = Latin1.GetString(signed);
+            Assert.Contains("/Subtype /Form", text);            // appearance XObject present
+            Assert.Contains("/AP << /N", text);                 // widget references it
+            Assert.Contains("/Rect [360", text);                // a real (non-zero) rect
+            Assert.DoesNotContain("/Rect [0 0 0 0]", text);     // not the invisible default
+            Assert.Contains("Digitally signed by", text);       // composed appearance text
+            Assert.Contains("Reason: I approve this document", text);
+
+            // Re-opens with the page intact and the signature still verifies.
+            string outPath = Path.Combine(Path.GetTempPath(), $"scalpel_apsign_{Guid.NewGuid():N}.pdf");
+            try
+            {
+                File.WriteAllBytes(outPath, signed);
+                using var reopened = PdfReader.Open(outPath, PdfDocumentOpenMode.ReadOnly);
+                Assert.Equal(1, reopened.PageCount);
+            }
+            finally { try { File.Delete(outPath); } catch { } }
+
+            int[] byteRange = ParseByteRange(text);
+            byte[] signedContent = ConcatRanges(signed, byteRange);
+            byte[] cms = ExtractContentsDer(signed);
+            var cmsData = new CmsSignedData(new CmsProcessableByteArray(signedContent), cms);
+            SignerInformation si = cmsData.GetSignerInfos().GetSigners().Cast<SignerInformation>().Single();
+            BcX509Certificate bcSigner = new X509CertificateParser().ReadCertificate(cert.RawData);
+            Assert.True(si.Verify(bcSigner), "signature must still verify with a visible appearance");
+        }
+
+        [Fact]
         public void SignFileWithCertificate_SignsUsingInMemoryCert()
         {
             // Mirrors how a Windows-cert-store certificate reaches the signer: an in-memory

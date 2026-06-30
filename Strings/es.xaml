@@ -200,6 +200,13 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Sign_CertLabel">Certificado</sys:String>
     <sys:String x:Key="Str_Sign_NoCerts">No se encontró ningún certificado de firma utilizable en el almacén de certificados de Windows.</sys:String>
     <sys:String x:Key="Str_Sign_Timestamp">Agregar una marca de tiempo confiable (requiere internet)</sys:String>
+    <sys:String x:Key="Str_Sign_Visible">Firma visible en la página 1</sys:String>
+    <sys:String x:Key="Str_Sign_VisOff">Desactivada (invisible)</sys:String>
+    <sys:String x:Key="Str_Sign_VisBR">Esquina inferior derecha</sys:String>
+    <sys:String x:Key="Str_Sign_VisBL">Esquina inferior izquierda</sys:String>
+    <sys:String x:Key="Str_Sign_VisTR">Esquina superior derecha</sys:String>
+    <sys:String x:Key="Str_Sign_VisTL">Esquina superior izquierda</sys:String>
+    <sys:String x:Key="Str_Sign_Reason">Motivo (opcional)</sys:String>
     <sys:String x:Key="Str_Sign_Password">Contraseña del certificado</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Firmar</sys:String>
     <sys:String x:Key="Str_Sign_Note">Añade una firma criptográfica invisible con tu certificado. La copia firmada se guarda en un archivo nuevo y no se modifica después, por lo que la firma sigue siendo válida.</sys:String>

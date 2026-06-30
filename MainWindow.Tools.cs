@@ -492,7 +492,14 @@ namespace Scalpel
                 value: fileOpt,
                 options: storeAvailable ? new[] { fileOpt, storeOpt } : new[] { fileOpt });
             var timestampField = new ToolField(Loc("Str_Sign_Timestamp"), ToolFieldKind.Check, isChecked: false);
-            if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { sourceField, timestampField }, Loc("Str_Sign_Continue"),
+            string visOff = Loc("Str_Sign_VisOff");
+            string visBR = Loc("Str_Sign_VisBR"), visBL = Loc("Str_Sign_VisBL"),
+                   visTR = Loc("Str_Sign_VisTR"), visTL = Loc("Str_Sign_VisTL");
+            var visibleField = new ToolField(Loc("Str_Sign_Visible"), ToolFieldKind.Combo, value: visOff,
+                options: new[] { visOff, visBR, visBL, visTR, visTL });
+            var reasonField = new ToolField(Loc("Str_Sign_Reason"), ToolFieldKind.Text);
+            if (!ShowToolForm(Loc("Str_Tool_Sign"),
+                    new[] { sourceField, timestampField, visibleField, reasonField }, Loc("Str_Sign_Continue"),
                     note: Loc("Str_Sign_Note")))
                 return;
 
@@ -500,6 +507,27 @@ namespace Scalpel
             Scalpel.Services.ITimestampClient? timestamp = timestampField.Checked
                 ? new Scalpel.Services.Signing.HttpTimestampClient(App.GetSetting("SignTimestampUrl"))
                 : null;
+
+            // Optional visible signature: a captioned box in a chosen corner of the first page.
+            Scalpel.Services.SignatureAppearance? appearance = null;
+            if (visibleField.Value != visOff && _doc is not null && _doc.PageCount > 0)
+            {
+                var p0 = _doc.Pages[0];
+                double pw = p0.Width.Point, ph = p0.Height.Point;
+                const double boxW = 200, boxH = 64, margin = 36;
+                double x1, y1;
+                if (visibleField.Value == visBL) { x1 = margin; y1 = margin; }
+                else if (visibleField.Value == visTR) { x1 = pw - margin - boxW; y1 = ph - margin - boxH; }
+                else if (visibleField.Value == visTL) { x1 = margin; y1 = ph - margin - boxH; }
+                else { x1 = pw - margin - boxW; y1 = margin; } // bottom-right (default)
+                x1 = Math.Max(0, x1); y1 = Math.Max(0, y1);
+                appearance = new Scalpel.Services.SignatureAppearance
+                {
+                    X1 = x1, Y1 = y1, X2 = x1 + boxW, Y2 = y1 + boxH,
+                    ShowName = true, ShowDate = true,
+                    Reason = string.IsNullOrWhiteSpace(reasonField.Value) ? null : reasonField.Value.Trim(),
+                };
+            }
 
             // 2) Acquire the signer — either a selected store certificate (+chain) or a .pfx path+password.
             System.Security.Cryptography.X509Certificates.X509Certificate2? storeSigner = null;
@@ -550,9 +578,9 @@ namespace Scalpel
                 SetStatus(Loc("Str_Sign_Working"));
                 string src = BuildWorkingSourceFile();
                 if (storeSigner is not null)
-                    PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain, timestamp);
+                    PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain, timestamp, appearance);
                 else
-                    PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword, timestamp);
+                    PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword, timestamp, appearance);
                 SetStatus(string.Format(Loc("Str_Sign_Done"), System.IO.Path.GetFileName(dlg.FileName)));
                 ScalpelDialog.Show(this, Loc("Str_Sign_DoneMsg"));
             }
