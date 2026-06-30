@@ -159,7 +159,7 @@ namespace Scalpel
         // Signatures
         private readonly SignatureStore _signatureStore = new();
         private SavedSignature? _pendingSignature;
-        private Border? _signaturePopup;
+        private System.Windows.Controls.Primitives.Popup? _signaturePopup;
 
         // Manual element refs (XAML codegen doesn't resolve these)
         private readonly Canvas _annotationCanvas = null!;

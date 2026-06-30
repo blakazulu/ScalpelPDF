@@ -113,6 +113,9 @@ namespace Scalpel
 
                     item.MouseLeftButtonDown += (s, e) =>
                     {
+                        // Re-assert the Signature tool so placement works even if the tool was
+                        // reset to Select while the dropdown was reshown (e.g. after Create/Import).
+                        if (_currentTool != EditTool.Signature) SetTool(EditTool.Signature);
                         _pendingSignature = sigCopy;
                         HideSignaturePopup();
                         _annotationCanvas.Cursor = Cursors.Cross;
@@ -136,7 +139,7 @@ namespace Scalpel
                         HorizontalAlignment = HorizontalAlignment.Right,
                         VerticalAlignment = VerticalAlignment.Top,
                         Margin = new Thickness(0, 0, 2, 0),
-                        Background = new SolidColorBrush(Color.FromArgb(200, 30, 30, 30)),
+                        Background = Brushes.Transparent,
                         Foreground = (SolidColorBrush)FindResource("DangerRed"),
                         BorderThickness = new Thickness(0),
                         Cursor = Cursors.Hand,
@@ -204,7 +207,7 @@ namespace Scalpel
             {
                 Content = "Import Image",
                 Style = (Style)FindResource("DarkButton"),
-                Background = new SolidColorBrush(Color.FromRgb(0x1e, 0x3a, 0x2e)),
+                Background = (SolidColorBrush)FindResource("AccentDim"),
                 Foreground = (SolidColorBrush)FindResource("Accent"),
                 BorderBrush = (SolidColorBrush)FindResource("AccentDim"),
                 BorderThickness = new Thickness(1),
@@ -221,37 +224,51 @@ namespace Scalpel
             };
             stack.Children.Add(importBtn);
 
-            _signaturePopup = new Border
+            // The card itself — surface colors come from theme tokens so it follows Light/Dark/HC.
+            var card = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(0x1e, 0x1e, 0x1e)),
+                Background = (SolidColorBrush)FindResource("BgModal"),
                 BorderBrush = (SolidColorBrush)FindResource("BorderDim"),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(6),
                 Padding = new Thickness(4),
                 Child = stack,
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 4, 80, 0),
+                MinWidth = 240,
                 Effect = new System.Windows.Media.Effects.DropShadowEffect
                 {
-                    Color = Colors.Black, BlurRadius = 12, Opacity = 0.5, ShadowDepth = 4
+                    Color = Colors.Black, BlurRadius = 12, Opacity = 0.4, ShadowDepth = 4
                 }
             };
 
-            var previewGrid = PagePreviewPanel.Parent as Grid;
-            if (previewGrid is not null)
+            // Drop it down directly beneath the Sign tool button rather than floating in the
+            // page area. A real Popup closes itself when the user clicks elsewhere.
+            _signaturePopup = new System.Windows.Controls.Primitives.Popup
             {
-                Panel.SetZIndex(_signaturePopup, 200);
-                previewGrid.Children.Add(_signaturePopup);
-            }
+                Child = card,
+                PlacementTarget = _toolSignatureBtn,
+                Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                StaysOpen = false,
+                AllowsTransparency = true,
+                HorizontalOffset = 0,
+                VerticalOffset = 4,
+            };
+            // When the dropdown closes (incl. clicking outside, which a Popup does itself), drop our
+            // reference so the Sign button reopens in ONE click. If nothing was picked, leave Sign
+            // mode entirely so the button no longer looks "active".
+            _signaturePopup.Closed += (_, _) =>
+            {
+                _signaturePopup = null;
+                if (_pendingSignature is null && _currentTool == EditTool.Signature)
+                    SetTool(EditTool.Select);
+            };
+            _signaturePopup.IsOpen = true;
         }
 
         private void HideSignaturePopup()
         {
             if (_signaturePopup is not null)
             {
-                var previewGrid = PagePreviewPanel.Parent as Grid;
-                previewGrid?.Children.Remove(_signaturePopup);
+                _signaturePopup.IsOpen = false;
                 _signaturePopup = null;
             }
         }
