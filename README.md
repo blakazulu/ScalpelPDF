@@ -1,6 +1,6 @@
 # Scalpel — a local-only PDF editor for Windows
 
-View, annotate, edit, merge, split, sign, fill forms, OCR, redact, and protect PDFs — without an Adobe subscription, an account, or a single network call. One self-contained **~6 MB EXE**. Install it or run it portable. **No telemetry, no phone-home.** GPLv3.
+View, annotate, edit, merge, split, sign (drawn **or** cryptographic), fill forms, OCR, watermark, transform, redact, and protect PDFs — without an Adobe subscription, an account, or a single network call. One self-contained **~6 MB EXE**. Install it or run it portable. **No telemetry, no phone-home.** GPLv3.
 
 > The PDF equivalent of Notepad.
 
@@ -32,7 +32,8 @@ The "Clinical" ribbon interface — organized into **View · Edit · Pages · Si
 
 **Edit & annotate**
 - Inline text editing with font matching against the original document; right-to-left scripts (Hebrew/Arabic) shape and read correctly
-- Text boxes, freehand ink, and highlight overlays with adjustable color, size, and opacity
+- Text boxes, freehand ink, straight lines (Shift to snap), and highlight overlays with adjustable size and opacity
+- A full **color picker with eyedropper** (RGB/hex, or sample any pixel on screen) for the Draw, Line, and Text tools
 - Insert images as resizable annotations; crop pages with drag handles — all burned cleanly into the PDF on save
 
 **Pages**
@@ -40,19 +41,25 @@ The "Clinical" ribbon interface — organized into **View · Edit · Pages · Si
 - Right-click sidebar: insert blank page, rotate, move, extract, or delete — on multi-page selections
 
 **Sign & forms**
-- Draw and save reusable signatures, or import a PNG/JPG/BMP and click to place
-- Fill interactive PDF forms (text fields, checkboxes, radio buttons) and save back to the PDF
+- Draw and save reusable signatures (chosen from a dropdown under the Sign button), or import a PNG/JPG/BMP and click to place
+- Add a real **cryptographic signature** with your own certificate (see *Digitally sign* in the Tools menu below)
+- Fill interactive PDF forms (text fields, checkboxes, radio buttons) and save back to the PDF — fields render correctly on cropped PDFs and in every view mode
 
 **Tools menu — document operations, run locally**
 - **Page & Bates numbering** with corner headers/footers
+- **Watermark & image stamp** — a semi-transparent text watermark (rotated, tiled, any opacity) and/or a logo image placed on every page
+- **Transform pages** — rotate in 90° steps, fine-deskew, scale, and flip horizontal/vertical (lossless for plain rotation)
 - **Compression** (Low / Medium / High image down-sampling)
-- **OCR** — make scans searchable with a bundled, offline Tesseract engine (portable builds fetch language data once, on demand)
+- **OCR** — make scans searchable with a bundled, offline Tesseract engine (portable builds fetch language data once, on demand); live per-page progress with cancel, a language picker, a high-quality mode, copy-page-text to clipboard, and extract-all-text to `.txt`/`.md`
+- **Digitally sign (PKI)** — add a real cryptographic signature (PAdES / PKCS#7 detached) with your own `.pfx`/`.p12` certificate, appended via incremental update so the signed copy stays valid in PDF readers — distinct from the drawn signatures above
 - **Redaction** — permanently remove content (pixels gone, not just hidden)
 - **Password protection** — encrypt with a password and set viewing/editing permissions
 - **Metadata removal** — strip author, timestamps, and hidden data before sharing
 
 **View & navigate**
-- Single-page, continuous scroll, two-page, and grid view modes (persisted across sessions)
+- **Document tabs** — open several PDFs and switch between them from a tab strip (Ctrl+Tab to cycle)
+- **Recent files** — reopen a recent PDF from the start screen or the Open button's menu
+- Single-page, continuous scroll, two-page, and grid view modes (persisted across sessions), plus full-screen (F11)
 - High-quality PDFium rendering, with damaged-file recovery
 - Outline/bookmark navigation, clickable links and cross-references, full-text search with highlighting, zoom presets with scroll-wheel sync, page-jump box, keyboard shortcuts (Ctrl+?)
 

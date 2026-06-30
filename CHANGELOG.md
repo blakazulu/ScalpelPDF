@@ -20,6 +20,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this
 ### Fixed
 - Opening the Settings panel no longer records a spurious `logging.toggle` event or re-saves the logging setting on every open; the Diagnostics checkbox now syncs to the current state without re-triggering its change handler.
 
+## 2.0.0 - 2026-06-30
+
+### Added
+- **Digitally sign (PKI)** (`Services/PdfSigningService.cs`) — add a real cryptographic signature (PAdES / PKCS#7 **detached**, invisible) with the user's `.pfx`/`.p12` certificate. The signature is embedded via a hand-written **incremental update** (new Sig dict + invisible field + AcroForm/`SigFlags` + xref/trailer with `/Prev`) appended after the saved bytes, so the signed `/ByteRange` is never re-serialized (PdfSharpCore's whole-document Save cannot sign). SHA-256 over the ByteRange is signed with **BouncyCastle** (`CmsSignedDataGenerator`, SHA256withRSA, signed attributes, DER). Adds the `BouncyCastle.Cryptography` 2.5.1 (MIT) dependency. Tests prove the embedded CMS verifies against the signer cert and the digest matches. *Caveat:* Adobe trust requires a CA-chained cert; no RFC-3161 timestamp / PAdES-LTV yet.
+- **Document tabs** (`MainWindow.Tabs.cs`) — a tab strip of open file paths; switching reuses the open/close/dirty machinery (prompts to save, then reloads the target), Ctrl+Tab / Ctrl+Shift+Tab cycle. Hidden with a single file open; single-document behavior is unchanged (it is not a multi-session refactor — switching reloads from disk).
+- **Recent files** (`Services/RecentFiles.cs`, `MainWindow.Recent.cs`) — a most-recently-used list (registry-backed, capped at 10, de-duplicated) on the empty-state start screen and in the Open button's context menu; missing files are filtered out and self-heal on click.
+- **Watermark & image stamp** (`Services/WatermarkService.cs`) — a Tools-menu op that draws a semi-transparent rotated/tiled **text watermark** and/or an **image stamp** (scaled, positioned, opacity baked into alpha).
+- **Transform pages** (`Services/TransformService.cs`) — a Tools-menu op to rotate (lossless 90° via page `/Rotate`), fine-deskew, scale, and flip H/V over a page range (rasterized path via the existing `IPageRasterizer` for flip/deskew/scale).
+- **Color picker with eyedropper** (`Services/ColorConvert.cs`, `Services/ColorPickerDialog.cs`) — an HSV square + hue strip + RGB/hex inputs + a desktop-wide eyedropper, reached from a "+" button on the Draw, Line, and Text color palettes.
+- **OCR — live progress + cancel.** Make Searchable now reports per-page progress (`OcrService.MakeSearchable` gains `onProgress`/`CancellationToken`) behind a themed overlay with a Cancel button (and Esc). Plus a language picker, a high-quality (`tessdata_best`) mode, copy-page-text to clipboard, and extract-all-text to `.txt`/`.md`.
+- Earlier in this line: a **Line tool** (Shift-snap), **Document Info** editor (Tools / F12), and **full-screen (F11)** with a keyboard-shortcut overlay (F1) and tool letter keys.
+
+### Fixed
+- AcroForm field overlays now render in **Continuous / Two-page / Grid** views (they were drawn on the single-page canvas only), and are positioned correctly on PDFs whose **CropBox differs from the MediaBox**.
+- The saved-signature chooser is now a themed **dropdown beneath the Sign button** (it used to float in the page and stay hardcoded-dark in Light/High-Contrast themes); clicking away closes it cleanly and it reopens in one click.
+- Editing existing right-to-left (Hebrew/Arabic) text keeps correct word order and reads/aligns RTL; editing text matches the original font (falling back to the embedded font or a clearly-named substitute).
+
+### Changed
+- The end-to-end UI test harness (`Scalpel.E2E`) was made deterministic — driving radios/toggles through foreground-free UI Automation patterns instead of synthesized clicks — and now passes the full suite headlessly. The four exclusive view-mode toggles became grouped `RadioButton`s (no visual change).
+
 ## 1.5.1 - 2026-06-14
 
 ### Fixed

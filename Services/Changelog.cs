@@ -12,7 +12,7 @@ namespace Scalpel.Services
 
         public static IReadOnlyList<Release> Releases { get; } = new[]
         {
-            new Release("1.9.0", "June 2026", new[]
+            new Release("2.0.0", "June 2026", new[]
             {
                 "Make Searchable (OCR) now shows live progress (\"Recognizing page X of Y\") and can be cancelled with the button or Esc, so long scans no longer leave you waiting with no feedback.",
                 "The saved-signatures chooser now drops down directly beneath the Sign button and follows your theme (it used to float in the page and stay dark in Light mode); clicking away closes it cleanly.",
