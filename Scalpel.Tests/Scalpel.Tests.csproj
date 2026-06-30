@@ -48,6 +48,7 @@
     <Compile Include="..\Services\TransformService.cs" Link="Services\TransformService.cs" />
     <Compile Include="..\Services\PdfEncryptionService.cs" Link="Services\PdfEncryptionService.cs" />
     <Compile Include="..\Services\PdfSigningService.cs" Link="Services\PdfSigningService.cs" />
+    <Compile Include="..\Services\Signing\WindowsCertificateStore.cs" Link="Services\Signing\WindowsCertificateStore.cs" />
     <Compile Include="..\Services\MetadataSanitizer.cs" Link="Services\MetadataSanitizer.cs" />
     <Compile Include="..\Services\PdfRasterTools.cs" Link="Services\PdfRasterTools.cs" />
     <Compile Include="..\Services\PdfCompressionService.cs" Link="Services\PdfCompressionService.cs" />

@@ -193,6 +193,12 @@
     <sys:String x:Key="Str_Tool_Protect">পাসওয়ার্ড সুরক্ষা…</sys:String>
     <sys:String x:Key="Str_Tool_Sign">ডিজিটাল স্বাক্ষর…</sys:String>
     <sys:String x:Key="Str_Sign_PickCert">আপনার স্বাক্ষর সার্টিফিকেট নির্বাচন করুন (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_Source">সার্টিফিকেটের উৎস</sys:String>
+    <sys:String x:Key="Str_Sign_SourceFile">সার্টিফিকেট ফাইল (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_SourceStore">Windows সার্টিফিকেট স্টোর</sys:String>
+    <sys:String x:Key="Str_Sign_Continue">চালিয়ে যান</sys:String>
+    <sys:String x:Key="Str_Sign_CertLabel">সার্টিফিকেট</sys:String>
+    <sys:String x:Key="Str_Sign_NoCerts">আপনার Windows সার্টিফিকেট স্টোরে কোনো ব্যবহারযোগ্য স্বাক্ষর সার্টিফিকেট পাওয়া যায়নি।</sys:String>
     <sys:String x:Key="Str_Sign_Password">সার্টিফিকেট পাসওয়ার্ড</sys:String>
     <sys:String x:Key="Str_Sign_Apply">স্বাক্ষর করুন</sys:String>
     <sys:String x:Key="Str_Sign_Note">আপনার সার্টিফিকেট ব্যবহার করে একটি অদৃশ্য ক্রিপ্টোগ্রাফিক স্বাক্ষর যোগ করে। স্বাক্ষরিত অনুলিপি একটি নতুন ফাইলে লেখা হয় এবং পরে পরিবর্তিত হয় না, তাই স্বাক্ষর বৈধ থাকে।</sys:String>

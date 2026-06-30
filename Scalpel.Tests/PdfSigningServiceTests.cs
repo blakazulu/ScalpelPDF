@@ -169,6 +169,42 @@ namespace Scalpel.Tests
         }
 
         [Fact]
+        public void SignFileWithCertificate_SignsUsingInMemoryCert()
+        {
+            // Mirrors how a Windows-cert-store certificate reaches the signer: an in-memory
+            // X509Certificate2 with a private key, no .pfx file on disk.
+            byte[] pdf = MakeBlankPdf(1);
+            DotNetX509 cert = MakeSelfSignedCert();
+            string inPath = Path.Combine(Path.GetTempPath(), $"scalpel_in_{Guid.NewGuid():N}.pdf");
+            string outPath = Path.Combine(Path.GetTempPath(), $"scalpel_out_{Guid.NewGuid():N}.pdf");
+            try
+            {
+                File.WriteAllBytes(inPath, pdf);
+                PdfSigningService.SignFileWithCertificate(inPath, outPath, cert);
+
+                Assert.True(File.Exists(outPath));
+                string text = Latin1.GetString(File.ReadAllBytes(outPath));
+                Assert.Contains("/adbe.pkcs7.detached", text);
+                using var reopened = PdfReader.Open(outPath, PdfDocumentOpenMode.ReadOnly);
+                Assert.Equal(1, reopened.PageCount);
+            }
+            finally
+            {
+                foreach (var p in new[] { inPath, outPath }) try { File.Delete(p); } catch { }
+            }
+        }
+
+        [Fact]
+        public void WindowsCertificateStore_Describe_IncludesSubjectAndExpiry()
+        {
+            DotNetX509 cert = MakeSelfSignedCert();
+            string label = Scalpel.Services.Signing.WindowsCertificateStore.Describe(cert);
+            Assert.Contains("Scalpel Test Signer", label);
+            Assert.Contains(cert.NotAfter.ToString("yyyy-MM-dd"), label);
+            Assert.Contains("—", label); // subject — issuer — expiry
+        }
+
+        [Fact]
         public void SignFile_WrongPassword_ThrowsClearError()
         {
             DotNetX509 cert = MakeSelfSignedCert();

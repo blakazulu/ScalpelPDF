@@ -203,6 +203,12 @@
     <sys:String x:Key="Str_Tool_Protect">Защита паролем…</sys:String>
     <sys:String x:Key="Str_Tool_Sign">Подписать цифровой подписью…</sys:String>
     <sys:String x:Key="Str_Sign_PickCert">Выберите свой сертификат для подписи (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_Source">Источник сертификата</sys:String>
+    <sys:String x:Key="Str_Sign_SourceFile">Файл сертификата (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_SourceStore">Хранилище сертификатов Windows</sys:String>
+    <sys:String x:Key="Str_Sign_Continue">Продолжить</sys:String>
+    <sys:String x:Key="Str_Sign_CertLabel">Сертификат</sys:String>
+    <sys:String x:Key="Str_Sign_NoCerts">В хранилище сертификатов Windows не найден пригодный сертификат для подписи.</sys:String>
     <sys:String x:Key="Str_Sign_Password">Пароль сертификата</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Подписать</sys:String>
     <sys:String x:Key="Str_Sign_Note">Добавляет невидимую криптографическую подпись с помощью вашего сертификата. Подписанная копия записывается в новый файл и далее не изменяется, поэтому подпись остаётся действительной.</sys:String>

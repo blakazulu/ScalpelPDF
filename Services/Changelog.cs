@@ -15,6 +15,7 @@ namespace Scalpel.Services
             new Release("2.1.0", "July 2026", new[]
             {
                 "New OCR Region tool (Tools ▸ OCR Region): drag a rectangle over any part of a page to copy just that area's text to the clipboard — handy for grabbing a single paragraph, table cell, or caption from a scan.",
+                "Digitally Sign can now use a certificate already installed in Windows — pick \"Windows certificate store\" and choose from a list (smart cards and enterprise-issued certificates included), instead of locating a .pfx/.p12 file and typing its password.",
             }),
             new Release("2.0.0", "June 2026", new[]
             {

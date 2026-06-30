@@ -203,6 +203,12 @@
     <sys:String x:Key="Str_Tool_Protect">הגנה בסיסמה…</sys:String>
     <sys:String x:Key="Str_Tool_Sign">חתימה דיגיטלית…</sys:String>
     <sys:String x:Key="Str_Sign_PickCert">בחר את אישור החתימה שלך (‎.pfx / .p12‎)</sys:String>
+    <sys:String x:Key="Str_Sign_Source">מקור האישור</sys:String>
+    <sys:String x:Key="Str_Sign_SourceFile">קובץ אישור (‎.pfx / .p12‎)</sys:String>
+    <sys:String x:Key="Str_Sign_SourceStore">מאגר האישורים של Windows</sys:String>
+    <sys:String x:Key="Str_Sign_Continue">המשך</sys:String>
+    <sys:String x:Key="Str_Sign_CertLabel">אישור</sys:String>
+    <sys:String x:Key="Str_Sign_NoCerts">לא נמצא אישור חתימה שמיש במאגר האישורים של Windows.</sys:String>
     <sys:String x:Key="Str_Sign_Password">סיסמת האישור</sys:String>
     <sys:String x:Key="Str_Sign_Apply">חתום</sys:String>
     <sys:String x:Key="Str_Sign_Note">מוסיף חתימה קריפטוגרפית בלתי נראית באמצעות האישור שלך. העותק החתום נכתב לקובץ חדש ואינו משתנה לאחר מכן, כך שהחתימה נשארת תקפה.</sys:String>

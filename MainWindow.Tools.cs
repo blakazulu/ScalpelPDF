@@ -483,19 +483,48 @@ namespace Scalpel
         {
             if (!RequireOpenDoc()) return;
 
-            // 1) Pick the signer's certificate (.pfx / .p12).
-            var ofd = new OpenFileDialog
-            {
-                Filter = "Certificate files|*.pfx;*.p12|All files|*.*",
-                Title = Loc("Str_Sign_PickCert"),
-            };
-            if (ofd.ShowDialog(this) != true) return;
-
-            // 2) Prompt for the certificate password.
-            var pw = new ToolField(Loc("Str_Sign_Password"), ToolFieldKind.Password);
-            if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { pw }, Loc("Str_Sign_Apply"),
+            // 1) Choose the certificate source: a .pfx/.p12 file, or the Windows certificate store
+            //    (the latter only offered when the store is available — i.e. on Windows).
+            bool storeAvailable = Scalpel.Services.Signing.WindowsCertificateStore.IsAvailable;
+            string fileOpt = Loc("Str_Sign_SourceFile");
+            string storeOpt = Loc("Str_Sign_SourceStore");
+            var sourceField = new ToolField(Loc("Str_Sign_Source"), ToolFieldKind.Combo,
+                value: fileOpt,
+                options: storeAvailable ? new[] { fileOpt, storeOpt } : new[] { fileOpt });
+            if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { sourceField }, Loc("Str_Sign_Continue"),
                     note: Loc("Str_Sign_Note")))
                 return;
+
+            // 2) Acquire the signer — either a selected store certificate (+chain) or a .pfx path+password.
+            System.Security.Cryptography.X509Certificates.X509Certificate2? storeSigner = null;
+            System.Security.Cryptography.X509Certificates.X509Certificate2[]? storeChain = null;
+            string? pfxPath = null, pfxPassword = null;
+
+            if (storeAvailable && sourceField.Value == storeOpt)
+            {
+                var certs = Scalpel.Services.Signing.WindowsCertificateStore.ListSigningCertificates();
+                if (certs.Count == 0) { ScalpelDialog.Show(this, Loc("Str_Sign_NoCerts")); return; }
+                var labels = certs.Select(Scalpel.Services.Signing.WindowsCertificateStore.Describe).ToArray();
+                var certField = new ToolField(Loc("Str_Sign_CertLabel"), ToolFieldKind.Combo,
+                    value: labels[0], options: labels);
+                if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { certField }, Loc("Str_Sign_Apply"))) return;
+                int idx = Array.IndexOf(labels, certField.Value);
+                if (idx < 0) idx = 0;
+                storeSigner = certs[idx];
+                storeChain = Scalpel.Services.Signing.WindowsCertificateStore.BuildChain(storeSigner);
+            }
+            else
+            {
+                var ofd = new OpenFileDialog
+                {
+                    Filter = "Certificate files|*.pfx;*.p12|All files|*.*",
+                    Title = Loc("Str_Sign_PickCert"),
+                };
+                if (ofd.ShowDialog(this) != true) return;
+                var pw = new ToolField(Loc("Str_Sign_Password"), ToolFieldKind.Password);
+                if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { pw }, Loc("Str_Sign_Apply"))) return;
+                pfxPath = ofd.FileName; pfxPassword = pw.Value;
+            }
 
             // 3) Choose where to write the signed copy.
             var dlg = new SaveFileDialog
@@ -514,7 +543,10 @@ namespace Scalpel
             {
                 SetStatus(Loc("Str_Sign_Working"));
                 string src = BuildWorkingSourceFile();
-                PdfSigningService.SignFile(src, dlg.FileName, ofd.FileName, pw.Value);
+                if (storeSigner is not null)
+                    PdfSigningService.SignFileWithCertificate(src, dlg.FileName, storeSigner, storeChain);
+                else
+                    PdfSigningService.SignFile(src, dlg.FileName, pfxPath!, pfxPassword);
                 SetStatus(string.Format(Loc("Str_Sign_Done"), System.IO.Path.GetFileName(dlg.FileName)));
                 ScalpelDialog.Show(this, Loc("Str_Sign_DoneMsg"));
             }

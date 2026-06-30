@@ -193,6 +193,12 @@
     <sys:String x:Key="Str_Tool_Protect">密码保护…</sys:String>
     <sys:String x:Key="Str_Tool_Sign">数字签名…</sys:String>
     <sys:String x:Key="Str_Sign_PickCert">选择您的签名证书（.pfx / .p12）</sys:String>
+    <sys:String x:Key="Str_Sign_Source">证书来源</sys:String>
+    <sys:String x:Key="Str_Sign_SourceFile">证书文件（.pfx / .p12）</sys:String>
+    <sys:String x:Key="Str_Sign_SourceStore">Windows 证书存储</sys:String>
+    <sys:String x:Key="Str_Sign_Continue">继续</sys:String>
+    <sys:String x:Key="Str_Sign_CertLabel">证书</sys:String>
+    <sys:String x:Key="Str_Sign_NoCerts">在 Windows 证书存储中找不到可用的签名证书。</sys:String>
     <sys:String x:Key="Str_Sign_Password">证书密码</sys:String>
     <sys:String x:Key="Str_Sign_Apply">签名</sys:String>
     <sys:String x:Key="Str_Sign_Note">使用您的证书添加一个隐形的加密签名。已签名的副本会写入新文件，之后不会被更改，因此签名保持有效。</sys:String>

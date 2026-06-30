@@ -193,6 +193,12 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Tool_Protect">Proteger con contraseña…</sys:String>
     <sys:String x:Key="Str_Tool_Sign">Firmar digitalmente…</sys:String>
     <sys:String x:Key="Str_Sign_PickCert">Elige tu certificado de firma (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_Source">Origen del certificado</sys:String>
+    <sys:String x:Key="Str_Sign_SourceFile">Archivo de certificado (.pfx / .p12)</sys:String>
+    <sys:String x:Key="Str_Sign_SourceStore">Almacén de certificados de Windows</sys:String>
+    <sys:String x:Key="Str_Sign_Continue">Continuar</sys:String>
+    <sys:String x:Key="Str_Sign_CertLabel">Certificado</sys:String>
+    <sys:String x:Key="Str_Sign_NoCerts">No se encontró ningún certificado de firma utilizable en el almacén de certificados de Windows.</sys:String>
     <sys:String x:Key="Str_Sign_Password">Contraseña del certificado</sys:String>
     <sys:String x:Key="Str_Sign_Apply">Firmar</sys:String>
     <sys:String x:Key="Str_Sign_Note">Añade una firma criptográfica invisible con tu certificado. La copia firmada se guarda en un archivo nuevo y no se modifica después, por lo que la firma sigue siendo válida.</sys:String>

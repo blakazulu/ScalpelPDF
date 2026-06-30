@@ -82,6 +82,26 @@ namespace Scalpel.Services
         }
 
         /// <summary>
+        /// Signs <paramref name="inputPath"/> with an already-acquired certificate (e.g. one selected
+        /// from the Windows certificate store) and writes the signed PDF to <paramref name="outputPath"/>.
+        /// Identical byte-level incremental-update signing as <see cref="SignFile"/>; only the source of
+        /// the certificate differs (here it is supplied directly rather than loaded from a .pfx).
+        /// </summary>
+        public static void SignFileWithCertificate(string inputPath, string outputPath,
+            DotNetX509 signer, IEnumerable<DotNetX509>? chain = null)
+        {
+            if (string.IsNullOrEmpty(inputPath)) throw new ArgumentNullException(nameof(inputPath));
+            if (string.IsNullOrEmpty(outputPath)) throw new ArgumentNullException(nameof(outputPath));
+            if (signer is null) throw new ArgumentNullException(nameof(signer));
+            if (!signer.HasPrivateKey)
+                throw new InvalidOperationException("The selected certificate has no usable private key.");
+
+            byte[] pdf = File.ReadAllBytes(inputPath);
+            byte[] signed = SignBytes(pdf, signer, chain);
+            File.WriteAllBytes(outputPath, signed);
+        }
+
+        /// <summary>
         /// Produces a new PDF byte array equal to <paramref name="pdf"/> plus an appended
         /// incremental update carrying an invisible <c>adbe.pkcs7.detached</c> signature.
         /// </summary>
