@@ -300,4 +300,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">בחירת צבע</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">צבע מותאם אישית…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">בחירת צבע מכל מקום במסך</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">יוצר טקסט לחיפוש</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">מתכונן…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">מזהה עמוד {0} מתוך {1}…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">ביטול</sys:String>
 </ResourceDictionary>

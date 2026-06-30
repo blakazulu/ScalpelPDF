@@ -300,4 +300,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">选择颜色</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">自定义颜色…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">从屏幕上任何位置拾取颜色</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">创建可搜索文字</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">准备中…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">正在识别第 {0} 页，共 {1} 页…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">取消</sys:String>
 </ResourceDictionary>

@@ -300,4 +300,8 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_ColorPicker_Title">Bir renk seçin</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Özel renk…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Ekranın herhangi bir yerinden renk seçin</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">Aranabilir yapılıyor</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">Hazırlanıyor…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">Sayfa {0}/{1} tanınıyor…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">İptal</sys:String>
 </ResourceDictionary>

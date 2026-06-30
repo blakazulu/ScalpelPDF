@@ -300,4 +300,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">Выбор цвета</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Свой цвет…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Выберите цвет в любом месте экрана</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">Создание поиска</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">Подготовка…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">Распознавание страницы {0} из {1}…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">Отмена</sys:String>
 </ResourceDictionary>

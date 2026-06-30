@@ -59,6 +59,11 @@ namespace Scalpel
                 HideCropConfirmBar();
                 e.Handled = true;
             }
+            else if (e.Key == Key.Escape && OcrProgressOverlay.Visibility == Visibility.Visible)
+            {
+                _ocrCts?.Cancel();
+                e.Handled = true;
+            }
             else if (e.Key == Key.Escape && ShortcutOverlay.Visibility == Visibility.Visible)
             {
                 ShortcutOverlay.Visibility = Visibility.Collapsed;

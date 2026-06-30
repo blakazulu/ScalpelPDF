@@ -618,6 +618,12 @@ namespace Scalpel
             return (exe, OcrAssets.ResolveTessdataDir(lang, best), lang);
         }
 
+        // Cancels the in-progress OCR run; null when none is running.
+        private System.Threading.CancellationTokenSource? _ocrCts;
+
+        // Cancel button on the OCR progress overlay (also reachable via Esc — see OnPreviewKeyDown).
+        private void OcrProgressCancel_Click(object sender, RoutedEventArgs e) => _ocrCts?.Cancel();
+
         private async void ToolsOcr_Click(object sender, RoutedEventArgs e)
         {
             if (!RequireOpenDoc()) return;
@@ -626,6 +632,10 @@ namespace Scalpel
             // Whole flow inside one try so any managed failure (building the working copy, the
             // native rasterization/OCR, or adopting the result) shows a dialog instead of crashing.
             string outPath = App.MakeTempFile("ocr");
+            _ocrCts = new System.Threading.CancellationTokenSource();
+            var token = _ocrCts.Token;
+            OcrProgressText.Text = Loc("Str_Ocr_Progress_Starting");
+            OcrProgressOverlay.Visibility = Visibility.Visible;
             SetStatus("Running OCR — making text searchable…");
             try
             {
@@ -634,16 +644,32 @@ namespace Scalpel
                 {
                     using var rasterizer = new DocnetPageRasterizer(src, 2000);
                     var engine = new TesseractCliOcrEngine(r.Value.exe, r.Value.tessdata, r.Value.lang);
-                    OcrService.MakeSearchable(rasterizer, engine, outPath);
-                });
+                    OcrService.MakeSearchable(rasterizer, engine, outPath,
+                        onProgress: (cur, total) => Dispatcher.BeginInvoke((Action)(() =>
+                            OcrProgressText.Text = string.Format(Loc("Str_Ocr_Progress_Page"), cur, total))),
+                        cancel: token);
+                }, token);
+                OcrProgressOverlay.Visibility = Visibility.Collapsed;
                 AdoptTransformedFile(outPath, "OCR complete — the document text is now selectable and searchable.");
+            }
+            catch (OperationCanceledException)
+            {
+                OcrProgressOverlay.Visibility = Visibility.Collapsed;
+                SetStatus("OCR cancelled");
+                try { System.IO.File.Delete(outPath); } catch { }
             }
             catch (Exception ex)
             {
+                OcrProgressOverlay.Visibility = Visibility.Collapsed;
                 Scalpel.Services.Logger.Error("Tools", "ocr.fail", ex.Message, ex);
                 SetStatus("OCR failed");
                 ScalpelDialog.Show(this, $"OCR failed:\n{ex.Message}", "Scalpel",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                _ocrCts?.Dispose();
+                _ocrCts = null;
             }
         }
 

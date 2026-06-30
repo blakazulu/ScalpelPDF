@@ -14,6 +14,7 @@ namespace Scalpel.Services
         {
             new Release("1.9.0", "June 2026", new[]
             {
+                "Make Searchable (OCR) now shows live progress (\"Recognizing page X of Y\") and can be cancelled with the button or Esc, so long scans no longer leave you waiting with no feedback.",
                 "The saved-signatures chooser now drops down directly beneath the Sign button and follows your theme (it used to float in the page and stay dark in Light mode); clicking away closes it cleanly.",
                 "New Digitally Sign tool (Tools menu): add a real, invisible cryptographic signature to a PDF using your own certificate (.pfx/.p12). Scalpel appends the signature without re-writing the rest of the file, so the signed copy stays valid in PDF readers — all on your machine, no online service.",
                 "Document tabs: open several PDFs and switch between them from a tab strip above the page — click a tab, press Ctrl+Tab to cycle, or close one with its ×. Switching prompts you to save any unsaved changes first. The strip stays hidden until you have more than one file open.",

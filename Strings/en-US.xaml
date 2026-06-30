@@ -300,4 +300,8 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Pick a color</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Custom color…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Pick a color from anywhere on screen</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">Making searchable</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">Preparing…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">Recognizing page {0} of {1}…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">Cancel</sys:String>
 </ResourceDictionary>

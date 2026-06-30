@@ -300,4 +300,8 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_ColorPicker_Title">Elegir un color</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Color personalizado…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Elige un color de cualquier parte de la pantalla</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">Creando búsqueda</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">Preparando…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">Reconociendo página {0} de {1}…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">Cancelar</sys:String>
 </ResourceDictionary>

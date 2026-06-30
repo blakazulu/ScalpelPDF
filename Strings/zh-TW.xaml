@@ -302,4 +302,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">選擇顏色</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">自訂顏色…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">從螢幕上任何位置選取顏色</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">建立可搜尋文字</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">準備中…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">正在辨識第 {0} 頁，共 {1} 頁…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">取消</sys:String>
 </ResourceDictionary>

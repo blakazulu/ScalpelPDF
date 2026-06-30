@@ -86,19 +86,32 @@ namespace Scalpel.Services
     /// </summary>
     public static class OcrService
     {
-        public static void MakeSearchable(IPageRasterizer source, IOcrEngine engine, string outputPath)
+        /// <summary>
+        /// OCRs every page and writes a searchable PDF. <paramref name="onProgress"/> (if supplied)
+        /// is invoked as (currentPage1Based, totalPages) before each page is recognized, and once
+        /// more as (total, total) just before the file is written. <paramref name="cancel"/> aborts
+        /// between pages by throwing <see cref="OperationCanceledException"/>.
+        /// </summary>
+        public static void MakeSearchable(IPageRasterizer source, IOcrEngine engine, string outputPath,
+            Action<int, int>? onProgress = null,
+            System.Threading.CancellationToken cancel = default)
         {
             if (source is null) throw new ArgumentNullException(nameof(source));
             if (engine is null) throw new ArgumentNullException(nameof(engine));
 
+            int total = source.PageCount;
             var pages = new List<OcrPage>();
-            for (int i = 0; i < source.PageCount; i++)
+            for (int i = 0; i < total; i++)
             {
+                cancel.ThrowIfCancellationRequested();
+                onProgress?.Invoke(i + 1, total);
                 var raster = source.RenderPage(i);
                 var (wPt, hPt) = source.PageSizePt(i);
                 var ocr = engine.Recognize(raster.ImageBytes, wPt, hPt);
                 pages.Add(new OcrPage { ImageBytes = raster.ImageBytes, WidthPt = wPt, HeightPt = hPt, Ocr = ocr });
             }
+            cancel.ThrowIfCancellationRequested();
+            onProgress?.Invoke(total, total);
             SearchableLayerWriter.Write(pages, outputPath);
         }
     }

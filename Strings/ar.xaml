@@ -300,4 +300,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">اختر لونًا</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">لون مخصص…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">التقط لونًا من أي مكان على الشاشة</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">جارٍ جعله قابلاً للبحث</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">جارٍ التحضير…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">التعرف على الصفحة {0} من {1}…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">إلغاء</sys:String>
 </ResourceDictionary>

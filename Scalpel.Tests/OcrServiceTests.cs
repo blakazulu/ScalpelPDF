@@ -147,6 +147,38 @@ namespace Scalpel.Tests
             finally { Cleanup(output); }
         }
 
+        [Fact]
+        public void MakeSearchable_ReportsProgressPerPage()
+        {
+            EnsureResolver();
+            string output = Tmp();
+            try
+            {
+                var calls = new System.Collections.Generic.List<(int cur, int total)>();
+                OcrService.MakeSearchable(new FakeRasterizer(3), new FakeOcrEngine("X"), output,
+                    onProgress: (cur, total) => calls.Add((cur, total)));
+                // One call per page (1..3) plus a final (3,3) before writing.
+                Assert.Equal(new[] { (1, 3), (2, 3), (3, 3), (3, 3) }, calls);
+            }
+            finally { Cleanup(output); }
+        }
+
+        [Fact]
+        public void MakeSearchable_CancellationThrows_AndWritesNothing()
+        {
+            EnsureResolver();
+            string output = Tmp();
+            try
+            {
+                using var cts = new System.Threading.CancellationTokenSource();
+                cts.Cancel();
+                Assert.Throws<System.OperationCanceledException>(() =>
+                    OcrService.MakeSearchable(new FakeRasterizer(2), new FakeOcrEngine("X"), output, cancel: cts.Token));
+                Assert.False(File.Exists(output)); // aborted before any file was written
+            }
+            finally { Cleanup(output); }
+        }
+
         private static void Cleanup(params string[] paths)
         {
             foreach (var p in paths)

@@ -300,4 +300,8 @@
     <sys:String x:Key="Str_ColorPicker_Title">একটি রঙ বাছুন</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">কাস্টম রঙ…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">স্ক্রিনের যেকোনো স্থান থেকে রঙ বাছুন</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Title">সার্চযোগ্য করা হচ্ছে</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Starting">প্রস্তুত হচ্ছে…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Page">পৃষ্ঠা {0}/{1} শনাক্ত করা হচ্ছে…</sys:String>
+    <sys:String x:Key="Str_Ocr_Progress_Cancel">বাতিল</sys:String>
 </ResourceDictionary>
