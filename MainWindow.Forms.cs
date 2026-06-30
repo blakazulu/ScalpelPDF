@@ -48,10 +48,16 @@ namespace Scalpel
             if (_doc is null || _currentFile is null) return;
             if (pageIndex >= _doc.PageCount) return;
 
+            // Draw onto the page's active surface. RenderAllAnnotations (our only caller) resolves
+            // _activeCanvas to this page's per-page overlay in Continuous/Two-Page/Grid views and to
+            // the single-page _annotationCanvas in Single view, so form overlays now follow the page
+            // in every view mode. In Single view _activeCanvas == _annotationCanvas (unchanged).
+            var canvas = _activeCanvas;
+
             // Remove stale overlays without wiping the entire canvas.
-            for (int i = _annotationCanvas.Children.Count - 1; i >= 0; i--)
-                if (_annotationCanvas.Children[i] is FrameworkElement fe && fe.Tag as string == FormOverlayTag)
-                    _annotationCanvas.Children.RemoveAt(i);
+            for (int i = canvas.Children.Count - 1; i >= 0; i--)
+                if (canvas.Children[i] is FrameworkElement fe && fe.Tag as string == FormOverlayTag)
+                    canvas.Children.RemoveAt(i);
 
             var fields = GetPageFormFields(pageIndex, canvasW, canvasH);
             if (fields.Count == 0) return;
@@ -252,7 +258,7 @@ namespace Scalpel
                 if (ctrl is null) continue;
                 Canvas.SetLeft(ctrl, f.Cx);
                 Canvas.SetTop(ctrl, f.Cy);
-                _annotationCanvas.Children.Add(ctrl);
+                canvas.Children.Add(ctrl);
                 anyField = true;
             }
 
@@ -276,6 +282,32 @@ namespace Scalpel
             var mediaBox = page.MediaBox;
             double pageW = mediaBox.Width  > 0 ? mediaBox.Width  : 595.28;
             double pageH = mediaBox.Height > 0 ? mediaBox.Height : 841.89;
+
+            // CropBox-origin alignment: when a page declares a /CropBox that differs from its
+            // /MediaBox, PDFium renders only the CropBox region, so widget /Rect coords (which
+            // live in default-user/MediaBox space) are offset by the crop origin and scaled to
+            // the crop size on the rendered bitmap. Shift each rect by the crop lower-left and
+            // scale against the crop dimensions. When CropBox == MediaBox (the common case, or
+            // when CropBox is absent/unreadable) the offsets are 0 and pageW/pageH are left at
+            // the MediaBox values, so the mapping below is byte-identical to before.
+            double cropOffsetX = 0, cropOffsetY = 0;
+            try
+            {
+                var cropBox = page.CropBox;
+                if (!cropBox.IsEmpty && cropBox.Width > 0 && cropBox.Height > 0
+                    && (Math.Abs(cropBox.X1 - mediaBox.X1) > 0.01
+                        || Math.Abs(cropBox.Y1 - mediaBox.Y1) > 0.01
+                        || Math.Abs(cropBox.Width  - pageW) > 0.01
+                        || Math.Abs(cropBox.Height - pageH) > 0.01))
+                {
+                    cropOffsetX = cropBox.X1 - mediaBox.X1;
+                    cropOffsetY = cropBox.Y1 - mediaBox.Y1;
+                    pageW = cropBox.Width;
+                    pageH = cropBox.Height;
+                }
+            }
+            catch { /* unreadable CropBox -> fall back to MediaBox-only mapping */ }
+
             int rotation = ((page.Rotate % 360) + 360) % 360;
 
             try
@@ -295,10 +327,10 @@ namespace Scalpel
                     // Get rect
                     var rectArr = ann.Elements.GetArray("/Rect");
                     if (rectArr is null || rectArr.Elements.Count < 4) continue;
-                    double rx1 = rectArr.Elements.GetReal(0);
-                    double ry1 = rectArr.Elements.GetReal(1);
-                    double rx2 = rectArr.Elements.GetReal(2);
-                    double ry2 = rectArr.Elements.GetReal(3);
+                    double rx1 = rectArr.Elements.GetReal(0) - cropOffsetX;
+                    double ry1 = rectArr.Elements.GetReal(1) - cropOffsetY;
+                    double rx2 = rectArr.Elements.GetReal(2) - cropOffsetX;
+                    double ry2 = rectArr.Elements.GetReal(3) - cropOffsetY;
                     if (rx1 > rx2) (rx1, rx2) = (rx2, rx1);
                     if (ry1 > ry2) (ry1, ry2) = (ry2, ry1);
 
