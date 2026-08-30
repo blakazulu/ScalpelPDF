@@ -83,7 +83,7 @@ namespace Scalpel
                 }
                 catch (Exception ex2)
                 {
-                    ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex2.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    ReportOpenFailure(path, ex2, ex);
                 }
             }
             catch (Exception ex) when (IsPasswordException(ex))
@@ -104,11 +104,36 @@ namespace Scalpel
                 }
                 catch (Exception ex2)
                 {
-                    ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex2.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    ReportOpenFailure(path, ex2, ex);
                 }
             }
             catch (Exception ex) when (IsXRefException(ex))
             {
+                // First: PdfSharpCore may just be rejecting a file it (or an older Scalpel)
+                // wrote itself - a dangling empty /Outlines xref entry (Services/PdfSaveGuard.cs).
+                // PDFium reads those fine, so re-save losslessly through it and open the copy for
+                // full editing; _originalFile stays the user's path so Save writes back there.
+                try
+                {
+                    if (_doc is not null) { _doc.Close(); _doc = null; }
+                    var recovered = App.MakeTempFile("recovered");
+                    if (TryPdfiumStripEncryption(srcPath, recovered))
+                    {
+                        _doc = PdfReader.Open(recovered, PdfDocumentOpenMode.Modify);
+                        _currentFile = recovered;
+                        FinishOpenFile(path, recovered);
+                        Scalpel.Services.Logger.Info("File", "open.recovered", "Structure rejected by PdfSharpCore; opened via PDFium re-save",
+                            new { path, error = ex.Message });
+                        SetStatus($"Opened {System.IO.Path.GetFileName(path)} ({_doc.PageCount} pages) - recovered via PDFium.");
+                        return;
+                    }
+                }
+                catch (Exception rex)
+                {
+                    Scalpel.Services.Logger.Warn("File", "open.recover.fail", rex.Message, new { path });
+                    if (_doc is not null) { try { _doc.Close(); } catch { } _doc = null; }
+                }
+
                 // Some PDFs have malformed or non-standard XRef tables that PdfSharp can't
                 // open in Modify mode. Fall back to ReadOnly; if that also fails, offer repair.
                 try
@@ -122,9 +147,14 @@ namespace Scalpel
                         $"\"{System.IO.Path.GetFileName(path)}\" has a non-standard structure and was opened read-only.\n\nEditing, saving, and some other features may not work correctly.",
                         "Scalpel", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-                catch
+                catch (Exception ex2)
                 {
                     // ReadOnly also failed — offer to repair.
+                    Scalpel.Services.Logger.Error("File", "open.fail", "Damaged structure; offering repair", ex2, new
+                    {
+                        path,
+                        trigger = new { type = ex.GetType().Name, message = ex.Message },
+                    });
                     var result = ScalpelDialog.Show(this,
                         $"This PDF has a damaged structure and couldn't be opened.\n\nWould you like Scalpel to attempt a repair? A repaired copy will be created — the original file will not be changed.\n\nNote: repaired files may be missing bookmarks, forms, and other interactive features.",
                         "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -156,13 +186,28 @@ namespace Scalpel
                 }
                 catch (Exception ex2)
                 {
-                    ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex2.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                    ReportOpenFailure(path, ex2, ex);
                 }
             }
             catch (Exception ex)
             {
-                ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                ReportOpenFailure(path, ex);
             }
+        }
+
+        /// <summary>
+        /// Log a failed open (with the exception that ended the fallback chain and, when the
+        /// failure happened inside a fallback, the original exception that triggered it) and
+        /// show the standard "could not open" dialog.
+        /// </summary>
+        private void ReportOpenFailure(string path, Exception ex, Exception? trigger = null)
+        {
+            Scalpel.Services.Logger.Error("File", "open.fail", "Could not open PDF", ex, new
+            {
+                path,
+                trigger = trigger is null ? null : new { type = trigger.GetType().Name, message = trigger.Message },
+            });
+            ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         // PdfSharpCore throws on some structurally-valid PDFs that PDFium opens fine - most
@@ -186,13 +231,7 @@ namespace Scalpel
             return false;
         }
 
-        private static bool IsXRefException(Exception ex) =>
-            ex.Message.IndexOf("XRef", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("cross-reference", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("trailer", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("Invalid PDF file", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("startxref", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ex.Message.IndexOf("Unexpected token", StringComparison.OrdinalIgnoreCase) >= 0;
+        private static bool IsXRefException(Exception ex) => Scalpel.Services.PdfReopen.IsXRefException(ex);
 
         // True for UNC paths (\\server\share, \\wsl$\..., \\wsl.localhost\...) and mapped
         // network drives. Such files are copied locally before opening to avoid 9P short reads.
@@ -340,7 +379,7 @@ namespace Scalpel
                 var doc = FPDF_LoadDocument(sourcePath, null);
                 if (doc == IntPtr.Zero)
                 {
-                    try { File.AppendAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "scalpel_pdfium_debug.txt"), $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FPDF_LoadDocument returned null for: {sourcePath}\n\n"); } catch { }
+                    Scalpel.Services.Logger.Warn("File", "repair.pdfium.fail", "FPDF_LoadDocument returned null", new { source = sourcePath });
                     return false;
                 }
                 try
@@ -386,17 +425,11 @@ namespace Scalpel
             }
             catch (Exception ex)
             {
-                try
+                Scalpel.Services.Logger.Warn("File", "repair.pdfium.fail", "TryPdfiumSaveWithZeroRotations failed: " + ex.Message, new
                 {
-                    File.AppendAllText(
-                        System.IO.Path.Combine(System.IO.Path.GetTempPath(), "scalpel_pdfium_debug.txt"),
-                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TryPdfiumSaveWithZeroRotations failed\n" +
-                        $"  source: {sourcePath}\n" +
-                        $"  type:   {ex.GetType().FullName}\n" +
-                        $"  msg:    {ex.Message}\n" +
-                        $"  stack:  {ex.StackTrace}\n\n");
-                }
-                catch { /* log failure is non-fatal */ }
+                    source = sourcePath,
+                    error  = new { type = ex.GetType().FullName, message = ex.Message, stack = ex.StackTrace },
+                });
                 return false;
             }
         }

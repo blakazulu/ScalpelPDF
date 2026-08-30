@@ -124,6 +124,30 @@ namespace Scalpel
                 return;
             }
 
+            // Single instance: if another Scalpel is already running for this user session,
+            // hand it our command line (the file to open + /edit) and exit; it opens the file
+            // as a tab and comes to the front. If it does not answer (hung, or still starting),
+            // fall through and run normally rather than lose the user's open.
+            if (!Scalpel.Services.SingleInstanceServer.IsDisabled)
+            {
+                _singleInstance = Scalpel.Services.SingleInstanceServer.TryAcquire();
+                if (_singleInstance is null)
+                {
+                    if (Scalpel.Services.SingleInstanceServer.TryForward(Environment.GetCommandLineArgs().Skip(1)))
+                    {
+                        Shutdown(0);
+                        return;
+                    }
+                }
+                else
+                {
+                    _singleInstance.Start(args => Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (MainWindow is MainWindow mw) mw.HandleForwardedLaunch(args);
+                    })));
+                }
+            }
+
             ShutdownMode = ShutdownMode.OnLastWindowClose;
             CleanupStaleTemps();
 
@@ -626,8 +650,12 @@ namespace Scalpel
         // App exit
         // ============================================================
 
+        private Scalpel.Services.SingleInstanceServer? _singleInstance;
+
         protected override void OnExit(ExitEventArgs e)
         {
+            try { _singleInstance?.Dispose(); } catch { }
+            _singleInstance = null;
             Scalpel.Services.Logger.Info("App", "app.exit", "Shutting down");
             Scalpel.Services.Logger.Shutdown();
             base.OnExit(e);
@@ -743,7 +771,9 @@ namespace Scalpel
         internal static string MakeTempFile(string tag)
         {
             try { Directory.CreateDirectory(TempDir); } catch { }
-            var path = Path.Combine(TempDir, $"scalpel_{tag}_{Guid.NewGuid():N}.pdf");
+            // The file name carries our PID so a sibling instance's startup sweep can tell a
+            // live working copy from a crashed session's leftover (see Services/TempSweep.cs).
+            var path = Path.Combine(TempDir, Scalpel.Services.TempSweep.MakeName(Process.GetCurrentProcess().Id, tag, Guid.NewGuid()));
             lock (_sessionTemps) _sessionTemps.Add(path);
             return path;
         }
@@ -766,22 +796,30 @@ namespace Scalpel
         /// </summary>
         internal static void CleanupStaleTemps()
         {
-            // Current location
-            try
+            // Only files whose owning Scalpel process is gone are stale. Another window may be
+            // open right now with its decrypted/repaired working copy in this folder; deleting
+            // it broke that window's next render/save ("could not open file").
+            int selfPid = Process.GetCurrentProcess().Id;
+            static bool IsAlive(int pid)
             {
-                if (Directory.Exists(TempDir))
-                    foreach (var f in Directory.GetFiles(TempDir, "scalpel_*.pdf"))
+                try { using var p = Process.GetProcessById(pid); return !p.HasExited; }
+                catch { return false; }
+            }
+            static void Sweep(string dir, int selfPid)
+            {
+                try
+                {
+                    if (!Directory.Exists(dir)) return;
+                    var files = Directory.GetFiles(dir, Scalpel.Services.TempSweep.Pattern);
+                    foreach (var f in Scalpel.Services.TempSweep.Sweepable(files, selfPid, IsAlive))
                         try { File.Delete(f); } catch { }
+                }
+                catch { }
             }
-            catch { }
 
+            Sweep(TempDir, selfPid);
             // Legacy %TEMP% location — sweep once for users upgrading from older builds
-            try
-            {
-                foreach (var f in Directory.GetFiles(Path.GetTempPath(), "scalpel_*.pdf"))
-                    try { File.Delete(f); } catch { }
-            }
-            catch { }
+            Sweep(Path.GetTempPath(), selfPid);
         }
 
         internal static string? GetSetting(string name)

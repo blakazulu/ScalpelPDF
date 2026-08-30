@@ -60,6 +60,11 @@
     <Compile Include="..\Services\Installer.cs" Link="Services\Installer.cs" />
     <Compile Include="..\Services\SampleDocument.cs" Link="Services\SampleDocument.cs" />
     <Compile Include="..\Services\Logger.cs" Link="Services\Logger.cs" />
+    <Compile Include="..\Services\TempSweep.cs" Link="Services\TempSweep.cs" />
+    <Compile Include="..\Services\PdfSaveGuard.cs" Link="Services\PdfSaveGuard.cs" />
+    <Compile Include="..\Services\PdfReopen.cs" Link="Services\PdfReopen.cs" />
+    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="..\Services\SingleInstance.cs" Link="Services\SingleInstance.cs" />
     <Compile Include="..\Scalpel.E2E\Model\LogEntry.cs" Link="E2E\LogEntry.cs" />
     <Compile Include="..\Scalpel.E2E\Verify\LogReader.cs" Link="E2E\LogReader.cs" />
     <Compile Include="..\Scalpel.E2E\Model\ActionResult.cs" Link="E2E\ActionResult.cs" />

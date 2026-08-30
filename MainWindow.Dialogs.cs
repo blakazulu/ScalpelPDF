@@ -40,6 +40,18 @@ namespace Scalpel
         {
             var result = MessageBoxResult.OK;
 
+            // Every user-visible error/warning dialog goes through here, so log it centrally:
+            // a bug report of "I got an error saying X" must be findable in the session log
+            // even when the call site forgot to emit its own *.fail event.
+            try
+            {
+                if (image == MessageBoxImage.Error)
+                    Scalpel.Services.Logger.Error("Dialog", "dialog.error", message, data: new { title });
+                else if (image == MessageBoxImage.Warning)
+                    Scalpel.Services.Logger.Warn("Dialog", "dialog.warning", message, new { title });
+            }
+            catch { }
+
             var win = new Window
             {
                 Title = title,

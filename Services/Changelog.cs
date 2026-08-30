@@ -12,6 +12,15 @@ namespace Scalpel.Services
 
         public static IReadOnlyList<Release> Releases { get; } = new[]
         {
+            new Release("2.1.1", "August 2026", new[]
+            {
+                "Fixed: scrolling a zoomed-in page no longer jumps to the next page when you reach its bottom edge (or back to the previous one when you scroll up). The mouse wheel now just scrolls within the page; it only flips pages when the whole page fits on screen.",
+                "Fixed: saving a PDF that has no bookmarks could produce a file Scalpel itself then refused to open (\"damaged structure\" prompt) or re-save (\"Save failed: Unexpected token 'xref'\" right after a successful save). Files already saved that way now open normally for editing, and new saves no longer have the defect.",
+                "Fixed: opening a second PDF (double-click in Explorer, or the Store tile) while Scalpel was already running could break the first window with a \"could not open file\" error - the new launch deleted the other window's working copy of a protected or repaired document. Working copies are now tied to the window that owns them and only cleaned up once it has closed.",
+                "Scalpel now runs as a single window: double-clicking another PDF opens it as a new tab in the window you already have (and brings it to the front) instead of starting a second copy of the app. \"Edit with Scalpel PDF\" still lands you straight in Edit mode.",
+                "Diagnostic logs are now kept for 90 days (up to 200 sessions) instead of 7, so a problem you noticed a few weeks ago can still be looked into from Settings > Diagnostics.",
+                "The log now records every error or warning dialog Scalpel shows - including exactly why a PDF could not be opened, why a file repair failed, and why saved signatures could not be read or written - so bug reports can be traced instead of guessed at.",
+            }),
             new Release("2.1.0", "July 2026", new[]
             {
                 "New OCR Region tool (Tools ▸ OCR Region): drag a rectangle over any part of a page to copy just that area's text to the clipboard — handy for grabbing a single paragraph, table cell, or caption from a scan.",

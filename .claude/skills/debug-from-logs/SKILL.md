@@ -22,7 +22,9 @@ $lines  = Get-Content $latest.FullName | ForEach-Object { $_ | ConvertFrom-Json 
 $lines | Select ts, level, cat, event, msg | Format-Table -Auto
 ```
 
-Use the newest file unless the user named a session or timeframe. For a packaged/Store install the same path is virtualized under `%LOCALAPPDATA%\Packages\<PFN>\LocalCache\Local\Scalpel\logs`.
+Use the newest file unless the user named a session or timeframe. A packaged/Store install writes to the **same real** `%LOCALAPPDATA%\Scalpel\logs` folder (verified Aug 2026 - only the registry is virtualized); check `%LOCALAPPDATA%\Packages\<PFN>\LocalCache\Local\Scalpel\logs` only as a fallback if the real folder is empty. **Read all the files, not just the newest**: the user's "I opened it a few times" is usually several short sessions. Retention is 90 days / 200 files (`Logger.MaxLogAge` / `MaxLogFiles`), so a report older than that has no log to read.
+
+Cross-check the sessions you see against `signatures.json`'s and recent files' timestamps - if the user describes activity the log folder does not contain, the sessions were swept or happened on another install, not "logged nowhere".
 
 ## Step 2 — Scan for anomalies
 

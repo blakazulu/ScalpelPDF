@@ -140,7 +140,12 @@ namespace Scalpel
             OutlineTree.Items.Clear();
             try
             {
-                var outlines = _doc?.Outlines;
+                // Only touch Outlines when the Catalog already has one. Reading doc.Outlines
+                // on a bookmark-less PDF makes PdfSharpCore create an empty outline object it
+                // then never serialises - the saved file gets a dangling xref entry and
+                // PdfSharpCore cannot reopen its own output (see Services/PdfSaveGuard.cs).
+                bool hasOutlines = _doc?.Internals.Catalog.Elements.ContainsKey("/Outlines") == true;
+                var outlines = hasOutlines ? _doc!.Outlines : null;
                 if (outlines is null || outlines.Count == 0)
                 {
                     SidebarOutlinesTab.IsEnabled = false;

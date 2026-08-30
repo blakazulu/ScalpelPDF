@@ -26,7 +26,7 @@ There is no shared/machine-wide log — each user only ever sees their own. A us
 
 **One file per run.** Each launch creates a new file named with the local-time launch timestamp, e.g. `scalpel-20260621-081144.jsonl`. This keeps every test run cleanly separated. The timestamps *inside* the file are UTC (see the schema below); the filename uses local time.
 
-**Microsoft Store / MSIX build.** When Scalpel is installed from the Store (packaged mode), Windows virtualizes `%LOCALAPPDATA%`, so the same `Scalpel\logs` path physically lands under the package's redirected data folder:
+**Microsoft Store / MSIX build.** Verified on a real Store install (package `LirazShakaAmir.ScalpelPDF_6wbaw9fmp3y9t`, Aug 2026): the packaged app writes its logs to the **same real** `%LOCALAPPDATA%\Scalpel\logs\` folder as the portable build. Only the registry is virtualized (`%LOCALAPPDATA%\Packages\<PackageFamilyName>\SystemAppData\Helium\User.dat`); `LocalCache\Local\Scalpel` does not get created. If the real folder is ever empty on a Store machine, check the virtualized fallback anyway:
 
 ```
 %LOCALAPPDATA%\Packages\<PackageFamilyName>\LocalCache\Local\Scalpel\logs\
@@ -84,10 +84,11 @@ All levels are captured by default. (Internally a minimum level can be raised to
 
 | Category   | Example events | When |
 |------------|----------------|------|
-| `App`      | `app.start`, `app.exit` | Startup (with version + packaged flag) and graceful shutdown. |
+| `App`      | `app.start`, `app.exit`, `instance.forwarded`, `instance.forward.fail`, `instance.pipe.fail` | Startup (with version + packaged flag) and graceful shutdown. `instance.forwarded` means a second launch (file-association double-click / Store tile) handed its file to this already-running window (`Services/SingleInstance.cs`); the forwarding process itself writes no log. Set `SCALPEL_MULTI_INSTANCE=1` to run separate processes (the E2E harness does). |
 | `UI`       | `click` | **Every** button / menu click, via one global handler. `msg` is the control's name (e.g. `SettingsBtn`). ScrollBar repeat-buttons are intentionally skipped to avoid hot-path spam. |
-| `File`     | `open.success`, `save.success`/`save.fail`, `flatten.success`/`.fail`, `merge.success`/`.fail`, `extract.success`/`.fail` | Outcome of document operations, with counts/paths in `data`. |
-| `Sign`     | `sign.success` | A signature was placed on a page. |
+| `File`     | `open.success`/`open.fail`/`open.recovered`/`open.recover.fail`, `reopen.recovered`, `repair.pdfium.fail`, `save.success`/`save.fail`/`save.reload.fail`, `flatten.success`/`.fail`, `merge.success`/`.fail`, `extract.success`/`.fail` | Outcome of document operations, with counts/paths in `data`. `open.fail` carries the exception that ended the open fallback chain plus, in `data.trigger`, the original exception that started the fallback. |
+| `Sign`     | `sign.success`, `signature.load.fail`/`signature.save.fail` | A signature was placed on a page; `signatures.json` could not be read/written. |
+| `Dialog`   | `dialog.error`, `dialog.warning` | **Every** error/warning dialog the app shows (`ScalpelDialog.Show` with an Error/Warning icon), logged centrally with the dialog text as `msg` and the title in `data`. Guarantees a user's "I got an error saying X" is always findable, even if the call site emits no `*.fail` of its own. |
 | `Print`    | `print.success`/`print.fail` | A print job was confirmed/completed. |
 | `Settings` | `logging.toggle` | The logging on/off setting changed. |
 | `Error`    | `crash.dispatcher`, `crash.appdomain`, `crash.task`, plus named internal failures (e.g. `GetPageFormFields`) | Unhandled exceptions (all three crash sinks log **and flush** before the crash dialog) and caught internal errors. |
@@ -106,7 +107,7 @@ Open **Settings → Diagnostics**:
 - **Open logs folder** — opens the per-user `logs\` folder in Explorer (works in both portable and Store installs).
 - **Clear logs** — after confirmation, deletes every session log **except the one currently open**.
 
-**Retention:** on every startup, Scalpel automatically deletes session logs older than **7 days**, so the folder does not grow unbounded.
+**Retention:** on every startup, Scalpel automatically deletes session logs older than **90 days** (`Logger.MaxLogAge`) and, as a backstop, trims the oldest files so that at most **200** sessions remain (`Logger.MaxLogFiles`). Sessions are typically a few KB, so the folder stays small. The window used to be 7 days; that was too short - users report problems weeks after they happen, and the offending session had already been swept.
 
 **Persistence:** the on/off choice is stored in the registry at `HKCU\Software\Scalpel\Settings`, value `LoggingEnabled` (`"1"` = on, `"0"` = off; absent = on).
 
@@ -142,6 +143,7 @@ jq -c 'select(.event|endswith(".success") or endswith(".fail"))' scalpel-*.jsonl
 - **`Services/Logger.cs`** — the static, thread-safe, never-throws logger (file lifecycle, JSONL serialization, retention sweep, enable/disable).
 - **`App.xaml.cs`** — `Logger.Init`/`Shutdown`, the global click handler, and the three crash sinks.
 - **`MainWindow.xaml.cs`** — the Settings → Diagnostics controls and the per-operation outcome logs.
-- **`Scalpel.Tests/LoggerTests.cs`** — unit tests (line shape, level filtering, disable no-op, retention, clear, exception serialization).
+- **`Scalpel.Tests/LoggerTests.cs`** — unit tests (line shape, level filtering, disable no-op, 90-day retention + 200-file cap, clear, exception serialization). Any test class that calls `Logger.Init` must carry `[Collection("Logger")]` - the logger is a process-wide static and xUnit otherwise runs classes in parallel.
+- **`MainWindow.Dialogs.cs`** — `ScalpelDialog.Show` emits `Dialog/dialog.error` / `dialog.warning` for every Error/Warning dialog; **`MainWindow.FileOps.cs`** — `ReportOpenFailure` emits `File/open.fail` at the end of the open fallback chain.
 
 The design and rationale are recorded in [`superpowers/specs/2026-06-21-logging-system-design.md`](superpowers/specs/2026-06-21-logging-system-design.md).

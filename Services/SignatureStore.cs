@@ -34,7 +34,11 @@ namespace Scalpel.Services
                     _items = JsonSerializer.Deserialize<List<SavedSignature>>(json) ?? [];
                 }
             }
-            catch { _items = []; }
+            catch (Exception ex)
+            {
+                _items = [];
+                Logger.Error("Sign", "signature.load.fail", "Could not read saved signatures", ex, new { file = _file });
+            }
         }
 
         public void Persist()
@@ -45,7 +49,11 @@ namespace Scalpel.Services
                 var json = JsonSerializer.Serialize(_items, new JsonSerializerOptions { WriteIndented = true });
                 System.IO.File.WriteAllText(_file, json);
             }
-            catch { /* best effort */ }
+            catch (Exception ex)
+            {
+                // Best effort - the session keeps its in-memory list - but make the loss visible.
+                Logger.Error("Sign", "signature.save.fail", "Could not save signatures", ex, new { file = _file });
+            }
         }
 
         public void Add(SavedSignature sig) => _items.Add(sig);

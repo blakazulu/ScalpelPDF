@@ -7,6 +7,9 @@ using Xunit;
 
 namespace Scalpel.Tests
 {
+    // Logger is a process-wide static; every test class that calls Logger.Init must share this
+    // collection so xUnit runs them sequentially instead of letting their Init calls collide.
+    [Collection("Logger")]
     public class LoggerTests : IDisposable
     {
         private readonly string _dir;
@@ -74,21 +77,49 @@ namespace Scalpel.Tests
         }
 
         [Fact]
-        public void Init_deletes_logs_older_than_seven_days_keeps_recent()
+        public void Init_deletes_logs_older_than_ninety_days_keeps_recent()
         {
             Directory.CreateDirectory(_dir);
             var old = Path.Combine(_dir, "scalpel-20000101-000000.jsonl");
+            var monthOld = Path.Combine(_dir, "scalpel-20000201-000000.jsonl");
             var recent = Path.Combine(_dir, "scalpel-20990101-000000.jsonl");
             File.WriteAllText(old, "{}\n");
+            File.WriteAllText(monthOld, "{}\n");
             File.WriteAllText(recent, "{}\n");
-            File.SetLastWriteTime(old, DateTime.Now.AddDays(-8));
+            File.SetLastWriteTime(old, DateTime.Now.AddDays(-91));
+            File.SetLastWriteTime(monthOld, DateTime.Now.AddDays(-30));
             File.SetLastWriteTime(recent, DateTime.Now.AddDays(-1));
 
             Logger.Init(_dir);
             Logger.Shutdown();
 
             Assert.False(File.Exists(old));
+            Assert.True(File.Exists(monthOld));   // a month-old bug report must still be readable
             Assert.True(File.Exists(recent));
+        }
+
+        [Fact]
+        public void Init_caps_log_count_keeping_the_newest_files()
+        {
+            Directory.CreateDirectory(_dir);
+            // 205 fresh (within retention) files; the cap must trim the OLDEST down to 200,
+            // plus the new session file opened by Init itself.
+            for (int i = 0; i < 205; i++)
+            {
+                var f = Path.Combine(_dir, $"scalpel-2099{i:D4}-000000.jsonl");
+                File.WriteAllText(f, "{}\n");
+                File.SetLastWriteTime(f, DateTime.Now.AddMinutes(-(205 - i)));
+            }
+
+            Logger.Init(_dir);
+            Logger.Shutdown();
+
+            var remaining = Directory.GetFiles(_dir, "scalpel-*.jsonl");
+            Assert.Equal(201, remaining.Length);
+            Assert.False(File.Exists(Path.Combine(_dir, "scalpel-20990000-000000.jsonl"))); // oldest gone
+            Assert.False(File.Exists(Path.Combine(_dir, "scalpel-20990004-000000.jsonl")));
+            Assert.True(File.Exists(Path.Combine(_dir, "scalpel-20990005-000000.jsonl")));  // 200th-newest kept
+            Assert.True(File.Exists(Path.Combine(_dir, "scalpel-20990204-000000.jsonl")));  // newest kept
         }
 
         [Fact]

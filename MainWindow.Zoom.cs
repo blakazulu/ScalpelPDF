@@ -55,22 +55,13 @@ namespace Scalpel
                 return;
             }
 
-            // Regular scroll: let the ScrollViewer handle it normally.
-            // At scroll boundaries, fall through to page navigation so the user
-            // can reach adjacent pages without touching the sidebar.
-            if (PagePreviewPanel.ScrollableHeight <= 0)
-            {
-                // No scrollable content — navigate pages directly.
-                e.Handled = true;
-                NavigatePageByWheel(e.Delta);
-                return;
-            }
-
-            bool atTop    = PagePreviewPanel.VerticalOffset <= 0;
-            bool atBottom = PagePreviewPanel.VerticalOffset >= PagePreviewPanel.ScrollableHeight - 1;
-            // In Continuous view the whole document is one scroll; don't hop pages at the
-            // boundary - just let it stop at the top/bottom.
-            if (_viewMode != ViewMode.Continuous && ((atTop && e.Delta > 0) || (atBottom && e.Delta < 0)))
+            // Regular scroll. The wheel only flips pages when the page fits entirely in the
+            // viewport (nothing to scroll). Once the user has zoomed in so the page is taller
+            // than the viewport, the wheel just scrolls within the page and stops at its
+            // top/bottom edge - it must NOT hop to the adjacent page at the boundary (that made
+            // a zoomed page jump forward at the bottom and straight back on the next notch up).
+            // Continuous view is one long scroll and never hops.
+            if (PagePreviewPanel.ScrollableHeight <= 0 && _viewMode != ViewMode.Continuous)
             {
                 e.Handled = true;
                 NavigatePageByWheel(e.Delta);

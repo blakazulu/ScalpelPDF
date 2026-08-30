@@ -115,6 +115,9 @@ public sealed class AppDriver : IDisposable
     {
         var automation = new UIA3Automation();
         var psi = new ProcessStartInfo(exePath, $"\"{openWithPath}\"") { UseShellExecute = false };
+        // The harness runs several instances side by side; without this the second launch
+        // would forward its file to the first window and exit (single-instance mode).
+        psi.Environment["SCALPEL_MULTI_INSTANCE"] = "1";
         if (!string.IsNullOrEmpty(logDir))
         {
             Directory.CreateDirectory(logDir);
@@ -376,6 +379,7 @@ public sealed class AppDriver : IDisposable
         // would inherit, e.g., an RTL locale that breaks canvas annotation placement.
         AppSettingsGuard.WriteBaseline();
         var psi = new ProcessStartInfo(_exePath, $"\"{openWithPath}\"") { UseShellExecute = false };
+        psi.Environment["SCALPEL_MULTI_INSTANCE"] = "1"; // see Launch()
         // Preserve this instance's private log dir across relaunches, otherwise the new
         // session would log to the shared default dir and collide with sibling instances.
         if (!string.IsNullOrEmpty(_logDir)) psi.Environment["SCALPEL_LOG_DIR"] = _logDir;

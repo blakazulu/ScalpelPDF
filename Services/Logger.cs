@@ -29,7 +29,18 @@ namespace Scalpel.Services
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Scalpel", "logs");
 
-        /// <summary>Open a new session log, sweeping logs older than 7 days.</summary>
+        /// <summary>
+        /// Retention: session logs older than this are deleted on startup. Users typically
+        /// report a problem days or weeks after it happened, so this must be long enough for
+        /// the offending session to still be on disk when they do.
+        /// </summary>
+        public static readonly TimeSpan MaxLogAge = TimeSpan.FromDays(90);
+
+        /// <summary>Backstop on the age sweep: never keep more than this many session files.</summary>
+        public const int MaxLogFiles = 200;
+
+        /// <summary>Open a new session log, sweeping logs older than <see cref="MaxLogAge"/>
+        /// and trimming the oldest beyond <see cref="MaxLogFiles"/>.</summary>
         public static void Init(string? baseDir = null, Level minLevel = Level.Debug, bool enabled = true)
         {
             lock (_gate)
@@ -40,7 +51,7 @@ namespace Scalpel.Services
                 try
                 {
                     Directory.CreateDirectory(_dir);
-                    SweepOldLogs(_dir, TimeSpan.FromDays(7));
+                    SweepOldLogs(_dir, MaxLogAge, MaxLogFiles);
                     if (enabled) OpenWriter();
                 }
                 catch { /* logging must never throw */ }
@@ -132,13 +143,29 @@ namespace Scalpel.Services
             catch { /* never throw from logging */ }
         }
 
-        private static void SweepOldLogs(string dir, TimeSpan maxAge)
+        private static void SweepOldLogs(string dir, TimeSpan maxAge, int maxFiles)
         {
             try
             {
                 var cutoff = DateTime.Now - maxAge;
+                var survivors = new List<(string path, DateTime written)>();
                 foreach (var f in Directory.GetFiles(dir, "scalpel-*.jsonl"))
-                    try { if (File.GetLastWriteTime(f) < cutoff) File.Delete(f); } catch { }
+                {
+                    try
+                    {
+                        var written = File.GetLastWriteTime(f);
+                        if (written < cutoff) File.Delete(f);
+                        else survivors.Add((f, written));
+                    }
+                    catch { }
+                }
+                // Count backstop: drop the oldest until at most maxFiles remain.
+                if (survivors.Count > maxFiles)
+                {
+                    survivors.Sort((a, b) => a.written.CompareTo(b.written));
+                    for (int i = 0; i < survivors.Count - maxFiles; i++)
+                        try { File.Delete(survivors[i].path); } catch { }
+                }
             }
             catch { }
         }

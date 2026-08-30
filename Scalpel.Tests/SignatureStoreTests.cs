@@ -1,8 +1,12 @@
+using System;
+using System.IO;
+using System.Linq;
 using Scalpel.Services;
 using Xunit;
 
 namespace Scalpel.Tests
 {
+    [Collection("Logger")] // shares the static Logger with LoggerTests; see the note there
     public class SignatureStoreTests
     {
         [Fact]
@@ -56,5 +60,32 @@ namespace Scalpel.Tests
                 System.IO.Directory.Delete(dir, recursive: true);
             }
         }
-    }
+    
+        [Fact]
+        public void Load_with_corrupt_json_logs_a_signature_load_fail_event()
+        {
+            var dir = Path.Combine(Path.GetTempPath(), "scalpel_sigtest_" + Guid.NewGuid().ToString("N"));
+            var logDir = Path.Combine(dir, "logs");
+            Directory.CreateDirectory(dir);
+            var file = Path.Combine(dir, "signatures.json");
+            File.WriteAllText(file, "{ this is not json");
+            try
+            {
+                Logger.Init(logDir);
+                var store = new SignatureStore(dir, file);
+                store.Load();
+                Logger.Shutdown();
+
+                Assert.Empty(store.Signatures);
+                var log = File.ReadAllText(Directory.GetFiles(logDir, "scalpel-*.jsonl").Single());
+                Assert.Contains("\"event\":\"signature.load.fail\"", log);
+                Assert.Contains("\"level\":\"ERROR\"", log);
+            }
+            finally
+            {
+                try { Logger.Shutdown(); } catch { }
+                try { Directory.Delete(dir, recursive: true); } catch { }
+            }
+        }
+}
 }

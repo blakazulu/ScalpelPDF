@@ -391,6 +391,7 @@ namespace Scalpel
             if (string.IsNullOrEmpty(_originalFile)) { SaveAs_Click(this, new RoutedEventArgs()); return; }
             CommitActiveTextBox();
             string saveTarget = _originalFile!;
+            bool written = false; // the user's file is complete on disk from this point on
             try
             {
                 bool hasAnnotations = _annotations.Values.Any(list => list.Count > 0);
@@ -398,6 +399,7 @@ namespace Scalpel
                 // Always strip link annotation borders regardless of user annotation count
                 // so mailto/URI links don't appear as strikethrough lines in other viewers.
                 StripLinkAnnotationBorders(_doc);
+                Scalpel.Services.PdfSaveGuard.PrepareForSave(_doc);
 
                 if (hasAnnotations)
                 {
@@ -408,20 +410,37 @@ namespace Scalpel
                     _doc.Save(tempClean);
                     DrawAnnotationsOnDocument();
                     _doc.Save(saveTarget);
+                    written = true;
                     _doc.Close();
-                    _doc = PdfReader.Open(tempClean, PdfDocumentOpenMode.Modify);
-                    _currentFile = tempClean;
+                    // PdfSharpCore can reject the clean copy it just wrote; recover via PDFium.
+                    _doc = Scalpel.Services.PdfReopen.OpenModify(tempClean, TryPdfiumStripEncryption,
+                        () => App.MakeTempFile("fixed"), out var reopened);
+                    _currentFile = reopened;
                 }
                 else
                 {
                     _doc.Save(saveTarget);
+                    written = true;
                 }
 
                 MarkDirty(false);
                 SetStatus($"Saved - {System.IO.Path.GetFileName(saveTarget)}");
+                Scalpel.Services.Logger.Info("File", "save.success", "PDF saved in place", new { path = saveTarget, hasAnnotations });
+            }
+            catch (Exception ex) when (written)
+            {
+                // The file on disk is complete; only the post-save reload of the working copy
+                // failed. Don't tell the user the save failed - reopen the saved file instead,
+                // which runs the full open fallback chain and leaves a usable document.
+                Scalpel.Services.Logger.Warn("File", "save.reload.fail", "Saved, but reloading the working copy failed; reopening the saved file",
+                    new { path = saveTarget, error = ex.Message });
+                MarkDirty(false);
+                OpenFile(saveTarget);
+                SetStatus($"Saved - {System.IO.Path.GetFileName(saveTarget)}");
             }
             catch (Exception ex)
             {
+                Scalpel.Services.Logger.Error("File", "save.fail", "Save in place failed", ex, new { path = saveTarget });
                 ScalpelDialog.Show(this, $"Save failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -460,6 +479,7 @@ namespace Scalpel
                 WriteFormValuesToDocument();
                 // Always strip link annotation borders regardless of user annotation count.
                 StripLinkAnnotationBorders(_doc);
+                Scalpel.Services.PdfSaveGuard.PrepareForSave(_doc);
 
                 if (hasAnnotations)
                 {
@@ -468,8 +488,10 @@ namespace Scalpel
                     DrawAnnotationsOnDocument();
                     _doc.Save(dlg.FileName);
                     _doc.Close();
-                    _doc = PdfReader.Open(tempClean, PdfDocumentOpenMode.Modify);
-                    _currentFile = tempClean;
+                    // PdfSharpCore can reject the clean copy it just wrote; recover via PDFium.
+                    _doc = Scalpel.Services.PdfReopen.OpenModify(tempClean, TryPdfiumStripEncryption,
+                        () => App.MakeTempFile("fixed"), out var reopened);
+                    _currentFile = reopened;
                     _originalFile = dlg.FileName;
                     FileNameLabel.Text = System.IO.Path.GetFileName(dlg.FileName);
                     MarkDirty(false);
