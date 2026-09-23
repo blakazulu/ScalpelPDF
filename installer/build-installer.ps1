@@ -50,7 +50,7 @@ if (-not $Version) {
         $m = Select-String -Path $csproj -Pattern '<Version>([0-9]+\.[0-9]+\.[0-9]+)' | Select-Object -First 1
         if ($m) { $Version = $m.Matches[0].Groups[1].Value }
     }
-    if (-not $Version) { $Version = "2.2.0" }
+    if (-not $Version) { $Version = "2.2.1" }
 }
 Write-Host "Version: $Version" -ForegroundColor Cyan
 

@@ -30,7 +30,7 @@
 
 #define AppName        "Scalpel"
 #ifndef AppVersion
-  #define AppVersion   "2.2.0"
+  #define AppVersion   "2.2.1"
 #endif
 #define AppPublisher   "Liraz Amir"
 #define AppExe         "Scalpel.exe"

@@ -1,12 +1,12 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.1",
   "siteUrl": "https://scalpel-pdf.netlify.app",
   "storeUrl": "https://apps.microsoft.com/detail/9n9hn8xw4lf3",
   "notes": [
-    "Tabs: open several PDFs at once, each in its own tab with its own unsaved changes, undo history and place in the document.",
-    "Closing a tab or Scalpel asks about every document with unsaved changes. Scalpel also reopens the tabs you had open.",
-    "New tab bar: drag to reorder, middle-click to close, right-click for more. Ctrl+1 to Ctrl+9 jump between tabs.",
-    "Fixed: Scalpel could close with no warning while loading page thumbnails.",
-    "New tools: export pages as images, compare two PDFs, and measure distances."
+    "Fixed: text you typed or edited could be saved as empty boxes. Saved text now uses the fonts Scalpel ships with.",
+    "Fixed: lines mixing Hebrew or Arabic with English or numbers saved the English part as boxes.",
+    "Fixed: saving an edited line could remove a different, similar line. Only the line you edited is changed now.",
+    "Double-click now always picks the whole line, and re-editing a changed line shows your new text, not the old one.",
+    "Edited text keeps its colour and position, and editing works on rotated pages."
   ]
 }
