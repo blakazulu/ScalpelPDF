@@ -51,6 +51,8 @@ pwsh -File installer\build-installer.ps1
 
 → `installer\out\Scalpel-Setup.exe` (wraps the EXE from Step 3 — always rebuild after Step 3).
 
+**Re-run this after Step 5 too:** the MSIX build re-publishes `Scalpel.exe` into the same folder, so an installer built before it wraps a different (non-identical) EXE than the one you upload in Step 6.
+
 **ISCC.exe lives at the NON-standard per-user path** (rediscovered painfully twice — do not go hunting in Program Files first):
 
 ```
