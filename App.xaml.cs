@@ -203,7 +203,6 @@ namespace Scalpel
         {
             try
             {
-                if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is not null) return;
                 foreach (var (file, bold) in new[]
                 {
                     ("Geist-Regular.ttf", false),
@@ -256,8 +255,9 @@ namespace Scalpel
                     }
                     catch { /* skip a missing/locked font resource */ }
                 }
-                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver =
-                    Scalpel.Services.PdfFontResolver.Instance;
+                // Never guard this with "FontResolver is null": that getter installs PdfSharpCore's
+                // own system-font resolver on first read, which left the bundled faces unused.
+                Scalpel.Services.PdfFontResolver.Install();
             }
             catch { /* never block startup over font setup */ }
         }

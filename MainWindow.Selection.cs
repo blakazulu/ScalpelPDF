@@ -242,9 +242,12 @@ namespace Scalpel
         {
             if (_selectedAnnotation is null) return;
             int pageIdx = _selectedAnnotation.PageIndex;
-            if (_annotations.ContainsKey(pageIdx))
-                _annotations[pageIdx].Remove(_selectedAnnotation);
+            // One undoable step that restores THIS annotation in its place - and marks the tab
+            // dirty, which a delete used to skip, so closing without saving lost it silently.
+            var deleted = _selectedAnnotation;
             ClearSelection();
+            if (_annotations.TryGetValue(pageIdx, out var onPage) && onPage.Contains(deleted))
+                ReplaceAnnotation(pageIdx, deleted, null);
             RenderAllAnnotations(pageIdx);
             SetStatus("Deleted selected annotation");
         }
@@ -257,10 +260,9 @@ namespace Scalpel
 
             try
             {
-                using var pigDoc = PdfPigDoc.Open(_currentFile);
-                if (pageIdx >= pigDoc.NumberOfPages) return;
-                var page = pigDoc.GetPage(pageIdx + 1);
-                _selectedText = WordsToText(page.GetWords());
+                using var shown = OpenDisplayedPage(pageIdx);
+                if (shown is null) return;
+                _selectedText = WordsToText(shown.Page.GetWords());
                 if (string.IsNullOrWhiteSpace(_selectedText))
                 {
                     SetStatus("No text found on this page");
@@ -311,6 +313,8 @@ namespace Scalpel
                 RemoveFromOwner(_selectRect);
                 _selectRect = null;
             }
+            foreach (var mark in _textSelMarks) RemoveFromOwner(mark);
+            _textSelMarks.Clear();
             _selectedText = null;
         }
 
@@ -323,46 +327,50 @@ namespace Scalpel
             {
                 var (renderW, renderH) = _renderDims[pageIdx];
 
-                using var pigDoc = PdfPigDoc.Open(_currentFile);
-                if (pageIdx >= pigDoc.NumberOfPages) return;
-                var page = pigDoc.GetPage(pageIdx + 1); // PdfPig is 1-based
+                // Same frame as the canvas (rotation, crop) - see OpenDisplayedPage.
+                using var shown = OpenDisplayedPage(pageIdx);
+                if (shown is null) return;
+                var page = shown.Page;
 
-                double pdfW = page.Width;
-                double pdfH = page.Height;
-                double sx = pdfW / renderW;
-                double sy = pdfH / renderH;
-
-                // Convert canvas rect to PDF coordinates (flip Y - PDF origin is bottom-left)
-                double pdfLeft = canvasBounds.Left * sx;
-                double pdfRight = canvasBounds.Right * sx;
-                double pdfTop = pdfH - (canvasBounds.Top * sy);
-                double pdfBottom = pdfH - (canvasBounds.Bottom * sy);
-                // pdfTop > pdfBottom because of Y flip
-                double pdfMinY = Math.Min(pdfTop, pdfBottom);
-                double pdfMaxY = Math.Max(pdfTop, pdfBottom);
-
-                var words = page.GetWords()
-                    .Where(w =>
-                    {
-                        var bb = w.BoundingBox;
-                        double cx = (bb.Left + bb.Right) / 2;
-                        double cy = (bb.Bottom + bb.Top) / 2;
-                        return cx >= pdfLeft && cx <= pdfRight && cy >= pdfMinY && cy <= pdfMaxY;
-                    })
+                // Compare in canvas space: a word is selected when its centre is inside the drag.
+                var hits = page.GetWords()
+                    .Select(w => (Word: w, Rect: WordCanvasRect(w.BoundingBox, page.Width, page.Height, renderW, renderH)))
+                    .Where(h => canvasBounds.Contains(new Point(h.Rect.X + h.Rect.Width / 2, h.Rect.Y + h.Rect.Height / 2)))
                     .ToList();
 
-                if (words.Count == 0)
+                if (hits.Count == 0)
                 {
                     SetStatus("No text found in selection");
                     ClearTextSelection();
                     return;
                 }
 
-                _selectedText = WordsToText(words);
-
+                _selectedText = WordsToText(hits.Select(h => h.Word));
                 Clipboard.SetText(_selectedText);
-                int wordCount = words.Count;
-                SetStatus($"Copied {wordCount} word(s) to clipboard");
+
+                // Show WHAT was taken: the drag rectangle gives way to a highlight on each
+                // selected word, and a toast says it went to the clipboard. The copy used to be
+                // announced only in the status bar, so a drag looked like it did nothing.
+                if (_selectRect is not null) { RemoveFromOwner(_selectRect); _selectRect = null; }
+                var fill = new SolidColorBrush(Color.FromArgb(70, 74, 130, 255));
+                foreach (var (_, r) in hits)
+                {
+                    var mark = new Rectangle
+                    {
+                        Fill = fill,
+                        Width = Math.Max(1, r.Width + 2),
+                        Height = Math.Max(1, r.Height + 2),
+                        IsHitTestVisible = false,
+                        Tag = TextSelMarkTag,
+                    };
+                    Canvas.SetLeft(mark, r.X - 1);
+                    Canvas.SetTop(mark, r.Y - 1);
+                    _activeCanvas.Children.Add(mark);
+                    _textSelMarks.Add(mark);
+                }
+                string msg = string.Format(Loc("Str_Sel_Copied"), hits.Count);
+                SetStatus(msg);
+                ShowToast(msg);
             }
             catch (Exception ex)
             {
@@ -370,6 +378,10 @@ namespace Scalpel
                 ClearTextSelection();
             }
         }
+
+        private const string TextSelMarkTag = "TextSelMark";
+        /// <summary>The per-word highlights of the current drag selection (on its page canvas).</summary>
+        private readonly List<Rectangle> _textSelMarks = [];
 
     }
 }

@@ -85,6 +85,13 @@ namespace Scalpel
         /// because the original font isn't installed) that covers this text — drawn exactly, bypassing
         /// the script-substitution heuristic. Null = use <see cref="FontName"/> (installed or substitute).</summary>
         public string? ExactFontFamily { get; set; }
+        /// <summary>Distance, in canvas pixels, from <see cref="Position"/> down to the original
+        /// line's baseline, read from the PDF. The box top sits near the cap height, so a baseline
+        /// guessed as one em below it put saved text visibly low. Null = that old guess.
+        /// Relative, so it stays right when a page rotation moves <see cref="Position"/>.</summary>
+        public double? BaselineOffset { get; set; }
+        /// <summary>The original line's text colour; null = black.</summary>
+        public Color? TextColor { get; set; }
     }
 
     /// <summary>

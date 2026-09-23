@@ -42,11 +42,15 @@
     <Compile Include="..\Services\BidiReorder.cs" Link="Services\BidiReorder.cs" />
     <Compile Include="..\Services\ArabicShaper.cs" Link="Services\ArabicShaper.cs" />
     <Compile Include="..\Services\TrueTypeCmap.cs" Link="Services\TrueTypeCmap.cs" />
+    <Compile Include="..\Services\ScriptRuns.cs" Link="Services\ScriptRuns.cs" />
+    <Compile Include="..\Services\LinePicker.cs" Link="Services\LinePicker.cs" />
+    <Compile Include="..\Services\TrueTypeCollection.cs" Link="Services\TrueTypeCollection.cs" />
     <Compile Include="..\Services\EmbeddedFontExtractor.cs" Link="Services\EmbeddedFontExtractor.cs" />
     <Compile Include="..\Services\SearchService.cs" Link="Services\SearchService.cs" />
     <Compile Include="..\Services\BatesNumberingService.cs" Link="Services\BatesNumberingService.cs" />
     <Compile Include="..\Services\WatermarkService.cs" Link="Services\WatermarkService.cs" />
     <Compile Include="..\Services\TransformService.cs" Link="Services\TransformService.cs" />
+    <Compile Include="..\Services\PageRotation.cs" Link="Services\PageRotation.cs" />
     <Compile Include="..\Services\PdfEncryptionService.cs" Link="Services\PdfEncryptionService.cs" />
     <Compile Include="..\Services\PdfSigningService.cs" Link="Services\PdfSigningService.cs" />
     <Compile Include="..\Services\Signing\WindowsCertificateStore.cs" Link="Services\Signing\WindowsCertificateStore.cs" />

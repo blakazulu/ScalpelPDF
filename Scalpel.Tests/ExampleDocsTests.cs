@@ -43,16 +43,13 @@ namespace Scalpel.Tests
             }
             Reg(HebFont, "NotoSansHebrew-Regular.ttf");
             Reg(LatFont, "NotoSans-Regular.ttf");
-            if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is null)
-                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
-        // logical -> visual (left-to-right glyph) order PdfSharpCore needs for RTL.
-        private static string Visual(string logical)
-        {
-            string shaped = ArabicShaper.ContainsArabic(logical) ? ArabicShaper.Shape(logical) : logical;
-            return BidiReorder.ToVisual(shaped);
-        }
+        // Same glyph-coverage test the app uses when splitting a line into font runs.
+        private static bool Covers(string family, int cp) =>
+            PdfFontResolver.Instance.TryGetExactFontBytes(family, false, false, out var b)
+            && TrueTypeCmap.CoversCodepoint(b, cp);
 
         // ---- minimal bilingual page layout ----------------------------------------------------
 
@@ -65,6 +62,36 @@ namespace Scalpel.Tests
             public const double Margin = 54;
             public double ContentW => Page.Width - 2 * Margin;
             public double RightX => Page.Width - Margin;
+
+            /// <summary>Characters drawn in a font that has no glyph for them (would render as boxes).</summary>
+            public readonly List<string> Uncovered = new();
+
+            private List<(string Text, string Family)> Runs(string logical) =>
+                ScriptRuns.Split(ScriptRuns.ToVisual(logical), LatFont, Covers);
+
+            /// <summary>Width of a logical line once split into font runs (mirrors MainWindow.DrawTextRun).</summary>
+            public double Measure(string logical, double size, XFontStyle style)
+            {
+                double w = 0;
+                foreach (var (text, fam) in Runs(logical))
+                    w += Gfx.MeasureString(text, new XFont(fam, size, style)).Width;
+                return w;
+            }
+
+            /// <summary>Draw a logical line left-aligned at x, or right-aligned to x when rtl.</summary>
+            public void Line(string logical, double size, XFontStyle style, XBrush brush, double x, double y, bool rtl)
+            {
+                if (rtl) x -= Measure(logical, size, style);
+                foreach (var (text, fam) in Runs(logical))
+                {
+                    foreach (char c in text)
+                        if (!char.IsWhiteSpace(c) && !Covers(fam, c))
+                            Uncovered.Add($"U+{(int)c:X4} in {fam}");
+                    var font = new XFont(fam, size, style);
+                    Gfx.DrawString(text, font, brush, new XPoint(x, y));
+                    x += Gfx.MeasureString(text, font).Width;
+                }
+            }
 
             public void NewPage(double w = 595, double h = 842) // A4 in points
             {
@@ -86,34 +113,22 @@ namespace Scalpel.Tests
             public void Banner(string en, string he, XColor bar)
             {
                 Gfx.DrawRectangle(new XSolidBrush(bar), new XRect(0, 0, Page.Width, 64));
-                var ef = new XFont(LatFont, 18, XFontStyle.Bold);
-                var hf = new XFont(HebFont, 18, XFontStyle.Bold);
-                Gfx.DrawString(en, ef, XBrushes.White, new XPoint(Margin, 40));
-                string vis = Visual(he);
-                double hw = Gfx.MeasureString(vis, hf).Width;
-                Gfx.DrawString(vis, hf, XBrushes.White, new XPoint(RightX - hw, 40));
+                Line(en, 18, XFontStyle.Bold, XBrushes.White, Margin, 40, rtl: false);
+                Line(he, 18, XFontStyle.Bold, XBrushes.White, RightX, 40, rtl: true);
                 Y = 84;
             }
 
             public void Heading(string text, bool rtl, double size = 14)
             {
                 EnsureRoom(size * 2);
-                var font = new XFont(rtl ? HebFont : LatFont, size, XFontStyle.Bold);
                 var slate = new XSolidBrush(XColor.FromArgb(255, 30, 41, 59));
-                if (rtl)
-                {
-                    string vis = Visual(text);
-                    double w = Gfx.MeasureString(vis, font).Width;
-                    Gfx.DrawString(vis, font, slate, new XPoint(RightX - w, Y));
-                }
-                else Gfx.DrawString(text, font, slate, new XPoint(Margin, Y));
+                Line(text, size, XFontStyle.Bold, slate, rtl ? RightX : Margin, Y, rtl);
                 Y += size * 1.7;
             }
 
             /// <summary>Word-wrapped paragraph; RTL paragraphs render right-aligned, logical order preserved per line.</summary>
             public void Para(string text, bool rtl, double size = 11)
             {
-                var font = new XFont(rtl ? HebFont : LatFont, size, XFontStyle.Regular);
                 double lineH = size * 1.5;
                 var words = text.Split(' ');
                 var line = new List<string>();
@@ -122,20 +137,14 @@ namespace Scalpel.Tests
                     if (line.Count == 0) return;
                     EnsureRoom(lineH);
                     string logical = string.Join(" ", line);
-                    if (rtl)
-                    {
-                        string vis = Visual(logical);
-                        double w = Gfx.MeasureString(vis, font).Width;
-                        Gfx.DrawString(vis, font, XBrushes.Black, new XPoint(RightX - w, Y));
-                    }
-                    else Gfx.DrawString(logical, font, XBrushes.Black, new XPoint(Margin, Y));
+                    Line(logical, size, XFontStyle.Regular, XBrushes.Black, rtl ? RightX : Margin, Y, rtl);
                     Y += lineH;
                     line.Clear();
                 }
                 foreach (var word in words)
                 {
                     var trial = string.Join(" ", line.Append(word));
-                    double tw = Gfx.MeasureString(rtl ? Visual(trial) : trial, font).Width;
+                    double tw = Measure(trial, size, XFontStyle.Regular);
                     if (tw > ContentW && line.Count > 0) Flush();
                     line.Add(word);
                 }
@@ -146,12 +155,8 @@ namespace Scalpel.Tests
             public void Row(string heLabel, string value)
             {
                 EnsureRoom(18);
-                var hf = new XFont(HebFont, 11, XFontStyle.Bold);
-                var vf = new XFont(LatFont, 11, XFontStyle.Regular);
-                string vis = Visual(heLabel);
-                double w = Gfx.MeasureString(vis, hf).Width;
-                Gfx.DrawString(vis, hf, XBrushes.Black, new XPoint(RightX - w, Y));
-                Gfx.DrawString(value, vf, XBrushes.Black, new XPoint(Margin, Y));
+                Line(heLabel, 11, XFontStyle.Bold, XBrushes.Black, RightX, Y, rtl: true);
+                Line(value, 11, XFontStyle.Regular, XBrushes.Black, Margin, Y, rtl: false);
                 Y += 18;
             }
         }
@@ -191,6 +196,8 @@ namespace Scalpel.Tests
             p.Para(ProofLine + ".", rtl: true);
             p.Para("Questions? Contact billing@scalpel.example or call +972-3-555-0142.", rtl: false);
             p.Gfx.Dispose();
+            // No character may be drawn in a font lacking its glyph (renders as a box).
+            Assert.Empty(p.Uncovered);
             doc.Save(path);
         }
 
@@ -214,6 +221,8 @@ namespace Scalpel.Tests
             p.Heading("בברכה,", rtl: true, 13);
             p.Para("צוות סקאלפל / The Scalpel Team", rtl: true);
             p.Gfx.Dispose();
+            // No character may be drawn in a font lacking its glyph (renders as a box).
+            Assert.Empty(p.Uncovered);
             doc.Save(path);
         }
 
@@ -239,6 +248,8 @@ namespace Scalpel.Tests
             p.Para("בעת השחרה, כל דף המכיל סימון מומר לתמונה שטוחה עם ריבוע שחור אטום מעל האזור. הטקסט המקורי נמחק לחלוטין ואינו ניתן לחיפוש או לשחזור.", rtl: true);
             p.Para("During redaction, every marked page is flattened to an image with an opaque black box over the area. The underlying text is permanently removed — not selectable, searchable, or recoverable.", rtl: false);
             p.Gfx.Dispose();
+            // No character may be drawn in a font lacking its glyph (renders as a box).
+            Assert.Empty(p.Uncovered);
             doc.Save(path);
         }
 
@@ -277,6 +288,8 @@ namespace Scalpel.Tests
             p.Para("תודה שבחרתם בסקאלפל. נשמח לשמוע משוב ולשפר את התוכנה עבורכם.", rtl: true);
             p.Para("Thank you for choosing Scalpel.", rtl: false);
             p.Gfx.Dispose();
+            // No character may be drawn in a font lacking its glyph (renders as a box).
+            Assert.Empty(p.Uncovered);
             doc.Save(path);
         }
 
@@ -339,6 +352,8 @@ namespace Scalpel.Tests
             p.Space(10);
             p.Row("חתימת הלקוח:", "______________________");
             p.Gfx.Dispose();
+            // No character may be drawn in a font lacking its glyph (renders as a box).
+            Assert.Empty(p.Uncovered);
             doc.Save(path);
         }
 

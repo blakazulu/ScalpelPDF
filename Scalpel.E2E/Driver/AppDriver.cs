@@ -1080,7 +1080,7 @@ public sealed class AppDriver : IDisposable
     /// which opens an inline TextBox pre-filled with the nearest PDF word line.
     /// Uses the same coordinate resolution as ClickCanvas() (PageImage at 45%/45%).
     /// </summary>
-    public void DoubleClickCanvas()
+    public void DoubleClickCanvas(double fracX = 0.45, double fracY = 0.45)
     {
         FocusMainWindow();
         System.Threading.Thread.Sleep(200);
@@ -1099,8 +1099,8 @@ public sealed class AppDriver : IDisposable
                         cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Image));
 
                 var r = pageImage?.BoundingRectangle ?? scrollEl.BoundingRectangle;
-                int screenX = (int)(r.X + r.Width  * 0.45);
-                int screenY = (int)(r.Y + r.Height * 0.45);
+                int screenX = (int)(r.X + r.Width  * fracX);
+                int screenY = (int)(r.Y + r.Height * fracY);
 
                 Console.WriteLine($"[AppDriver.DoubleClickCanvas] screen=({screenX},{screenY})");
 
@@ -1142,6 +1142,15 @@ public sealed class AppDriver : IDisposable
     /// PageJumpBox and PART_EditableTextBox controls which are named). Returns null if
     /// no unnamed Edit control is found (e.g. if the canvas click did not place a TextBox).
     /// </summary>
+    /// <summary>Text of the open edit box (UIA Value pattern), or null when none is open.</summary>
+    public string? ReadActiveTextBox()
+    {
+        var el = FindAnyTextBox();
+        if (el == null) return null;
+        try { return el.Patterns.Value.IsSupported ? el.Patterns.Value.Pattern.Value.Value : null; }
+        catch { return null; }
+    }
+
     public FlaUI.Core.AutomationElements.AutomationElement? FindAnyTextBox()
     {
         try

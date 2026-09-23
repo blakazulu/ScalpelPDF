@@ -54,8 +54,7 @@ namespace Scalpel.Tests
             Reg("Geist", "Geist-Regular.ttf");
             Reg("Noto Sans Hebrew", "NotoSansHebrew-Regular.ttf");
             Reg("Noto Sans", "NotoSans-Regular.ttf");
-            if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is null)
-                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         private static int PageCount(string path)

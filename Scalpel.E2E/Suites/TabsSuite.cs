@@ -943,7 +943,7 @@ public static class TabsSuite
     /// Invokes the Pages ribbon's Rotate button (no x:Name - found by its tooltip, which WPF
     /// surfaces as the UIA HelpText) on the active tab's selected page.
     /// </summary>
-    private static bool InvokeRotate(AppDriver driver)
+    internal static bool InvokeRotate(AppDriver driver)
     {
         driver.EnsureSurface(Surface.PagesMode);
         System.Threading.Thread.Sleep(300);

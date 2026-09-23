@@ -38,11 +38,33 @@ namespace Scalpel.Services
                 if (!rtl)
                     return string.Join(" ", words.OrderBy(w => w.Left).Select(w => w.Text));
 
-                return string.Join(" ", words
-                    .OrderByDescending(w => w.Left)
-                    .Select(w => ContainsRtl(w.Text) ? ReverseChars(w.Text) : w.Text));
+                // Walking right-to-left is right for the RTL words, but a run of consecutive LTR
+                // words ("hello world" inside a Hebrew line) is laid out left-to-right as a block,
+                // so the run must be put back in its own order: "שלום hello world", not
+                // "שלום world hello". Only words with a strong LTR character (a Latin letter or a
+                // digit) form such a run; neutral words like "/" or "-" separate runs and keep
+                // their place in the RTL flow.
+                var desc = words.OrderByDescending(w => w.Left).Select(w => w.Text).ToList();
+                var output = new List<string>(desc.Count);
+                for (int i = 0; i < desc.Count;)
+                {
+                    if (!IsStrongLtr(desc[i])) { output.Add(ContainsRtl(desc[i]) ? ReverseChars(desc[i]) : desc[i]); i++; continue; }
+                    int j = i;
+                    while (j < desc.Count && IsStrongLtr(desc[j])) j++;
+                    for (int k = j - 1; k >= i; k--) output.Add(desc[k]);
+                    i = j;
+                }
+                return string.Join(" ", output);
             }
             catch { return string.Join(" ", words.Select(w => w.Text)); }
+        }
+
+        /// <summary>A word with no RTL letters and at least one Latin-style letter or digit.</summary>
+        private static bool IsStrongLtr(string s)
+        {
+            if (string.IsNullOrEmpty(s) || ContainsRtl(s)) return false;
+            foreach (char c in s) if (char.IsLetterOrDigit(c)) return true;
+            return false;
         }
 
         private static string ReverseChars(string s)

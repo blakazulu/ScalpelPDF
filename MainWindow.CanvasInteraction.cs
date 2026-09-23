@@ -523,7 +523,10 @@ namespace Scalpel
                 IsDescendantOf(cropSrc, _cropConfirmBar))
                 return;
 
-            int pageIdx = PageList.SelectedIndex;
+            // The page the gesture STARTED on, exactly as mouse-down worked it out. The sidebar's
+            // selected page is a different page in continuous/two-page view, so a drag-select
+            // there used to copy text from the wrong page.
+            int pageIdx = _activeCanvas.Tag is int gesturePage ? gesturePage : PageList.SelectedIndex;
 
             // Finish crop handle drag
             if (_activeCropHandleTag is not null)

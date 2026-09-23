@@ -14,8 +14,7 @@ namespace Scalpel.Tests
     {
         private static void EnsureResolver()
         {
-            if (GlobalFontSettings.FontResolver is null)
-                GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         /// <summary>True if any font in the saved PDF has an embedded font program.</summary>

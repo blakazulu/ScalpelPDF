@@ -13,8 +13,7 @@ namespace Scalpel.Tests
     {
         private static void EnsureResolver()
         {
-            if (GlobalFontSettings.FontResolver is null)
-                GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         /// <summary>Fake rasterizer returning deterministic high-frequency JPEGs.</summary>

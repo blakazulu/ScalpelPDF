@@ -98,11 +98,16 @@ namespace Scalpel
             => double.IsNaN(value) || double.IsInfinity(value) || value <= 0 ? fallback : value;
 
         // Undo stack — each entry is either an annotation removal or a full document snapshot.
-        private enum UndoKind { Annotation, Document }
+        // Replace swaps one annotation for another in place (Annotation = before, Replacement =
+        // after; either may be null): a re-edited text line, or a deleted annotation. The plain
+        // Annotation kind only records "remove the last annotation on page N", which undid the
+        // wrong annotation after a delete and could not undo a re-edit at all.
+        private enum UndoKind { Annotation, Document, Replace }
         // Redo needs the annotation object itself: an Annotation undo only records "remove the
         // last annotation on page N", which cannot be reversed without the removed instance.
         private readonly record struct UndoEntry(UndoKind Kind, int PageIdx = -1, byte[]? DocBytes = null,
-                                                 bool WasDirty = false, PageAnnotation? Annotation = null);
+                                                 bool WasDirty = false, PageAnnotation? Annotation = null,
+                                                 PageAnnotation? Replacement = null);
 
         // A document-level undo stores a whole copy of the PDF, so an unbounded history costs
         // roughly (file size x number of page operations) in RAM - hundreds of megabytes on a big

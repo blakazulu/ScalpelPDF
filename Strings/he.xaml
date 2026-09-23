@@ -310,6 +310,7 @@
     <sys:String x:Key="Str_Ocr_QualityBest">הטוב ביותר (איטי יותר, מדויק יותר)</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">שפת OCR נשמרה.</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">טקסט OCR הועתק ללוח.</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">{0} מילים הועתקו ללוח.</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">הטקסט חולץ לקובץ.</sys:String>
 
     <sys:String x:Key="Str_Recent">אחרונים</sys:String>

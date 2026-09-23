@@ -101,7 +101,7 @@ namespace Scalpel.Services
                 try
                 {
                     var page = doc.Pages[p - 1];
-                    page.Rotate = ((page.Rotate + delta) % 360 + 360) % 360;
+                    PageRotation.Set(page, page.Rotate + delta);
                 }
                 catch { /* skip a page that won't accept the rotation rather than abort */ }
             }

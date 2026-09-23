@@ -310,6 +310,7 @@
     <sys:String x:Key="Str_Ocr_QualityBest">Лучшее (медленнее, точнее)</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">Язык OCR сохранён.</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">Текст OCR скопирован в буфер обмена.</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">Скопировано слов в буфер обмена: {0}.</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">Текст извлечён в файл.</sys:String>
 
     <sys:String x:Key="Str_Recent">Недавние</sys:String>

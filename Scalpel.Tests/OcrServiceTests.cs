@@ -14,8 +14,7 @@ namespace Scalpel.Tests
     {
         private static void EnsureResolver()
         {
-            if (GlobalFontSettings.FontResolver is null)
-                GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         // Regression: TSV must be requested via the -c parameter, NOT the `tsv` config file.

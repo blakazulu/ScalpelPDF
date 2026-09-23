@@ -310,6 +310,7 @@
     <sys:String x:Key="Str_Ocr_QualityBest">الأفضل (أبطأ، أكثر دقة)</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">تم حفظ لغة التعرف الضوئي.</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">تم نسخ نص التعرف الضوئي إلى الحافظة.</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">تم نسخ {0} كلمة إلى الحافظة.</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">تم استخراج النص إلى الملف.</sys:String>
 
     <sys:String x:Key="Str_Recent">الأخيرة</sys:String>

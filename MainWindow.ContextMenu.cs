@@ -113,7 +113,7 @@ namespace Scalpel
                         preRotationDims[idx] = (rd.w, rd.h);
 
                 foreach (var idx in indices)
-                    _doc.Pages[idx].Rotate = ((_doc.Pages[idx].Rotate + delta) % 360 + 360) % 360;
+                    Scalpel.Services.PageRotation.Set(_doc.Pages[idx], _doc.Pages[idx].Rotate + delta);
                 int restoreIdx = PageList.SelectedIndex;
 
                 SaveTempAndReload(keepAnnotations: true);

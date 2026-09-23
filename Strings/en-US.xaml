@@ -310,6 +310,7 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Ocr_QualityBest">Best (slower, more accurate)</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">OCR language saved.</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">Copied OCR text to clipboard.</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">Copied {0} word(s) to the clipboard.</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">Extracted text to file.</sys:String>
 
     <sys:String x:Key="Str_Recent">Recent</sys:String>

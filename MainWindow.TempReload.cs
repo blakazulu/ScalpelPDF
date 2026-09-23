@@ -94,7 +94,7 @@ namespace Scalpel
             {
                 int rot = ((doc.Pages[i].Rotate % 360) + 360) % 360;
                 _pageRotations[i] = rot;
-                doc.Pages[i].Rotate = 0;
+                Scalpel.Services.PageRotation.Set(doc.Pages[i], 0);
             }
 
             var tempPath = App.MakeTempFile("temp", _s.Id);
@@ -140,7 +140,7 @@ namespace Scalpel
             // Restore rotations in the reopened in-memory doc so saves, form fields,
             // and all other operations see the correct rotation values.
             foreach (var kv in _pageRotations)
-                _doc.Pages[kv.Key].Rotate = kv.Value;
+                Scalpel.Services.PageRotation.Set(_doc.Pages[kv.Key], kv.Value);
 
             RefreshPageList();
             if (selectedIdx >= 0 && selectedIdx < PageList.Items.Count)

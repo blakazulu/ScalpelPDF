@@ -12,6 +12,21 @@ namespace Scalpel.Services
 
         public static IReadOnlyList<Release> Releases { get; } = new[]
         {
+            new Release("2.2.1", "September 2026", new[]
+            {
+                "Fixed: text you typed or edited could be saved into the PDF as empty boxes. Scalpel's own fonts were never actually used when saving, so text was written with whatever font Windows happened to offer, which often has no letters for Russian, Arabic or even English. Saved text now uses the fonts Scalpel ships with.",
+                "Fixed: a line mixing Hebrew or Arabic with English, numbers or punctuation - \"חשבונית 2024 / Invoice\", say - saved the English part as boxes. Each part of the line is now written in a font that has its letters.",
+                "Fixed: editing a line set in some common fonts, Cambria among them, saved an empty white box where the line had been.",
+                "Fixed: saving an edited line could remove a different line with similar text - editing \"TOTAL 100\" could delete \"SUBTOTAL 100\", and of two identical lines the wrong one could go. Only the exact line you edited is removed now; when that is not certain, the page is left as it was.",
+                "Double-clicking text now always picks up the whole line, including hyphens and small marks, but never the next column or table cell. A double-click on empty space no longer jumps to a line far away.",
+                "Fixed: double-clicking a line you had already changed could show the old text again and stack a second edit on top. It now reopens your edit. Changing it again, or deleting an annotation, can be undone and counts as an unsaved change, so Scalpel asks before closing without saving it.",
+                "Fixed: English words inside a Hebrew or Arabic line came out in reverse order in the edit box.",
+                "Bold and italic text now stay bold and italic when saved in any language.",
+                "Edited text now keeps the colour of the line it replaces and sits exactly on that line's baseline, instead of turning black and landing slightly low.",
+                "Editing, selecting and copying text now work on rotated pages, including after you rotate a page yourself.",
+                "Fixed: on a document opened with sideways pages, any page operation - rotating, deleting or reordering pages - quietly swapped those pages' width and height, which could cut off part of the page.",
+                "Dragging across text now highlights the words you picked and confirms how many were copied to the clipboard.",
+            }),
             new Release("2.2.0", "September 2026", new[]
             {
                 "Save As on a new document now starts in the folder you last opened a PDF from.",

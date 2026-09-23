@@ -38,6 +38,34 @@ namespace Scalpel
         }
 
         /// <summary>
+        /// Replaces <paramref name="before"/> with <paramref name="after"/> on a page, keeping its
+        /// position in the draw order, as one undoable step. Either may be null: null
+        /// <paramref name="after"/> deletes, null <paramref name="before"/> adds.
+        /// </summary>
+        private void ReplaceAnnotation(int pageIdx, PageAnnotation? before, PageAnnotation? after)
+        {
+            SwapAnnotation(pageIdx, before, after);
+            PushUndoEntry(new UndoEntry(UndoKind.Replace, pageIdx, WasDirty: _isDirty,
+                                        Annotation: before, Replacement: after));
+            _redoStack.Clear();
+            MarkDirty();
+        }
+
+        /// <summary>Puts <paramref name="to"/> where <paramref name="from"/> was (or appends it).</summary>
+        private void SwapAnnotation(int pageIdx, PageAnnotation? from, PageAnnotation? to)
+        {
+            if (!_annotations.ContainsKey(pageIdx)) _annotations[pageIdx] = [];
+            var list = _annotations[pageIdx];
+            int at = from is null ? -1 : list.IndexOf(from);
+            if (at >= 0) list.RemoveAt(at);
+            if (to is not null)
+            {
+                if (at >= 0) list.Insert(at, to);
+                else list.Add(to);
+            }
+        }
+
+        /// <summary>
         /// Saves the current in-memory document bytes onto the undo stack so that
         /// document-level operations (crop, delete page, merge, reorder) can be undone.
         /// Must be called BEFORE modifying _doc.
@@ -161,14 +189,23 @@ namespace Scalpel
                         var etb = new TextBlock
                         {
                             Text = tea.NewContent,
-                            Foreground = Brushes.Black,
+                            Foreground = tea.TextColor is Color tcol ? new SolidColorBrush(tcol) : Brushes.Black,
                             FontFamily = new FontFamily(tea.FontName),
                             FontSize = tea.FontSize,
                             FontWeight = ToWeight(tea.IsBold),
                             FontStyle = ToStyle(tea.IsItalic),
                             Padding = new Thickness(0)
                         };
-                        Canvas.SetLeft(etb, tea.Position.X);
+                        // Match the save: a Hebrew/Arabic line is anchored at the RIGHT edge of the
+                        // original line (DrawTextRun right-aligns it), so a longer or shorter
+                        // replacement grows leftwards on screen too, not only in the saved file.
+                        double etbLeft = tea.Position.X;
+                        if (Scalpel.Services.BidiReorder.ContainsRtl(tea.NewContent))
+                        {
+                            etb.FlowDirection = FlowDirection.RightToLeft;
+                            etbLeft = tea.OriginalBounds.Right - MeasureEditWidth(tea);
+                        }
+                        Canvas.SetLeft(etb, etbLeft);
                         Canvas.SetTop(etb, tea.Position.Y);
                         _activeCanvas.Children.Add(etb);
                         break;
@@ -261,6 +298,17 @@ namespace Scalpel
             }
 
             var entry = _undoStack.Pop();
+
+            if (entry.Kind == UndoKind.Replace)
+            {
+                SwapAnnotation(entry.PageIdx, entry.Replacement, entry.Annotation);
+                PushRedoEntry(entry with { WasDirty = _isDirty });
+                ClearSelection();
+                RenderAllAnnotations(entry.PageIdx);
+                MarkDirty(entry.WasDirty);
+                SetStatus(Loc("Str_St_Undid"));
+                return;
+            }
 
             if (entry.Kind == UndoKind.Annotation)
             {
@@ -356,6 +404,17 @@ namespace Scalpel
             }
 
             var entry = _redoStack.Pop();
+
+            if (entry.Kind == UndoKind.Replace)
+            {
+                SwapAnnotation(entry.PageIdx, entry.Annotation, entry.Replacement);
+                PushUndoEntry(entry with { WasDirty = _isDirty });
+                ClearSelection();
+                RenderAllAnnotations(entry.PageIdx);
+                MarkDirty();
+                SetStatus(Loc("Str_St_Redid"));
+                return;
+            }
 
             if (entry.Kind == UndoKind.Annotation)
             {

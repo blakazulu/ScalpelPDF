@@ -111,6 +111,23 @@ namespace Scalpel.Tests
         }
 
         [Fact]
+        public void JoinWordsLogical_EnglishRunInsideHebrewLine_KeepsItsOwnOrder()
+        {
+            // Logical "shalom hello world" is laid out as [hello][world][shalom] left to right.
+            // Walking right-to-left used to give "shalom world hello".
+            var words = new (string, double)[] { ("hello", 10.0), ("world", 60.0), (ShalomVisual, 200.0) };
+            Assert.Equal(Shalom + " hello world", BidiReorder.JoinWordsLogical(words));
+        }
+
+        [Fact]
+        public void JoinWordsLogical_NeutralWordSeparatesRuns()
+        {
+            // Logical "shalom / hello world": visually [hello][world][/][shalom].
+            var words = new (string, double)[] { ("hello", 10.0), ("world", 60.0), ("/", 110.0), (ShalomVisual, 200.0) };
+            Assert.Equal(Shalom + " / hello world", BidiReorder.JoinWordsLogical(words));
+        }
+
+        [Fact]
         public void JoinWordsLogical_English_KeepsLeftToRight()
         {
             var words = new (string, double)[] { ("hello", 100.0), ("world", 200.0) };

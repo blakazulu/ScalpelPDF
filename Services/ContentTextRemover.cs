@@ -39,8 +39,24 @@ namespace Scalpel.Services
             if (page is null || string.IsNullOrEmpty(text)) return 0;
             try
             {
-                int total = 0;
                 var contents = page.Contents;
+
+                // The run must be unique on the whole PAGE, not just in one of its streams: two
+                // lines reading "Name: Dan" can sit in different content streams, and removing
+                // the first one found would delete the line the user did not edit.
+                int matches = 0;
+                for (int i = 0; i < contents.Elements.Count; i++)
+                {
+                    try
+                    {
+                        byte[]? raw = contents.Elements.GetDictionary(i)?.Stream?.UnfilteredValue;
+                        if (raw is not null && raw.Length > 0) matches += CountMatches(raw, text, page);
+                    }
+                    catch { }
+                }
+                if (matches != 1) return 0;
+
+                int total = 0;
                 for (int i = 0; i < contents.Elements.Count; i++)
                 {
                     try
@@ -87,10 +103,10 @@ namespace Scalpel.Services
             string needle = Normalize(target);
             if (needle.Length == 0) return null;
 
-            var hit = FindRun(operands, needle);
-            if (hit is null) return null;
+            var hits = FindRuns(operands, needle);
+            if (hits.Count != 1) return null;     // absent, or ambiguous: change nothing
 
-            var (from, to) = hit.Value;
+            var (from, to) = hits[0];
             var result = new List<byte>(stream.Length);
             int cursor = 0;
             for (int i = from; i <= to; i++)
@@ -108,17 +124,34 @@ namespace Scalpel.Services
             return result.ToArray();
         }
 
+        /// <summary>Number of places in this stream where <paramref name="target"/> could be
+        /// removed safely (see <see cref="FindRuns"/>).</summary>
+        public static int CountMatches(byte[] stream, string target, PdfDictionary? page = null)
+        {
+            if (stream is null || stream.Length == 0 || string.IsNullOrEmpty(target)) return 0;
+            string needle = Normalize(target);
+            if (needle.Length == 0) return 0;
+            var operands = FindShowTextOperands(stream, page);
+            return operands.Count == 0 ? 0 : FindRuns(operands, needle).Count;
+        }
+
         /// <summary>
-        /// Finds exactly the operands that spell the needle.
+        /// Finds every run of operands that spells exactly the needle.
         ///
         /// <para>The page's shown text is concatenated once, remembering which operand produced
         /// each character, so a match maps back to precisely the operands it covers. Growing a
         /// span from the first operand instead would swallow everything before the match - on
         /// "(KEEP THIS) Tj (SECRET) Tj" the concatenation contains the needle by operand 1, and
         /// clearing operands 0..1 would delete the line above as well.</para>
+        ///
+        /// <para>A match only counts when it starts at the first character of an operand and ends
+        /// at the last character of one. Operands are cleared whole, so a match inside a longer
+        /// operand would take its neighbours with it: editing "TOTAL 100" must not empty
+        /// "(SUBTOTAL 100)", and "100" must not empty "(Invoice 2100)".</para>
         /// </summary>
-        private static (int From, int To)? FindRun(List<Operand> operands, string needle)
+        private static List<(int From, int To)> FindRuns(List<Operand> operands, string needle)
         {
+            var runs = new List<(int From, int To)>();
             var text = new StringBuilder();
             var owner = new List<int>();          // owner[i] = operand that produced character i
 
@@ -129,12 +162,17 @@ namespace Scalpel.Services
                 for (int k = 0; k < piece.Length; k++) owner.Add(i);
             }
 
-            int at = text.ToString().IndexOf(needle, StringComparison.Ordinal);
-            if (at < 0) return null;
-
-            int last = at + needle.Length - 1;
-            if (at >= owner.Count || last >= owner.Count) return null;
-            return (owner[at], owner[last]);
+            string all = text.ToString();
+            for (int at = all.IndexOf(needle, StringComparison.Ordinal); at >= 0;
+                 at = all.IndexOf(needle, at + 1, StringComparison.Ordinal))
+            {
+                int last = at + needle.Length - 1;
+                if (last >= owner.Count) break;
+                bool startsOperand = at == 0 || owner[at - 1] != owner[at];
+                bool endsOperand = last == owner.Count - 1 || owner[last + 1] != owner[last];
+                if (startsOperand && endsOperand) runs.Add((owner[at], owner[last]));
+            }
+            return runs;
         }
 
         /// <summary>

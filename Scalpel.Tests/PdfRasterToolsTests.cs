@@ -15,8 +15,7 @@ namespace Scalpel.Tests
     {
         private static void EnsureResolver()
         {
-            if (GlobalFontSettings.FontResolver is null)
-                GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         /// <summary>A deterministic high-frequency image so JPEG quality affects encoded size.</summary>

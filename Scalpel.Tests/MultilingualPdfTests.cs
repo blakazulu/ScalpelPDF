@@ -38,8 +38,7 @@ namespace Scalpel.Tests
             Reg("Noto Sans Hebrew", "NotoSansHebrew-Regular.ttf");
             Reg("Noto Sans Arabic", "NotoSansArabic-Regular.ttf");
             Reg("Noto Sans", "NotoSans-Regular.ttf");
-            if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is null)
-                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         // Mirror DrawTextRun's RTL pipeline (shape Arabic -> reorder to visual) without WPF.

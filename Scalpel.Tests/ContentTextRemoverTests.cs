@@ -70,6 +70,50 @@ namespace Scalpel.Tests
         }
 
         [Fact]
+        public void AMatchInsideALongerOperandIsNotRemoved()
+        {
+            // Operands are emptied whole, so matching "TOTAL 100" inside "(SUBTOTAL 100)" would
+            // delete a line the user never edited.
+            byte[] stream = Bytes("BT (SUBTOTAL 100) Tj 0 -14 Td (TOTAL 100) Tj ET");
+
+            byte[]? edited = ContentTextRemover.RemoveFromStream(stream, "TOTAL 100", out int cleared);
+
+            Assert.NotNull(edited);
+            Assert.Equal(1, cleared);
+            string text = Str(edited!);
+            Assert.Contains("(SUBTOTAL 100)", text);
+            Assert.DoesNotContain("(TOTAL 100)", text);
+        }
+
+        [Fact]
+        public void ATargetThatOnlyAppearsInsideAnotherWordIsLeftAlone()
+        {
+            byte[] stream = Bytes("BT (Invoice 2100) Tj ET");
+
+            Assert.Null(ContentTextRemover.RemoveFromStream(stream, "100", out int cleared));
+            Assert.Equal(0, cleared);
+        }
+
+        [Fact]
+        public void TwoIdenticalLinesAreAmbiguous_SoNeitherIsRemoved()
+        {
+            // Without positions there is no telling which "Name: Dan" was edited; guessing
+            // deletes the wrong one. The caller keeps the cover as its fallback.
+            byte[] stream = Bytes("BT (Name: Dan) Tj 0 -14 Td (Name: Dan) Tj ET");
+
+            Assert.Null(ContentTextRemover.RemoveFromStream(stream, "Name: Dan", out int cleared));
+            Assert.Equal(0, cleared);
+        }
+
+        [Fact]
+        public void CountMatches_CountsOnlyWholeOperandRuns()
+        {
+            Assert.Equal(2, ContentTextRemover.CountMatches(Bytes("BT (A) Tj (A) Tj (AB) Tj ET"), "A"));
+            Assert.Equal(1, ContentTextRemover.CountMatches(Bytes("BT [(SEC) 5 (RET)] TJ ET"), "SECRET"));
+            Assert.Equal(0, ContentTextRemover.CountMatches(Bytes("BT (SECRETS) Tj ET"), "SECRET"));
+        }
+
+        [Fact]
         public void HexStringsAreUnderstood()
         {
             // "AB" written as a hex string operand.

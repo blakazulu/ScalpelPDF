@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -18,6 +18,23 @@ namespace Scalpel.Services
     {
         public static PdfFontResolver Instance { get; } = new PdfFontResolver();
         private PdfFontResolver() { }
+
+        /// <summary>Make this the resolver PdfSharpCore draws with. Never guard this with
+        /// <c>GlobalFontSettings.FontResolver is null</c>: that getter never returns null, it
+        /// silently installs PdfSharpCore's own system-font resolver on first read, after which
+        /// the bundled Geist/Noto faces are unreachable and text burns in with an arbitrary
+        /// system font (boxes for any script it lacks). The setter throws once a font has been
+        /// used, so call this before any XFont is created. Returns true when it is active.</summary>
+        public static bool Install()
+        {
+            try
+            {
+                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = Instance;
+            }
+            catch { /* a font was already resolved through another resolver */ }
+            try { return ReferenceEquals(PdfSharpCore.Fonts.GlobalFontSettings.FontResolver, Instance); }
+            catch { return false; }
+        }
 
         private const string FallbackFamily = "arial";
 
@@ -56,7 +73,11 @@ namespace Scalpel.Services
                 if (_bundled.ContainsKey(regular) || _systemIndex!.ContainsKey(regular))
                     return new FontResolverInfo(regular, isBold, isItalic);
 
-                // 3. Unknown family → Arial, simulate requested style.
+                // 3. Unknown family → Arial, in its real bold/italic face when installed:
+                // PdfSharpCore 1.3.67 does not honour simulated styles, so a simulated bold
+                // would come out regular.
+                string fbStyled = FaceKey(FallbackFamily, isBold, isItalic);
+                if (_systemIndex!.ContainsKey(fbStyled)) return new FontResolverInfo(fbStyled);
                 string fb = FaceKey(FallbackFamily, false, false);
                 return new FontResolverInfo(fb, isBold, isItalic);
             }
@@ -87,6 +108,22 @@ namespace Scalpel.Services
                 }
             }
             catch { return ReadFallback(); }
+        }
+
+        /// <summary>True when this exact family + style exists as its own face (bundled or
+        /// installed). PdfSharpCore 1.3.67 ignores simulated bold/italic, so callers use this to
+        /// decide whether a requested style will really appear. Never throws.</summary>
+        public bool HasExactFace(string family, bool bold, bool italic)
+        {
+            try
+            {
+                string fam = (family ?? "").Trim();
+                if (fam.Length == 0) return false;
+                EnsureIndex();
+                string key = FaceKey(fam, bold, italic);
+                return _bundled.ContainsKey(key) || _systemIndex!.ContainsKey(key);
+            }
+            catch { return false; }
         }
 
         /// <summary>True + bytes when <paramref name="family"/> (with style, then regular)
@@ -132,14 +169,32 @@ namespace Scalpel.Services
                 var index = new Dictionary<string, (string, int)>(StringComparer.OrdinalIgnoreCase);
                 try
                 {
-                    string dir = Environment.GetFolderPath(Environment.SpecialFolder.Fonts);
-                    foreach (var file in Directory.EnumerateFiles(dir))
+                    // Machine-wide fonts, then fonts installed for this user only (Windows 10 1809+),
+                    // which WPF sees too - leaving them out made an edit in such a font save in
+                    // a substitute with no warning.
+                    var files = new List<string>();
+                    foreach (var dir in new[]
+                    {
+                        Environment.GetFolderPath(Environment.SpecialFolder.Fonts),
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                                     "Microsoft", "Windows", "Fonts"),
+                    })
+                    {
+                        try { if (Directory.Exists(dir)) files.AddRange(Directory.EnumerateFiles(dir)); }
+                        catch { }
+                    }
+                    foreach (var file in files)
                     {
                         string ext = Path.GetExtension(file).ToLowerInvariant();
                         if (ext is not (".ttf" or ".ttc" or ".otf")) continue;
                         try
                         {
                             byte[] data = File.ReadAllBytes(file);
+                            // PdfSharpCore can only embed TrueType outlines; a CFF-flavoured
+                            // OpenType font ("OTTO") is written under the wrong font type. Leave
+                            // it out so the family falls back to a font that embeds correctly.
+                            if (data.Length >= 4 && data[0] == (byte)'O' && data[1] == (byte)'T'
+                                && data[2] == (byte)'T' && data[3] == (byte)'O') continue;
                             int faces = CountFaces(data);
                             for (int fi = 0; fi < faces; fi++)
                             {
@@ -170,11 +225,17 @@ namespace Scalpel.Services
             return 1;
         }
 
-        /// <summary>Return embeddable bytes for one face. For a single-face file this is
-        /// the whole file; PdfSharpCore selects the right glyphs. For a .ttc we return the
-        /// whole collection bytes (PdfSharpCore reads via the file); if that proves wrong
-        /// in QA, extract the single font — but most installed text fonts are .ttf.</summary>
-        private static byte[] ExtractFace(string path, int face) => File.ReadAllBytes(path);
+        /// <summary>Return embeddable bytes for one face. A single-face file is returned whole.
+        /// A .ttc collection is rebuilt as a standalone font holding just that face: PdfSharpCore
+        /// throws "TrueType collection fonts are not yet supported" on the collection itself, and
+        /// that failure used to surface mid-save, after the original text was already covered.</summary>
+        private static byte[] ExtractFace(string path, int face)
+        {
+            byte[] data = File.ReadAllBytes(path);
+            return TrueTypeCollection.IsCollection(data)
+                ? TrueTypeCollection.ExtractFace(data, face) ?? Array.Empty<byte>()
+                : data;
+        }
 
         private byte[] ReadFallback()
         {

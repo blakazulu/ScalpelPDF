@@ -312,6 +312,7 @@
     <sys:String x:Key="Str_Ocr_QualityBest">最佳（較慢，更準確）</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">OCR 語言已儲存。</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">已複製 OCR 文字到剪貼簿。</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">已將 {0} 個詞複製到剪貼簿。</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">文字已擷取至檔案。</sys:String>
 
     <sys:String x:Key="Str_Recent">最近</sys:String>

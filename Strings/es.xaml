@@ -310,6 +310,7 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Ocr_QualityBest">Óptimo (más lento, más preciso)</sys:String>
     <sys:String x:Key="Str_Ocr_LangSaved">Idioma de OCR guardado.</sys:String>
     <sys:String x:Key="Str_Ocr_Copied">Texto OCR copiado al portapapeles.</sys:String>
+    <sys:String x:Key="Str_Sel_Copied">Se copiaron {0} palabra(s) al portapapeles.</sys:String>
     <sys:String x:Key="Str_Ocr_ExtractDone">Texto extraído al archivo.</sys:String>
 
     <sys:String x:Key="Str_Recent">Recientes</sys:String>

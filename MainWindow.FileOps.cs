@@ -502,7 +502,7 @@ namespace Scalpel
                     cleanDoc.Pages.Add(importDoc.Pages[i]);
                 if (stripRotations)
                     for (int i = 0; i < cleanDoc.PageCount; i++)
-                        cleanDoc.Pages[i].Rotate = 0;
+                        Scalpel.Services.PageRotation.Set(cleanDoc.Pages[i], 0);
                 Scalpel.Services.PdfSaveGuard.Save(cleanDoc, destPath);
                 cleanDoc.Close();
                 return true;

@@ -29,8 +29,7 @@ namespace Scalpel.Tests
             string p = Path.Combine(fonts, "NotoSansHebrew-Regular.ttf");
             if (File.Exists(p))
                 PdfFontResolver.Instance.RegisterBundledFont("Noto Sans Hebrew", File.ReadAllBytes(p), false, false);
-            if (PdfSharpCore.Fonts.GlobalFontSettings.FontResolver is null)
-                PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
         }
 
         private static string MakePdfWithHebrew()

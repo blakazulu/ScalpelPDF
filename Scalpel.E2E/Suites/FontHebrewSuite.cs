@@ -134,6 +134,27 @@ public static class FontHebrewSuite
                 Array.Empty<LogEntry>()));
         }
 
+        // ─── Scenario F: the edit-a-line flow ─────────────────────────────────────
+        // Double-click picks the WHOLE line; re-editing shows the NEW text (not the old words
+        // still in the file); saving removes only that line's original text, never the similar
+        // "SUBTOTAL" line; the replacement is drawn in the line's own font, not a fallback.
+        string editLinePath = string.IsNullOrEmpty(hebrewPath) ? ""
+            : Path.Combine(Path.GetDirectoryName(hebrewPath) ?? "", "editline-1p.pdf");
+        if (File.Exists(editLinePath))
+            RunScenarioF(driver, report, Suite, editLinePath);
+        else
+            report.Results.Add(new ActionResult(Suite, "F:skip", Outcome.Fail,
+                $"editline-1p fixture not available ({editLinePath})", Array.Empty<LogEntry>()));
+
+        // ─── Scenario G: editing on a rotated page ───────────────────────────────
+        string rotatedPath = string.IsNullOrEmpty(hebrewPath) ? ""
+            : Path.Combine(Path.GetDirectoryName(hebrewPath) ?? "", "rotated-1p.pdf");
+        if (File.Exists(rotatedPath))
+            RunScenarioG(driver, report, Suite, rotatedPath);
+        else
+            report.Results.Add(new ActionResult(Suite, "G:skip", Outcome.Fail,
+                $"rotated-1p fixture not available ({rotatedPath})", Array.Empty<LogEntry>()));
+
         // ─── Scenario C: font-missing toast ──────────────────────────────────────
         // Relaunch with missingfont-1p, Edit mode, Select tool, DOUBLE-CLICK the text.
         // The FontResolver should report "MadeUpFontXYZ123" not installed and show toast.
@@ -235,6 +256,139 @@ public static class FontHebrewSuite
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
+    // Scenario F — double-click edit of a whole line, re-edit, save
+    // ─────────────────────────────────────────────────────────────────────────────
+    private static void RunScenarioF(AppDriver driver, RunReport report, string suite, string path)
+    {
+        var none = Array.Empty<LogEntry>();
+        void Check(string name, bool ok, string detail)
+            => report.Results.Add(new ActionResult(suite, name, ok ? Outcome.Pass : Outcome.Fail, ok ? null : detail, none));
+
+        try
+        {
+            driver.Relaunch(path);
+            System.Threading.Thread.Sleep(1200);
+            if (!driver.IsAlive) { Check("F:relaunch", false, "app not alive"); return; }
+            driver.EnsureSurface(Surface.EditMode);
+            System.Threading.Thread.Sleep(300);
+            driver.Click("ToolSelectBtn");
+            System.Threading.Thread.Sleep(300);
+
+            // F-1: double-click the TOTAL line on its LAST word: the box must hold the whole line.
+            driver.WithForeground(() => driver.DoubleClickCanvas(0.52, 0.45));
+            System.Threading.Thread.Sleep(1200);
+            string? first = driver.ReadActiveTextBox();
+            Check("F:assert:whole-line", first == "TOTAL 100 USD",
+                $"edit box held '{first ?? "(no box)"}', expected the whole line 'TOTAL 100 USD'");
+            if (first is null) return;
+
+            // F-2: change it and commit with Enter.
+            driver.SetActiveAnnotationText("TOTAL 250 USD");
+            driver.WithForeground(() =>
+            {
+                try { driver.FindAnyTextBox()?.Click(); } catch { }
+                System.Threading.Thread.Sleep(150);
+                Keyboard.Press(VirtualKeyShort.END);
+                Keyboard.Press(VirtualKeyShort.RETURN);
+            });
+            System.Threading.Thread.Sleep(600);
+
+            // F-3: double-click the same line again, a little above centre: the box must show
+            // the EDITED text, not the original words that are still in the working file.
+            driver.WithForeground(() => driver.DoubleClickCanvas(0.40, 0.443));
+            System.Threading.Thread.Sleep(1200);
+            string? again = driver.ReadActiveTextBox();
+            Check("F:assert:reedit-shows-new-text", again == "TOTAL 250 USD",
+                $"re-edit box held '{again ?? "(no box)"}', expected 'TOTAL 250 USD'");
+
+            // F-4: leave the re-edit unchanged and save.
+            driver.WithForeground(() =>
+            {
+                Keyboard.Press(VirtualKeyShort.ESCAPE);
+                System.Threading.Thread.Sleep(300);
+                using (Keyboard.Pressing(VirtualKeyShort.CONTROL))
+                    Keyboard.Press(VirtualKeyShort.KEY_S);
+            });
+            System.Threading.Thread.Sleep(2500);
+
+            // F-5: the saved file.
+            using var doc = PdfDocument.Open(path);
+            var words = doc.GetPage(1).GetWords().ToList();
+            string all = string.Join(" ", words.Select(w => w.Text));
+            Check("F:assert:new-text-saved", words.Any(w => w.Text == "250"),
+                $"'250' not found in saved text: '{all}'");
+            Check("F:assert:original-removed", words.Count(w => w.Text == "100") == 1,
+                $"expected exactly one '100' (the SUBTOTAL line's) after removing the edited original: '{all}'");
+            Check("F:assert:similar-line-kept", words.Any(w => w.Text == "SUBTOTAL"),
+                $"the SUBTOTAL line was removed: '{all}'");
+            var newFonts = words.Where(w => w.Text == "250")
+                .SelectMany(w => w.Letters).Select(l => l.FontName ?? "").Distinct().ToList();
+            Check("F:assert:line-font-used", newFonts.Count > 0 && newFonts.All(f => f.Contains("Arial")),
+                $"replacement drawn in [{string.Join(", ", newFonts)}], expected the line's own Arial");
+        }
+        catch (Exception ex)
+        {
+            Check("F:exception", false, $"Scenario F threw: {ex.Message}");
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Scenario G — double-click edit on a rotated page, before and after a page operation
+    // ─────────────────────────────────────────────────────────────────────────────
+    private static void RunScenarioG(AppDriver driver, RunReport report, string suite, string path)
+    {
+        var none = Array.Empty<LogEntry>();
+        void Check(string name, bool ok, string detail)
+            => report.Results.Add(new ActionResult(suite, name, ok ? Outcome.Pass : Outcome.Fail, ok ? null : detail, none));
+        const string Expected = "ROTATED LINE OK";
+
+        string? OpenEditAtCentre()
+        {
+            driver.EnsureSurface(Surface.EditMode);
+            System.Threading.Thread.Sleep(300);
+            driver.Click("ToolSelectBtn");
+            System.Threading.Thread.Sleep(300);
+            driver.WithForeground(() => driver.DoubleClickCanvas(0.5, 0.5));
+            System.Threading.Thread.Sleep(1200);
+            string? text = driver.ReadActiveTextBox();
+            driver.WithForeground(() => Keyboard.Press(VirtualKeyShort.ESCAPE));
+            System.Threading.Thread.Sleep(300);
+            return text;
+        }
+
+        try
+        {
+            driver.Relaunch(path);
+            System.Threading.Thread.Sleep(1200);
+            if (!driver.IsAlive) { Check("G:relaunch", false, "app not alive"); return; }
+
+            // G-1: the file still carries /Rotate 90.
+            string? fresh = OpenEditAtCentre();
+            Check("G:assert:rotated-page-line", fresh == Expected,
+                $"edit box held '{fresh ?? "(no box)"}' on the /Rotate 90 page, expected '{Expected}'");
+
+            // G-2: four quarter turns bring the text upright again, but now Scalpel holds the
+            // rotation itself and the working file says /Rotate 0.
+            int turns = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                if (TabsSuite.InvokeRotate(driver)) turns++;
+                System.Threading.Thread.Sleep(900);
+            }
+            if (turns != 4) { Check("G:rotate", false, $"rotate invoked {turns}/4 times"); return; }
+            string? afterOp = OpenEditAtCentre();
+            Check("G:assert:after-page-op-line", afterOp == Expected,
+                $"edit box held '{afterOp ?? "(no box)"}' after rotating the page, expected '{Expected}'");
+
+            if (driver.HasOpenModal()) driver.AnswerDialog("No");
+        }
+        catch (Exception ex)
+        {
+            Check("G:exception", false, $"Scenario G threw: {ex.Message}");
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
     // Scenario C — font-missing toast appears when editing text with unknown font
     // ─────────────────────────────────────────────────────────────────────────────
     private static void RunScenarioC(AppDriver driver, RunReport report, string suite,
@@ -266,7 +420,10 @@ public static class FontHebrewSuite
             // C-3: double-click center to open edit box -> triggers font-missing toast.
             // ShowToast fires at MainWindow.xaml.cs ~line 6504 when
             // FontResolver.Resolve(rawFont,...).IsInstalled == false.
-            driver.WithForeground(() => driver.DoubleClickCanvas());
+            // The fixture centres "Hello World" on the page (XStringFormats.Center), so click the
+            // page centre. The old 45% click landed ~40pt above the text and only worked because
+            // a double-click on empty space used to jump to the nearest line anywhere on the page.
+            driver.WithForeground(() => driver.DoubleClickCanvas(0.5, 0.5));
             System.Threading.Thread.Sleep(1500); // wait for PdfPig + FontResolver + toast render
 
             // Check whether the edit box opened (diagnostic only, not the main assertion)

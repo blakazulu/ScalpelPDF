@@ -93,8 +93,7 @@ namespace Scalpel.Tests
 
         private static void FontEmbeddingTestsEnsureResolver()
         {
-            if (GlobalFontSettings.FontResolver is null)
-                GlobalFontSettings.FontResolver = PdfFontResolver.Instance;
+            PdfFontResolver.Install();
             // Ensure Noto Sans Hebrew is registered for this headless test.
             string noto = Path.Combine(RepoRootForSearch(), "Resources", "Fonts", "NotoSansHebrew-Regular.ttf");
             Assert.True(File.Exists(noto), $"Noto Sans Hebrew font file not found at {noto}");

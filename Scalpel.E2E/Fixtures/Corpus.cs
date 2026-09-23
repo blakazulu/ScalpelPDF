@@ -20,6 +20,8 @@ public static class Corpus
             WriteCorrupted(outDir),
             WriteHebrew1P(outDir),
             WriteMissingFont1P(outDir),
+            WriteEditLine1P(outDir),
+            WriteRotated1P(outDir),
         };
         return files;
     }
@@ -191,6 +193,51 @@ public static class Corpus
         }
 
         return new CorpusFile("missingfont-1p", path, 1);
+    }
+
+    /// <summary>
+    /// A 1-page PDF for the edit-a-line flow: "TOTAL 100 USD" centred vertically on the 45%
+    /// point DoubleClickCanvas() hits, and "SUBTOTAL 100 USD" higher up. Editing the TOTAL line
+    /// must not touch the SUBTOTAL line, whose text contains it.
+    /// </summary>
+    private static CorpusFile WriteEditLine1P(string dir)
+    {
+        string path = System.IO.Path.Combine(dir, "editline-1p.pdf");
+        using var doc = new PdfDocument();
+        var page = doc.AddPage();
+        using (var gfx = XGraphics.FromPdfPage(page))
+        {
+            var font = new XFont("Arial", 20);
+            double x = page.Width * 0.30;
+            gfx.DrawString("SUBTOTAL 100 USD", font, XBrushes.Black, x, page.Height * 0.30);
+            // Baseline ~7pt below 45% puts the capitals' centre on the click point.
+            gfx.DrawString("TOTAL 100 USD", font, XBrushes.Black, x, page.Height * 0.45 + 7);
+        }
+        doc.Save(path);
+        return new CorpusFile("editline-1p", path, 1);
+    }
+
+    /// <summary>
+    /// A 1-page portrait PDF carrying /Rotate 90, with one line counter-rotated so it reads
+    /// upright on screen, centred on the page. The page centre stays the centre at any rotation,
+    /// so a double-click there hits the line both on the freshly opened page and after Scalpel's
+    /// own rotate command has moved the rotation out of the working file.
+    /// </summary>
+    private static CorpusFile WriteRotated1P(string dir)
+    {
+        string path = System.IO.Path.Combine(dir, "rotated-1p.pdf");
+        using var doc = new PdfDocument();
+        var page = doc.AddPage();
+        using (var gfx = XGraphics.FromPdfPage(page))
+        {
+            var centre = new XPoint(page.Width / 2, page.Height / 2);
+            gfx.RotateAtTransform(-90, centre);
+            gfx.DrawString("ROTATED LINE OK", new XFont("Arial", 20), XBrushes.Black,
+                new XRect(centre.X - 200, centre.Y - 20, 400, 40), XStringFormats.Center);
+        }
+        page.Rotate = 90;
+        doc.Save(path);
+        return new CorpusFile("rotated-1p", path, 1);
     }
 
     public static IReadOnlyList<string> RealFixtures(string fixturesDir)

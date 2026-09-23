@@ -34,58 +34,98 @@ namespace Scalpel
             return false;
         }
 
-        /// <summary>Pick a bundled face covering the script of <paramref name="text"/>:
-        /// Arabic → Noto Sans Arabic, Hebrew → Noto Sans Hebrew, Cyrillic → Noto Sans,
-        /// otherwise the candidate (Latin). Falls back to the candidate if a bundled face
-        /// isn't registered, so a missing font never blanks the text.</summary>
-        private static string PickFace(string text, string candidate, bool bold, bool italic)
-        {
-            foreach (char c in text)
-            {
-                // Arabic base (0600-06FF) or presentation forms A/B (FB50-FDFF, FE70-FEFF)
-                if ((c >= '؀' && c <= 'ۿ') || (c >= 'ﭐ' && c <= '﷿') || (c >= 'ﹰ' && c <= '﻿'))
-                    return FontCovers(candidate, bold, italic, 0x0628) ? candidate : "Noto Sans Arabic";
-                // Hebrew (0590-05FF) or Hebrew presentation forms (FB1D-FB4F)
-                if ((c >= '֐' && c <= '׿') || (c >= 'יִ' && c <= 'ﭏ'))
-                    return FontCovers(candidate, bold, italic, 0x05D0) ? candidate : "Noto Sans Hebrew";
-                // Cyrillic (0400-04FF)
-                if (c >= 'Ѐ' && c <= 'ӿ')
-                    return FontCovers(candidate, bold, italic, 0x0410) ? candidate : "Noto Sans";
-            }
-            return candidate;
-        }
-
-        /// <summary>Draw one line of text, handling RTL: reorder to visual order, pick a
-        /// Hebrew-capable font (the candidate if it covers Hebrew, else bundled Noto), and
-        /// right-align to <paramref name="rightX"/> when it exceeds <paramref name="leftX"/>
-        /// (edits with known bounds); otherwise left-align at leftX. LTR text is unchanged.</summary>
+        /// <summary>Draw one line of text. RTL text is shaped (Arabic) and reordered to visual
+        /// order, then the line is split into font runs (<see cref="ScriptRuns"/>) so each part is
+        /// drawn in a face that has its glyphs: the candidate where it covers the character,
+        /// otherwise a fallback. A mixed Hebrew/English line therefore keeps its Latin letters and
+        /// digits instead of rendering them as boxes. RTL lines right-align to
+        /// <paramref name="rightX"/> when it exceeds <paramref name="leftX"/> (edits with known
+        /// bounds); everything else left-aligns at leftX. <paramref name="forceCandidate"/> (an
+        /// extracted embedded font already verified to cover the text) skips the substitution.
+        ///
+        /// <para>PdfSharpCore 1.3.67 ignores simulated styles, so bold or italic only appears
+        /// when the face really exists. Styled text therefore prefers Arial (which ships real
+        /// bold and italic faces covering Latin, Hebrew, Arabic and Cyrillic) over the bundled
+        /// Noto faces, and a face with no italic is slanted with a shear instead. A family that
+        /// PdfSharpCore cannot build (a damaged embedded subset, say) falls back to Arial rather
+        /// than throwing - the original text is already covered by then, and a throw would save
+        /// a blank box in its place.</para></summary>
         private static void DrawTextRun(XGraphics gfx, string text, string candidateFamily,
             double fontSizePx, XFontStyle style, XBrush brush,
             double leftX, double rightX, double baselineY, bool forceCandidate = false)
         {
             bool bold = style == XFontStyle.Bold || style == XFontStyle.BoldItalic;
             bool italic = style == XFontStyle.Italic || style == XFontStyle.BoldItalic;
+            bool rtl = Scalpel.Services.BidiReorder.ContainsRtl(text);
+            var resolver = Scalpel.Services.PdfFontResolver.Instance;
 
-            if (!Scalpel.Services.BidiReorder.ContainsRtl(text))
+            string visual = Scalpel.Services.ScriptRuns.ToVisual(text);
+            List<(string Text, string Family)> segs;
+            if (forceCandidate)
+                segs = [(visual, candidateFamily)];
+            else
             {
-                // LTR (incl. Cyrillic): pick a covering face so Russian doesn't render as boxes.
-                // forceCandidate (an extracted embedded font already verified to cover the text)
-                // bypasses the script-substitution heuristic so the exact font is used.
-                string ltrFace = forceCandidate ? candidateFamily : PickFace(text, candidateFamily, bold, italic);
-                gfx.DrawString(text, new XFont(ltrFace, fontSizePx, style), brush, leftX, baselineY);
-                return;
+                var bytesByFamily = new Dictionary<string, byte[]?>(StringComparer.OrdinalIgnoreCase);
+                bool Covers(string family, int cp)
+                {
+                    if (!bytesByFamily.TryGetValue(family, out var b))
+                        bytesByFamily[family] = b = resolver.TryGetExactFontBytes(family, bold, italic, out var fb) ? fb : null;
+                    return b is not null && Scalpel.Services.TrueTypeCmap.CoversCodepoint(b, cp);
+                }
+                IReadOnlyList<string> fallbacks = bold || italic
+                    ? ["Arial", .. Scalpel.Services.ScriptRuns.Fallbacks]
+                    : Scalpel.Services.ScriptRuns.Fallbacks;
+                segs = Scalpel.Services.ScriptRuns.Split(visual, candidateFamily, Covers, fallbacks);
             }
 
-            // RTL: shape Arabic (cursive joining) BEFORE reordering, then reverse to visual order.
-            string shaped = Scalpel.Services.ArabicShaper.ContainsArabic(text)
-                ? Scalpel.Services.ArabicShaper.Shape(text)
-                : text;
-            string family = forceCandidate ? candidateFamily : PickFace(shaped, candidateFamily, bold, italic);
-            var font = new XFont(family, fontSizePx, style);
-            string visual = Scalpel.Services.BidiReorder.ToVisual(shaped);
-            double width = gfx.MeasureString(visual, font).Width;
-            double x = rightX > leftX ? rightX - width : leftX;
-            gfx.DrawString(visual, font, brush, x, baselineY);
+            var fonts = new Dictionary<string, XFont>(StringComparer.OrdinalIgnoreCase);
+            XFont FontOf(string family)
+            {
+                if (fonts.TryGetValue(family, out var f)) return f;
+                foreach (var fam in new[] { family, "Arial", "Noto Sans" })
+                {
+                    try
+                    {
+                        f = new XFont(fam, fontSizePx, style);
+                        gfx.MeasureString("x", f);      // builds the face now, not mid-draw
+                        return fonts[family] = f;
+                    }
+                    catch (Exception ex)
+                    {
+                        Scalpel.Services.Logger.Warn("Save", "font.build.fail",
+                            "Font could not be used for burning text; falling back",
+                            new { family = fam, error = ex.Message });
+                    }
+                }
+                return fonts[family] = new XFont("Arial", fontSizePx, XFontStyle.Regular);
+            }
+
+            var widths = new double[segs.Count];
+            double total = 0;
+            for (int i = 0; i < segs.Count; i++)
+                total += widths[i] = gfx.MeasureString(segs[i].Text, FontOf(segs[i].Family)).Width;
+
+            double x = rtl && rightX > leftX ? rightX - total : leftX;
+            for (int i = 0; i < segs.Count; i++)
+            {
+                var font = FontOf(segs[i].Family);
+                // Only a KNOWN family missing its italic face: an unknown one already resolves
+                // to Arial's real italic, and shearing that would slant it twice.
+                bool shear = italic
+                    && resolver.TryGetExactFontBytes(segs[i].Family, false, false, out _)
+                    && !resolver.HasExactFace(segs[i].Family, bold, italic: true);
+                if (shear)
+                {
+                    // Slant about the baseline: x' = x - 0.21 * y, the usual synthetic oblique.
+                    var state = gfx.Save();
+                    gfx.TranslateTransform(x, baselineY);
+                    gfx.MultiplyTransform(new XMatrix(1, 0, -0.21, 1, 0, 0));
+                    gfx.DrawString(segs[i].Text, font, brush, 0, 0);
+                    gfx.Restore(state);
+                }
+                else gfx.DrawString(segs[i].Text, font, brush, x, baselineY);
+                x += widths[i];
+            }
         }
 
         private void DrawAnnotationsOnDocument()
@@ -237,14 +277,17 @@ namespace Scalpel
                                               : tea.IsBold ? XFontStyle.Bold
                                               : tea.IsItalic ? XFontStyle.Italic
                                               : XFontStyle.Regular;
-                                double etyB = tea.Position.Y * sy + tea.FontSize * sy;
+                                // The original line's real baseline when it was read from the PDF;
+                                // one em below the box top only as the old fallback.
+                                double etyB = tea.Position.Y * sy + (tea.BaselineOffset ?? tea.FontSize) * sy;
                                 double eLeft = tea.OriginalBounds.X * sx;
                                 double eRight = (tea.OriginalBounds.X + tea.OriginalBounds.Width) * sx;
                                 // Use the document's own embedded font when we have it (exact match),
                                 // forcing it past the substitution heuristic; else the resolved family.
                                 string editCandidate = tea.ExactFontFamily ?? tea.FontName;
                                 DrawTextRun(gfx, tea.NewContent, editCandidate, tea.FontSize * sy, editStyle,
-                                    XBrushes.Black, eLeft, eRight, etyB, forceCandidate: tea.ExactFontFamily is not null);
+                                    tea.TextColor is Color tc ? new XSolidBrush(XColor.FromArgb(255, tc.R, tc.G, tc.B)) : XBrushes.Black,
+                                    eLeft, eRight, etyB, forceCandidate: tea.ExactFontFamily is not null);
                                 break;
 
                             case SignatureAnnotation sa:
