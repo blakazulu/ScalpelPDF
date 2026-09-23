@@ -1,12 +1,12 @@
 {
-  "version": "2.1.0",
+  "version": "2.2.0",
   "siteUrl": "https://scalpel-pdf.netlify.app",
   "storeUrl": "https://apps.microsoft.com/detail/9n9hn8xw4lf3",
   "notes": [
-    "New OCR Region tool: drag a rectangle over any part of a page to copy just that area's text.",
-    "Digitally Sign can now use a certificate from the Windows certificate store (smart cards, enterprise certs).",
-    "Signatures can include a trusted RFC-3161 timestamp, so they stay valid after the certificate expires.",
-    "Add a visible signature box (name, date, reason) in a corner of the first page.",
-    "Optionally embed long-term validation (LTV) info so signatures can be checked years later."
+    "Tabs: open several PDFs at once, each in its own tab with its own unsaved changes, undo history and place in the document.",
+    "Closing a tab or Scalpel asks about every document with unsaved changes. Scalpel also reopens the tabs you had open.",
+    "New tab bar: drag to reorder, middle-click to close, right-click for more. Ctrl+1 to Ctrl+9 jump between tabs.",
+    "Fixed: Scalpel could close with no warning while loading page thumbnails.",
+    "New tools: export pages as images, compare two PDFs, and measure distances."
   ]
 }

@@ -79,7 +79,7 @@ namespace Scalpel.Services
                     gfx.DrawString(w.Text, font, Invisible, new XPoint(w.XPt, baselineY));
                 }
             }
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
     }
 

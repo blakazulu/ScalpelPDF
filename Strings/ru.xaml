@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">Установить Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">Установить Scalpel в ваш профиль пользователя?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">Установить Scalpel в ваш профиль пользователя?
 
 Приложение будет скопировано в %LocalAppData%\Scalpel, и будет создан ярлык в меню «Пуск».
 Вы можете удалить его через «Установка и удаление программ» в любое время.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">Есть несохранённые изменения. Закрыть этот файл без сохранения?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">Есть несохранённые изменения. Закрыть Scalpel без сохранения?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">Не удалось открыть PDF:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">Не удалось открыть PDF:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@
     <sys:String x:Key="Str_Recent_Remove">Убрать из недавних</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">Файл не найден — удалён из недавних</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">Закрыть вкладку</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">Сохранить изменения в {0} перед закрытием?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} уже открыт.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">Не удалось повторно открыть {0}.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">Завершите или отмените текущую операцию, прежде чем переключаться между документами.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">Открыть {0} файлов как отдельные вкладки?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">Закрыть</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">Закрыть другие вкладки</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">Закрыть вкладки справа</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">Открыть папку с файлом</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">Копировать путь</sys:String>
+    <sys:String x:Key="Str_Tab_New">Новая вкладка (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">Все вкладки</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">ВКЛАДКИ</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">Новая вкладка</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">Следующая / предыдущая вкладка</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">Перейти к вкладке 1-8</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">Перейти к последней вкладке</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Выбор цвета</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Свой цвет…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Выберите цвет в любом месте экрана</sys:String>
@@ -324,4 +341,96 @@
     <sys:String x:Key="Str_Ocr_Progress_Starting">Подготовка…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">Распознавание страницы {0} из {1}…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">Отмена</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">Ссылка заблокирована в целях безопасности - открываются только веб- и почтовые ссылки</sys:String>
+    <sys:String x:Key="Str_PageN">Страница {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">Требуется пароль</sys:String>
+    <sys:String x:Key="Str_St_FileSize">Размер файла: {0} ({1} байт)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">Закрыть другие вкладки</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">По ширине</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">По странице</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">Первая / последняя страница</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">Показать размер файла</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">Инструменты по цифрам</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">Удалить пароль</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">Сохранить этот документ поверх оригинала без защиты паролем?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">Сохранено без защиты паролем</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">Этот документ не защищён паролем</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">Сохранено - защита паролем удалена</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">Сначала откройте PDF.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">Не удалось сохранить: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">Не запоминать недавно открытые файлы</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">Закрыть поиск (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = далее  Shift+Enter = назад</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">Совпадений нет</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{0} совпадений на {1} страницах</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1 совпадение на 1 странице</sys:String>
+    <sys:String x:Key="Str_Search_Error">Ошибка поиска</sys:String>
+    <sys:String x:Key="Str_St_Undid">Последняя пометка отменена</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">Изменение документа отменено</sys:String>
+    <sys:String x:Key="Str_St_Redid">Последняя пометка возвращена</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">Изменение документа возвращено</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">Нечего возвращать</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">Нечего отменять</sys:String>
+    <sys:String x:Key="Str_KS_Redo">Вернуть</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">Предпечатная проверка</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">Проверка документа…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">Проверка завершена: проблем - {0}, предупреждений - {1}</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">Проверено страниц: {0}. Проблем: {1}, предупреждений: {2}.</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">Замечаний нет - документ готов к отправке.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">Проблемы (другие программы отклонят или покажут неверно):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">Предупреждения (возможны визуальные ошибки):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">Примечания:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">стр.</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">Не удалось завершить проверку: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">Комментарии</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">Выберите комментарий, чтобы прочитать его. Можно исправить текст, изменить автора или удалить его. Ничего не записывается, пока вы не нажмёте Сохранить, а затем документ всё равно нужно сохранить.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">От</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">Комментарий</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">Удалить этот комментарий</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">Оставить этот комментарий</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">Сохранить изменения</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">Ни один комментарий не изменён</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">Отредактировано комментариев: {0}, удалено: {1}</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">Полужирный / курсив / подчёркивание при вводе</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">Заполнить поля формы через OCR</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">На этой странице нет заполняемых текстовых полей или полей выбора.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">Чтение полей: {0}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">Чтение поля {0} из {1}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">Заполнено полей со страницы: {0}</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">В полях не найдено читаемого текста</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">Не удалось прочитать поля: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">Выпрямить сфотографированную страницу</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">Выпрямить страницу</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">Перетащите четыре маркера в углы страницы на фото, затем выберите Выпрямить.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">Выпрямить</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">Страница {0} выпрямлена</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">Не удалось выпрямить страницу: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">Измерить расстояние</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">Проведите по странице для измерения. Удерживайте Shift для прямой линии; Esc для выхода.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} мм  /  {1} дюйм  /  {2} пт</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">Сравнить с другим PDF</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">Выберите PDF для сравнения</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">Сравнение документов...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">Сравнение завершено</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">Ошибка сравнения: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">Сравнение {0} с {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">Число страниц отличается: {0} против {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">Документы идентичны.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">Все общие страницы идентичны.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">Различаются {0} из {1} общих страниц:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  Страница {0}: изменено {1}% страницы, областей: {2}</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">Экспорт страниц как изображений</sys:String>
+    <sys:String x:Key="Str_Exp_Format">Формат</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">Цвет</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">Цветной</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">Оттенки серого</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">Черно-белый</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">Разрешение</sys:String>
+    <sys:String x:Key="Str_Exp_Export">Экспорт</sys:String>
+    <sys:String x:Key="Str_Exp_Note">Будет записано {0} страниц, по одному файлу изображения на страницу.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">Экспорт {0} страниц...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">Экспортировано изображений: {0} в {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">Ошибка экспорта: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">В этом документе нет комментариев.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">Комментариев в документе: {0}.</sys:String>
 </ResourceDictionary>

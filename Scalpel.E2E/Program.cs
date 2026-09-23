@@ -41,17 +41,18 @@ internal static class Program
         string openWith = corpus.First(c => c.Key == "simple-1p").Path;
         string hebrewPath = corpus.FirstOrDefault(c => c.Key == "hebrew-1p")?.Path ?? "";
         string missingFontPath = corpus.FirstOrDefault(c => c.Key == "missingfont-1p")?.Path ?? "";
+        string largePath = corpus.FirstOrDefault(c => c.Key == "large-50p")?.Path ?? "";
 
         // 2. Decide which suites to run. --suite accepts "all" or a comma-separated subset
         //    (e.g. --suite journeys,pairwise) so a fast/bounded run is possible.
         bool all = suite == "all";
         var requested = suite.Split(',')
             .Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
-        var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts", "save" }
+        var selected = new[] { "singles", "journeys", "pairwise", "monkey", "fonts", "save", "tabs" }
             .Where(s => all || requested.Contains(s)).ToList();
         if (selected.Count == 0)
         {
-            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|save|all, or a comma-separated subset.");
+            Console.Error.WriteLine($"Unknown --suite '{suite}'. Use singles|journeys|pairwise|monkey|fonts|save|tabs|all, or a comma-separated subset.");
             return 2;
         }
 
@@ -67,7 +68,7 @@ internal static class Program
 
         RunReport report = useParallel
             ? ParallelOrchestrator.Run(appPath, selected, seed, instances)
-            : RunSequential(appPath, openWith, hebrewPath, missingFontPath, selected, seed);
+            : RunSequential(appPath, openWith, hebrewPath, missingFontPath, largePath, selected, seed);
 
         // 4. Report.
         var (md, json) = Reporter.Write(report, reportDir, stamp);
@@ -81,7 +82,7 @@ internal static class Program
     // Classic one-instance, one-after-another path. Used for single-suite runs, --sequential,
     // and as the debugging fallback. Mirrors the original harness behaviour exactly.
     private static RunReport RunSequential(string appPath, string openWith, string hebrewPath,
-        string missingFontPath, IReadOnlyList<string> selected, int seed)
+        string missingFontPath, string largePath, IReadOnlyList<string> selected, int seed)
     {
         // Pristine snapshot of the corpus doc, taken BEFORE the app opens (or re-saves) it. The
         // fonts/save suites relaunch onto private copies for isolation; copying the live openWith
@@ -104,6 +105,7 @@ internal static class Program
         foreach (var suiteName in selected)
         {
             Console.WriteLine($"[suite] {suiteName}...");
+            driver.CurrentSuite = suiteName;
             driver.ResetToBaseState();
             switch (suiteName)
             {
@@ -113,8 +115,12 @@ internal static class Program
                 case "monkey":   MonkeySuite.Run(driver, runner, report, seed); break;
                 case "fonts":    FontHebrewSuite.Run(driver, runner, report, cleanCorpus, hebrewPath, missingFontPath); break;
                 case "save":     SaveVerifySuite.Run(driver, report, cleanCorpus); break;
+                case "tabs":     TabsSuite.Run(driver, report, cleanCorpus, largePath); break;
             }
         }
+        // Close the last instance now rather than in Dispose, so its close is reported too.
+        driver.Shutdown();
+        driver.AddCloseEventsTo(report);
         return report;
     }
 

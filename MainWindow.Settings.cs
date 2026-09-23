@@ -197,6 +197,7 @@ namespace Scalpel
 
         private const int  WM_GETMINMAXINFO   = 0x0024;
         private const int  WM_DPICHANGED      = 0x02E0;
+        private const int  WM_MOUSEHWHEEL     = 0x020E;   // tilt wheel / touchpad h-scroll
         private const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
         private const uint SWP_NOZORDER       = 0x0004;
         private const uint SWP_NOACTIVATE     = 0x0010;
@@ -227,12 +228,39 @@ namespace Scalpel
                         if (idx >= 0) RenderPage(idx);
                     }));
             }
+            else if (msg == WM_MOUSEHWHEEL)
+            {
+                // WPF has no horizontal-wheel event, so a tilt wheel or a two-finger sideways
+                // swipe on a precision touchpad never reached the document. wParam's high word is
+                // a signed delta: positive means "scroll right".
+                int hDelta = (short)((wParam.ToInt64() >> 16) & 0xFFFF);
+                if (hDelta != 0 && PagePreviewPanel is not null)
+                {
+                    double step = hDelta / 120.0 * WheelScrollAmount();
+                    PagePreviewPanel.ScrollToHorizontalOffset(
+                        Math.Max(0, PagePreviewPanel.HorizontalOffset + step));
+                    handled = true;
+                }
+            }
             else if (msg == WM_NCHITTEST && WindowState == WindowState.Normal)
             {
                 int ht = WmNcHitTest(hwnd, lParam);
                 if (ht != 0) { handled = true; return new IntPtr(ht); }
             }
             return IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// Pixels one wheel notch should scroll, honouring the lines-per-notch value set in
+        /// Windows Mouse Properties (the "one screen at a time" setting reports a huge number,
+        /// so it is capped to something usable).
+        /// </summary>
+        internal static double WheelScrollAmount()
+        {
+            int lines = SystemParameters.WheelScrollLines;
+            if (lines <= 0) lines = 3;
+            if (lines > 20) lines = 20;
+            return lines * 16.0;
         }
 
         private int WmNcHitTest(IntPtr hwnd, IntPtr lParam)
@@ -341,7 +369,11 @@ namespace Scalpel
         // Settings persistence (window size, zoom, last file)
         // ============================================================
 
-        private void SaveWindowSettings()
+        /// <param name="activeForTabs">The tab to record as "active" in the OpenTabs setting
+        /// (Task 12). OnClosing passes the tab the user was actually looking at when they chose to
+        /// close, captured before its own dirty-prompt loop switches <c>_s</c> from tab to tab while
+        /// asking about each unsaved one. Defaults to <c>_s</c> for any other caller.</param>
+        private void SaveWindowSettings(DocumentSession? activeForTabs = null)
         {
             try
             {
@@ -357,8 +389,45 @@ namespace Scalpel
                 App.SetSetting("ZoomLevel", _zoomLevel.ToString(System.Globalization.CultureInfo.InvariantCulture));
                 // Persist as "last file" only for real, durable documents — never a
                 // transient temp/repaired copy (those get swept and would re-prompt).
-                if (_currentFile is not null && !IsTransientPath(_currentFile))
-                    App.SetSetting("LastFile", _currentFile);
+                // Prefer the user's real path (_originalFile) over the working copy
+                // (_currentFile), which can be a temp file even for a durable document.
+                // Kept for older builds that predate multi-tab restore (R20); OpenTabs below is
+                // the source current builds restore from.
+                string? last = _originalFile ?? _currentFile;
+                if (last is not null && !IsTransientPath(last))
+                    App.SetSetting("LastFile", last);
+
+                SaveOpenTabsSetting(activeForTabs ?? _s);
+            }
+            catch { /* best-effort */ }
+        }
+
+        /// <summary>
+        /// Persists every open tab's real file and which one was active, so the next launch can
+        /// reopen them (Task 12: reopen open tabs at startup). A tab with no durable path -
+        /// "Untitled.pdf", or a document whose working file is a temp/repaired copy with no real
+        /// original - is skipped, same as LastFile; a deferred (not-yet-loaded) tab is kept, since
+        /// its OriginalPath is already the real file behind it.
+        /// </summary>
+        private void SaveOpenTabsSetting(DocumentSession active)
+        {
+            try
+            {
+                var realPaths = new List<string>();
+                int activeIndex = -1;
+                foreach (var t in _tabs.Items)
+                {
+                    string? p = t.OriginalPath;
+                    if (string.IsNullOrEmpty(p) || IsTransientPath(p)) continue;
+                    if (ReferenceEquals(t, active)) activeIndex = realPaths.Count;
+                    realPaths.Add(p);
+                }
+                // Math.Max(0, activeIndex): activeIndex stays -1 when the active tab itself had no
+                // durable path (Untitled, a temp/repaired copy) and was skipped above - clamping to
+                // 0 makes the first restorable tab active instead of serializing a negative index.
+                App.SetSetting("OpenTabs", realPaths.Count == 0
+                    ? ""
+                    : Scalpel.Services.OpenTabsSetting.Serialize(realPaths, Math.Max(0, activeIndex)));
             }
             catch { /* best-effort */ }
         }

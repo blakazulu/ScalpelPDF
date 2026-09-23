@@ -275,12 +275,17 @@ namespace Scalpel
 
         private void RenderSignaturePreview(Canvas canvas, SavedSignature sig, double targetW, double targetH)
         {
-            double scaleX = targetW / sig.CanvasWidth;
-            double scaleY = targetH / sig.CanvasHeight;
+            // A legacy or truncated signature file can carry a zero canvas size; dividing by it
+            // yields Infinity, which WPF refuses when the value reaches a size property.
+            double canvasW = SafeSize(sig.CanvasWidth, 400);
+            double canvasH = SafeSize(sig.CanvasHeight, 150);
+            double scaleX = targetW / canvasW;
+            double scaleY = targetH / canvasH;
             double scale = Math.Min(scaleX, scaleY) * 0.9;
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale <= 0) scale = 1.0;
 
-            double offsetX = (targetW - sig.CanvasWidth * scale) / 2;
-            double offsetY = (targetH - sig.CanvasHeight * scale) / 2;
+            double offsetX = (targetW - canvasW * scale) / 2;
+            double offsetY = (targetH - canvasH * scale) / 2;
 
             foreach (var stroke in sig.Strokes)
             {
@@ -521,7 +526,11 @@ namespace Scalpel
                 Filter = "Image files|*.png;*.jpg;*.jpeg;*.bmp;*.gif|All files|*.*",
                 Title = "Import Signature Image"
             };
+            // Signature artwork rarely lives beside the PDFs being edited, so each kind of
+            // picker remembers its own folder rather than sharing one with the document picker.
+            SeedPickerFolder(dlg, Scalpel.Services.LastFolders.Signature);
             if (dlg.ShowDialog(this) != true) return;
+            RememberPickerFolder(Scalpel.Services.LastFolders.Signature, dlg.FileName);
 
             try
             {
@@ -569,8 +578,10 @@ namespace Scalpel
                 PageIndex = pageIdx,
                 Position = pos,
                 Scale = scale,
-                SourceWidth = sig.CanvasWidth,
-                SourceHeight = sig.CanvasHeight,
+                // A saved signature with a zero canvas size (an old or truncated store entry)
+                // would produce an infinite scale when it is rendered or selected.
+                SourceWidth = SafeSize(sig.CanvasWidth, 400),
+                SourceHeight = SafeSize(sig.CanvasHeight, 150),
                 ImageData = sig.ImageData
             };
 
@@ -587,8 +598,8 @@ namespace Scalpel
             // Auto-switch to Select and select the placed signature so the user
             // can immediately reposition or resize without an extra click.
             SetTool(EditTool.Select);
-            double sigW = sig.CanvasWidth * scale;
-            double sigH = sig.CanvasHeight * scale;
+            double sigW = annot.SourceWidth * scale;
+            double sigH = annot.SourceHeight * scale;
             SelectAnnotation(annot, new Rect(pos.X, pos.Y, sigW, sigH));
             SetStatus("Signature placed — drag to reposition, use the corner handle to resize");
             Scalpel.Services.Logger.Info("Sign", "sign.success", "Signature placed", new { page = pageIdx + 1 });
@@ -601,7 +612,9 @@ namespace Scalpel
                 Title = "Insert Image",
                 Filter = "Image files|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tiff;*.tif|All files|*.*"
             };
+            SeedPickerFolder(dlg, Scalpel.Services.LastFolders.Image);
             if (dlg.ShowDialog(this) != true) return;
+            RememberPickerFolder(Scalpel.Services.LastFolders.Image, dlg.FileName);
 
             try
             {

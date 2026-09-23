@@ -2,7 +2,7 @@
 
 Every interactive control in the app, by screen region, with what it does. Tooltips shown are the English (en-US) text; the same controls relabel in other languages. Most actions are **no-ops until a PDF is open** unless noted.
 
-Layout, top to bottom: **Title bar** → **Mode tab strip** → **Toolbar** → (**Contextual bar**, when an Edit tool is active) → (**Sidebar** | **Page area**) → **Status bar**, with **overlays** and **context menus** appearing as needed.
+Layout, top to bottom: **Title bar** → **Mode tab strip** → **Toolbar** → **Document tab strip** (§2a) → (**Contextual bar**, when an Edit tool is active) → (**Sidebar** | **Page area**) → **Status bar**, with **overlays** and **context menus** appearing as needed.
 
 ---
 
@@ -14,7 +14,7 @@ The custom title bar (the app uses a borderless window). Shows the app name and 
 |---|---|---|
 | Minimize (`—`) | — | Minimizes the window to the taskbar. |
 | Maximize/Restore (`▢`) | — | Toggles between maximized and normal window size. |
-| Close (`✕`) | — | Closes the app. If there are unsaved changes, prompts *"You have unsaved changes. Close Scalpel without saving?"* first. |
+| Close (`✕`) | — | Closes the app. Asks about every tab that has unsaved changes, one at a time (the tab being looked at first): *"Save changes to {name} before closing?"* (Yes = save, No = close without saving, Cancel = abort the whole close and leave every tab open). Busy on a long Tools operation (Compress, OCR, ...)? The close is refused with a toast instead of asking. |
 
 ---
 
@@ -37,6 +37,33 @@ A horizontal strip directly under the title bar. The four **mode tabs** on the l
 |---|---|---|
 | Search (🔍) | Find (Ctrl+F) | Opens the floating **Search bar** over the page area (§5). |
 | Settings (⚙) | Settings | Opens the **Settings overlay** (§6). |
+
+---
+
+## 2a. Document tab strip (under the ribbon)
+
+A 36 px row directly under the ribbon band, always shown (hidden only in full screen). Every open PDF is a rounded **chip**; the chip of the document being viewed is filled with the accent colour. Built in code-behind by `RefreshTabStrip` (`MainWindow.Tabs.cs`); styles `DocumentTab`, `DocumentTabClose`, `DocumentTabRoundButton` in `Themes/_Shared.xaml`. With no document open (the empty start state) the strip shows no chip, only **+**.
+
+| Control / gesture | Tooltip | Action |
+|---|---|---|
+| Chip, left click | Full path of the file | Switches to that document (on release, so a press can start a drag). |
+| Chip, drag sideways | - | Reorders the tabs; the chip swaps past a neighbour once its centre crosses the neighbour's midpoint. |
+| Chip, middle click | - | Closes that tab (asks Save / Don't save / Cancel when it has unsaved changes). |
+| Chip, right click | - | Opens the **tab context menu** (§8). |
+| Close (`✕`) at the chip's end | Close tab | Closes that tab. Shown on hover and on the active chip. |
+| Dot at the chip's end | - | The document has unsaved changes. Hovering the chip replaces the dot with the close button. |
+| **+** | New tab (Ctrl+T) | Opens a new blank document in its own tab. |
+| Chevron (`⌄`, shown with 7+ tabs) | All tabs | Lists every open tab, with a check on the one being viewed; pick one to switch to it. |
+
+The chips scroll sideways (mouse wheel over the strip) when they do not fit; the active chip is scrolled into view whenever you switch tabs. Under Hebrew and Arabic the strip is mirrored (first tab on the right).
+
+**Session model.** Each tab is a fully live, independent document: its own unsaved annotations, undo/redo history, dirty flag, zoom level, page and scroll position. Switching tabs never reopens the file and never loses any of that - you come back to exactly where you left off. Opening another file (Open, drag-and-drop, Explorer, or a second Scalpel launch) never discards unsaved work: it always opens into its own new tab instead of replacing what's open.
+
+**Close and save rules.** Closing a tab (its `✕`, Ctrl+W, the tab menu, or closing Scalpel itself) asks *"Save changes to {name} before closing?"* only when that tab actually has unsaved changes. Yes saves it first, No closes without saving, Cancel leaves it open (and, when closing the whole window with several unsaved tabs, aborts the close entirely so no other tab is touched either). Closing the window with more than one unsaved tab asks about each one in turn, starting with whichever tab is on screen.
+
+**While a Tools operation is running** (Compress, OCR, Redact, Straighten, Fill by OCR, Save Flattened, Print, Export images, Compare) on a tab, switching tabs, opening another file, closing a tab, or closing the window are all refused with a toast: *"Finish or cancel the current operation before switching documents."* A result can never land in the wrong document this way. Everything resumes normally once the operation finishes.
+
+**Restoring tabs at startup.** Unless a file was passed on the command line, Scalpel reopens the tabs you had open when it last closed: the tab you were on loads its document right away, and every other tab shows its real name but loads its file only the first time you click it.
 
 ---
 
@@ -212,6 +239,9 @@ Copy Text · Print · quick tool switch (Select / Text / Highlight / Draw) · Ro
 ### On a page thumbnail (sidebar)
 Insert Blank Page After · Rotate CW / CCW · Move Page Up / Down · Extract Page(s) · Delete Page(s). All operate on the current multi-selection where applicable; Delete confirms first.
 
+### On a document tab (tab strip, §2a)
+Close (Ctrl+W) · Close other tabs (Ctrl+Shift+W; disabled with one tab) · Close tabs to the right (disabled on the last tab) · Open containing folder (Explorer with the file selected; disabled for an unsaved new document or a file that no longer exists) · Copy path (disabled for an unsaved new document). Every item acts on the tab that was right-clicked.
+
 ---
 
 ## 9. Status bar & overlays
@@ -229,10 +259,17 @@ Insert Blank Page After · Rotate CW / CCW · Move Page Up / Down · Extract Pag
 | File | Ctrl+O / Ctrl+N / Ctrl+W | Open / New blank / Close file |
 | File | Ctrl+S · Ctrl+Shift+S | Save · Save As |
 | File | Ctrl+P | Print |
+| Tabs | Ctrl+T | New tab (blank document) |
+| Tabs | Ctrl+Shift+W | Close other tabs |
+| Tabs | Ctrl+Tab / Ctrl+Shift+Tab (or Ctrl+PgDn / Ctrl+PgUp) | Next / previous tab |
+| Tabs | Ctrl+1 .. Ctrl+8 | Go to tab 1 to 8 |
+| Tabs | Ctrl+9 | Go to the last tab |
 | Navigation | ← / → (or PgUp/PgDn) | Previous / next page |
 | Navigation | Ctrl+Scroll | Zoom in/out anchored at the cursor |
 | Navigation | Ctrl+= / Ctrl+− | Zoom in / out |
-| Navigation | Ctrl+0 | Reset zoom to 100% |
+| Navigation | Ctrl+0 | Reset zoom to 100% (actual size) |
+| Navigation | Ctrl+Shift+2 | Fit width |
+| Navigation | Ctrl+Shift+3 | Fit page |
 | Navigation | Middle-mouse drag | Pan the view |
 | Editing | Ctrl+Z | Undo (Edit tab must be active) |
 | Editing | Delete | Delete selected annotation |

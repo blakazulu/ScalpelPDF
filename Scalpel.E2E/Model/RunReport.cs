@@ -4,6 +4,9 @@ public sealed class RunReport
 {
     public List<ActionResult> Results { get; } = [];
     public List<string> UntestedControls { get; } = [];
+    /// <summary>Things that did not fail the run but must be visible in it (e.g. every save
+    /// prompt the harness answered "No" when closing an instance).</summary>
+    public List<string> Warnings { get; } = [];
 
     public int Total() => Results.Count;
     public int Passed() => Results.Count(r => r.Outcome == Outcome.Pass);

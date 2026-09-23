@@ -22,26 +22,33 @@ namespace Scalpel
 {
     public partial class MainWindow : Window
     {
-        private PdfDocument? _doc;
-        private string? _currentFile;
-        private string? _originalFile;  // user's real file path; survives temp swaps from crop/rotate, used by Save
         private Point _dragStartPoint;
 
         // Zoom
-        private double _zoomLevel = 1.0;
         private double _lastRenderZoom = 1.0;
         private const double ZoomMin = 0.05;
         private const double ZoomMax = 5.0;
         private const double ZoomStep = 0.15;
         private enum FitMode { None, Width, Page }
-        private FitMode _fitMode = FitMode.None;
         private System.Windows.Threading.DispatcherTimer? _rerenderTimer;
         private System.Threading.CancellationTokenSource? _secondaryRenderCts;
         private enum ViewMode { Single, Continuous, TwoPage, Grid }
-        private ViewMode _viewMode = ViewMode.Continuous;
         private enum AppMode { View, Edit, Pages, Sign }
         private AppMode _mode = AppMode.View;
         private bool _suppressModeEvents;
+        /// <summary>Set while a click inside the document updates the current page, so the
+        /// selection change does not scroll that page back to the top of the viewport.</summary>
+        private bool _suppressScrollToPage;
+        /// <summary>Keeps trackpad momentum from fanning through pages at a page edge.</summary>
+        private readonly Scalpel.Services.WheelPageFlipGate _wheelFlipGate = new();
+        /// <summary>Fractional wheel notches carried between Ctrl+wheel zoom events so a
+        /// precision touchpad zooms proportionally instead of a notch at a time.</summary>
+        private double _zoomWheelRemainder;
+
+        // Restoring the scroll offset after a zoom is queued for after layout. Zooming again
+        // before that runs queues a second restore, and the stale one lands last and throws the
+        // view back to where the earlier gesture wanted it. Only the newest restore may act.
+        private readonly Scalpel.Services.DeferredActionGate _zoomRestoreGate = new();
         private bool _suppressLogToggleEvent;
         private readonly StackPanel _continuousPanel = null!;
         private System.Threading.CancellationTokenSource? _continuousRenderCts;
@@ -51,23 +58,67 @@ namespace Scalpel
 
         // Editing
         private EditTool _currentTool = EditTool.Select;
-        private readonly Dictionary<int, List<PageAnnotation>> _annotations = [];
-        private readonly Dictionary<int, (int w, int h)> _renderDims = [];
-        // Stores the PDF /Rotate value for each page.  The temp file used by Docnet has
-        // rotation stripped to zero so FPDF_GetPageWidth/Height returns MediaBox dims and
-        // the content isn't clipped; RotateBitmap is applied at render time instead.
-        private readonly Dictionary<int, int> _pageRotations = [];
 
-        // Form filling — text/check keyed by widget object number; radio keyed by field name
-        private readonly Dictionary<int, string>    _formTextValues  = [];
-        private readonly Dictionary<int, bool>      _formCheckValues = [];
-        private readonly Dictionary<string, string> _formRadioValues = [];
+        /// <summary>
+        /// The visual rotation of a page, in degrees.
+        /// <para>
+        /// Scalpel keeps rotation OUT of the working document: <see cref="SaveTempAndReload"/>
+        /// records each page's /Rotate in <see cref="_pageRotations"/> and writes 0 into the temp
+        /// file, because Docnet sizes its bitmap from the unrotated MediaBox and rotated content
+        /// would overflow it. The map is therefore only populated after a page operation - a
+        /// freshly opened document still carries its real /Rotate - so anything that needs "how
+        /// is this page actually oriented" must consult both, which is what this does.
+        /// </para>
+        /// </summary>
+        internal int RotationOf(int pageIndex)
+        {
+            if (_pageRotations.TryGetValue(pageIndex, out int mapped))
+                return ((mapped % 360) + 360) % 360;
+            try
+            {
+                if (_doc is not null && pageIndex >= 0 && pageIndex < _doc.PageCount)
+                    return ((_doc.Pages[pageIndex].Rotate % 360) + 360) % 360;
+            }
+            catch { }
+            return 0;
+        }
+
         private const string FormOverlayTag = "FormFieldOverlay";
+        /// <summary>Form overlays sit below the annotation layer so an annotation placed over
+        /// a field stays visible. Negative keeps them under everything added at the default 0.</summary>
+        private const int FormOverlayZIndex = -1;
+
+        /// <summary>
+        /// Clamps a computed WPF Width/Height to something the layout system accepts. A malformed
+        /// PDF (a zero-size stored signature canvas, a field rectangle of infinite height) would
+        /// otherwise reach a WPF size property and take the whole viewer down with
+        /// "'Infinity' is not a valid value for property 'Height'".
+        /// </summary>
+        internal static double SafeSize(double value, double fallback)
+            => double.IsNaN(value) || double.IsInfinity(value) || value <= 0 ? fallback : value;
 
         // Undo stack — each entry is either an annotation removal or a full document snapshot.
         private enum UndoKind { Annotation, Document }
-        private readonly record struct UndoEntry(UndoKind Kind, int PageIdx = -1, byte[]? DocBytes = null, bool WasDirty = false);
-        private readonly Stack<UndoEntry> _undoStack = new();
+        // Redo needs the annotation object itself: an Annotation undo only records "remove the
+        // last annotation on page N", which cannot be reversed without the removed instance.
+        private readonly record struct UndoEntry(UndoKind Kind, int PageIdx = -1, byte[]? DocBytes = null,
+                                                 bool WasDirty = false, PageAnnotation? Annotation = null);
+
+        // A document-level undo stores a whole copy of the PDF, so an unbounded history costs
+        // roughly (file size x number of page operations) in RAM - hundreds of megabytes on a big
+        // scanned document. Both stacks are capped by depth AND by bytes; the newest entry is
+        // always kept even when it alone is over budget.
+        private const int UndoMaxEntries = 40;
+        private const long UndoMaxBytes = 256L * 1024 * 1024;
+
+        /// <summary>Approximate retained size of an undo entry, for the memory budget.</summary>
+        private static long UndoEntrySize(UndoEntry e) => e.DocBytes?.LongLength ?? 4096;
+
+        private void PushUndoEntry(UndoEntry entry) => Scalpel.Services.UndoHistoryBudget.PushBounded(
+            _undoStack, entry, UndoEntrySize, UndoMaxEntries, UndoMaxBytes);
+
+        private void PushRedoEntry(UndoEntry entry) => Scalpel.Services.UndoHistoryBudget.PushBounded(
+            _redoStack, entry, UndoEntrySize, UndoMaxEntries, UndoMaxBytes);
         private bool _isDrawing;
         private Point _drawStart;
         private UIElement? _activePreview;
@@ -182,14 +233,6 @@ namespace Scalpel
         private readonly TextBox _pageJumpBox = null!;
         private readonly TextBlock _pageTotalLabel = null!;
 
-        // Dirty / unsaved-change tracking
-        private bool _isDirty = false;
-
-        // Whole-document search results (PDF-space rects per page)
-        private readonly Dictionary<int, List<(double left, double bottom, double right, double top)>> _allSearchRects = [];
-        private readonly List<int> _searchResultPages = [];
-        private int _searchPageCursor = -1;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -232,7 +275,12 @@ namespace Scalpel
             PopulateRecentList();
             ApplyGrainTexture();
             SourceInitialized += MainWindow_SourceInitialized;
-            Closed += (_, _) => { _doc?.Close(); App.CleanupSessionTemps(); };
+            _tabs.Add(_s);   // the first session: an empty placeholder the first open fills
+            Closed += (_, _) =>
+            {
+                foreach (var t in _tabs.Items) { try { t.Doc?.Close(); } catch { } }
+                App.CleanupSessionTemps();
+            };
 
             // Open a file passed via command-line / file association (e.g. double-clicking a .pdf)
             // Also show the portable badge when running outside the install location.
@@ -253,35 +301,44 @@ namespace Scalpel
 #endif
                 RestoreWindowSettings();
 
+                // Every argument that is an existing file (skipping arg[0] = exe path and flags
+                // like /edit) opens as its own tab, in order; flag-vs-path order doesn't matter.
+                // The "Edit with Scalpel PDF" context-menu verb launches us as: <exe> /edit "<file>".
                 var args = Environment.GetCommandLineArgs();
-                // Find the first argument that is an existing file (skipping arg[0] = exe path
-                // and flags like /edit), so flag-vs-path order doesn't matter. The "Edit with
-                // Scalpel PDF" context-menu verb launches us as: <exe> /edit "<file>".
-                string? fileArg = null;
-                bool editMode = false;
-                for (int i = 1; i < args.Length; i++)
+                var (cmdFiles, editMode) = SingleInstanceProtocol.PickLaunchTargets(
+                    args.Skip(1), System.IO.File.Exists);
+                // A launch forwarded from a second Scalpel process is dispatched as soon as this
+                // window exists, so it can open (or queue) a file before Loaded runs. Like a
+                // command-line file it wins (R18): the tab restore is skipped entirely rather than
+                // restoring around it (StartupOpenPolicy).
+                bool alreadyOpen = _tabs.Items.Any(t => t.Doc is not null || t.DeferredPath is not null || t.IsDirty);
+                // A forwarded open can still be mid-flight here: a password/repair prompt, or the
+                // >20-files confirmation in OpenManyInTabs, runs a modal (nested message loop) that
+                // pumps this very Loaded handler before the open has written a document, a deferred
+                // path, or a pending-open entry anywhere - so alreadyOpen/_pendingOpens alone would
+                // miss it and TryRestoreOpenTabs would stamp a restored path onto the session the
+                // forwarded open is still populating. _tabOpDepth catches an open already inside its
+                // BeginTabOp/EndTabOp span (e.g. a password/repair prompt); IsThreadModal also
+                // catches OpenManyInTabs's own confirmation dialog, which shows before BeginTabOp is
+                // reached.
+                bool openInProgress = _tabOpDepth > 0 || System.Windows.Interop.ComponentDispatcher.IsThreadModal;
+                var startup = StartupOpenPolicy.Decide(cmdFiles.Count, alreadyOpen, _pendingOpens.Count, openInProgress);
+                if (startup == StartupOpen.CommandLine)
                 {
-                    if (string.Equals(args[i], "/edit", StringComparison.OrdinalIgnoreCase))
-                        editMode = true;
-                    else if (fileArg is null && System.IO.File.Exists(args[i]))
-                        fileArg = args[i];
-                }
-                if (fileArg is not null)
-                {
-                    OpenFile(fileArg);
                     // Jump straight to Edit mode for the "Edit with Scalpel PDF" verb — but only
                     // once a document actually loaded (OpenFile runs synchronously; _doc is null
-                    // on failure or a declined repair prompt).
-                    if (editMode && _doc is not null)
-                        SetMode(AppMode.Edit);
+                    // on failure or a declined repair prompt). OpenManyInTabs applies this once,
+                    // to whichever tab ends up active, once the whole batch has actually opened.
+                    OpenManyInTabs(cmdFiles, editMode);
                 }
-                else
+                else if (startup == StartupOpen.Restore && !TryRestoreOpenTabs())
                 {
-                    // Reopen the last file if no file argument was provided
+                    // No command-line files and no OpenTabs to restore (R18): fall back to the
+                    // pre-tabs single "last file" behaviour.
                     var lastFile = App.GetSetting("LastFile");
                     if (!string.IsNullOrEmpty(lastFile) && System.IO.File.Exists(lastFile))
                     {
-                        OpenFile(lastFile!);
+                        OpenInTab(lastFile!);
                         // If the reopen didn't actually load a document (open failed, or the
                         // user declined the repair prompt), forget it — otherwise the same
                         // damaged file would re-prompt on every subsequent launch.

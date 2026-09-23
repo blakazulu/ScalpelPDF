@@ -47,7 +47,7 @@ namespace Scalpel
         private void PageList_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             SidebarScrollViewer?.ScrollToVerticalOffset(
-                SidebarScrollViewer.VerticalOffset - e.Delta / 3.0);
+                SidebarScrollViewer.VerticalOffset - e.Delta / 120.0 * WheelScrollAmount());
             e.Handled = true;
         }
 
@@ -83,7 +83,7 @@ namespace Scalpel
                 if (_viewMode == ViewMode.Continuous)
                 {
                     _pageJumpBox.Text = (PageList.SelectedIndex + 1).ToString();
-                    ScrollContinuousToPage(PageList.SelectedIndex);
+                    if (!_suppressScrollToPage) ScrollContinuousToPage(PageList.SelectedIndex);
                     return;
                 }
                 if (_viewMode == ViewMode.Grid)
@@ -120,6 +120,7 @@ namespace Scalpel
 
         private void ShortcutHelp_Click(object sender, RoutedEventArgs e)
         {
+            SyncZoomShortcutLabel();   // same as F1 / Ctrl+?: print the zoom keys this layout types
             ShortcutOverlay.Visibility = ShortcutOverlay.Visibility == Visibility.Visible
                 ? Visibility.Collapsed : Visibility.Visible;
         }
@@ -144,6 +145,26 @@ namespace Scalpel
         // ── About overlay ───────────────────────────────────────────────
 
         private void AboutTab_Click(object sender, RoutedEventArgs e) => ShowAboutOverlay();
+
+        /// <summary>
+        /// The build's release date for the About box. A real release has it stamped into
+        /// BuildInfo by release.ps1; a dev build falls back to the executable's own timestamp so
+        /// the field is still meaningful when testing.
+        /// </summary>
+        private static string ReleaseDateText()
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(BuildInfo.ReleaseDate))
+                    return BuildInfo.ReleaseDate;
+
+                string exe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                if (!string.IsNullOrEmpty(exe) && System.IO.File.Exists(exe))
+                    return System.IO.File.GetLastWriteTimeUtc(exe).ToString("yyyy-MM-dd");
+            }
+            catch { }
+            return "";
+        }
 
         private void ShowAboutOverlay()
         {
@@ -186,6 +207,17 @@ namespace Scalpel
                     $"https://github.com/blakazulu/ScalpelPDF/releases/tag/v{version}")
                 { UseShellExecute = true });
             AboutVersionBlock.Inlines.Add(verHl);
+
+            // Say WHEN this build was released. "Am I on an old copy?" is the question the About
+            // box is usually opened to answer, and a version number alone does not answer it.
+            string released = ReleaseDateText();
+            if (released.Length > 0)
+            {
+                AboutVersionBlock.Inlines.Add(new System.Windows.Documents.Run($"  ({released})")
+                {
+                    Foreground = (System.Windows.Media.Brush)FindResource("TextDim")
+                });
+            }
 
             AboutOverlay.Visibility = Visibility.Visible;
 

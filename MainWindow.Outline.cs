@@ -171,7 +171,7 @@ namespace Scalpel
                     Header = string.IsNullOrEmpty(outline.Title) ? "(untitled)" : outline.Title,
                     IsExpanded = true,
                     Tag = pageIdx,
-                    ToolTip = pageIdx >= 0 ? $"Page {pageIdx + 1}" : null,
+                    ToolTip = pageIdx >= 0 ? string.Format(Loc("Str_PageN"), pageIdx + 1) : null,
                     Style = (Style)FindResource("OutlineItemStyle")
                 };
                 if (outline.Outlines is not null && outline.Outlines.Count > 0)

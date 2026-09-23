@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using Docnet.Core;
 using Docnet.Core.Models;
@@ -23,12 +23,30 @@ namespace Scalpel.Services
         private readonly double[] _widthsPt;
         private readonly double[] _heightsPt;
 
+
         /// <param name="path">PDF file to rasterize (must be a decrypted/openable file).</param>
         /// <param name="renderLongEdgePx">Target pixels for the longest page edge (render resolution).</param>
         public DocnetPageRasterizer(string path, int renderLongEdgePx = 2000)
         {
-            _reader = DocLib.Instance.GetDocReader(path, new PageDimensions(renderLongEdgePx, renderLongEdgePx));
-            int count = _reader.GetPageCount();
+            // Every PDFium touch - open, render and dispose alike - happens on the one PDFium
+            // thread. Holding that thread for this object's whole lifetime instead would deadlock
+            // the streaming render loops, which call Dispatcher.Invoke between pages.
+            _reader = Scalpel.Services.PdfiumGate.Run(
+                () => Scalpel.Services.PinnedDocReader.Open(path, new PageDimensions(renderLongEdgePx, renderLongEdgePx)));
+
+            int count;
+            try
+            {
+                count = Scalpel.Services.PdfiumGate.Run(() => _reader.GetPageCount());
+            }
+            catch
+            {
+                // The reader is open but this object will never exist, so nothing would ever
+                // Dispose it. Letting the finalizer do it later tears PDFium down from the GC
+                // thread instead of the PDFium thread, which faults - so close it here.
+                try { Scalpel.Services.PdfiumGate.Run(() => _reader.Dispose()); } catch { }
+                throw;
+            }
             _widthsPt = new double[count];
             _heightsPt = new double[count];
 
@@ -46,17 +64,25 @@ namespace Scalpel.Services
             catch { /* keep Letter fallback */ }
         }
 
-        public int PageCount => _reader.GetPageCount();
+        public int PageCount => Scalpel.Services.PdfiumGate.Run(() => _reader.GetPageCount());
 
         public (double widthPt, double heightPt) PageSizePt(int pageIndex)
             => (_widthsPt[pageIndex], _heightsPt[pageIndex]);
 
         public RasterPage RenderPage(int pageIndex)
         {
-            using var pr = _reader.GetPageReader(pageIndex);
-            int bw = pr.GetPageWidth();
-            int bh = pr.GetPageHeight();
-            byte[] raw = pr.GetImage(); // tightly-packed BGRA, top-down
+            // Only the native part is marshalled; the PNG encode below is managed work and would
+            // just occupy the PDFium thread for no reason.
+            var (raw, bw, bh) = Scalpel.Services.PdfiumGate.Run(() =>
+            {
+                using var pr = _reader.GetPageReader(pageIndex);
+                int w = pr.GetPageWidth();
+                int h = pr.GetPageHeight();
+                // tightly-packed BGRA, top-down
+                byte[] pixels = pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                            Scalpel.Services.AnnotationRenderPolicy.ForOutput());
+                return (pixels, w, h);
+            });
 
             using var img = Image.LoadPixelData<Bgra32>(raw, bw, bh);
             using var ms = new MemoryStream();
@@ -64,6 +90,10 @@ namespace Scalpel.Services
             return new RasterPage(ms.ToArray(), bw, bh);
         }
 
-        public void Dispose() => _reader.Dispose();
+        public void Dispose()
+        {
+            // Teardown is where the crash lands, so it must run on the PDFium thread too.
+            Scalpel.Services.PdfiumGate.Run(() => _reader.Dispose());
+        }
     }
 }

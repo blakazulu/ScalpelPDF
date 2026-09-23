@@ -31,7 +31,9 @@ namespace Scalpel
             if (!_annotations.ContainsKey(annotation.PageIndex))
                 _annotations[annotation.PageIndex] = [];
             _annotations[annotation.PageIndex].Add(annotation);
-            _undoStack.Push(new UndoEntry(UndoKind.Annotation, annotation.PageIndex, WasDirty: _isDirty));
+            PushUndoEntry(new UndoEntry(UndoKind.Annotation, annotation.PageIndex, WasDirty: _isDirty));
+            // Any new edit invalidates the redo chain, the way every editor behaves.
+            _redoStack.Clear();
             MarkDirty();
         }
 
@@ -45,7 +47,38 @@ namespace Scalpel
             if (_doc is null) return;
             using var ms = new System.IO.MemoryStream();
             _doc.Save(ms);
-            _undoStack.Push(new UndoEntry(UndoKind.Document, DocBytes: ms.ToArray(), WasDirty: _isDirty));
+            PushUndoEntry(new UndoEntry(UndoKind.Document, DocBytes: ms.ToArray(), WasDirty: _isDirty));
+            _redoStack.Clear();
+            TrimUndoAcrossTabs();
+        }
+
+        /// <summary>
+        /// Measures the on-screen box of a text annotation. Scalpel's model stores only the anchor
+        /// point - the box is laid out at render time - so a rotation remap needs this to carry the
+        /// box through the turn instead of treating the text as a zero-size point.
+        /// </summary>
+        private static Size MeasureTextAnnotation(TextAnnotation ta)
+        {
+            try
+            {
+                var tb = new TextBlock
+                {
+                    Text = ta.Content,
+                    FontSize = ta.FontSize,
+                    // Bold and italic change the measured width, so the box must be measured
+                    // in the style it will actually be drawn in.
+                    FontWeight = ta.Bold ? FontWeights.Bold : FontWeights.Normal,
+                    FontStyle = ta.Italic ? FontStyles.Italic : FontStyles.Normal,
+                    Padding = new Thickness(2)
+                };
+                tb.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                var d = tb.DesiredSize;
+                // net48 has no double.IsFinite.
+                bool finite = !double.IsNaN(d.Width) && !double.IsInfinity(d.Width)
+                              && !double.IsNaN(d.Height) && !double.IsInfinity(d.Height);
+                return finite ? d : new Size(0, 0);
+            }
+            catch { return new Size(0, 0); }
         }
 
         private void RenderTextAnnotation(TextAnnotation ta)
@@ -56,6 +89,9 @@ namespace Scalpel
                 Foreground = new SolidColorBrush(ta.GetColor()),
                 FontFamily = (FontFamily)FindResource("FontUI"),
                 FontSize = ta.FontSize,
+                FontWeight = ta.Bold ? FontWeights.Bold : FontWeights.Normal,
+                FontStyle = ta.Italic ? FontStyles.Italic : FontStyles.Normal,
+                TextDecorations = ta.Underline ? TextDecorations.Underline : null,
                 Padding = new Thickness(2)
             };
             if (Scalpel.Services.BidiReorder.ContainsRtl(ta.Content))
@@ -220,7 +256,7 @@ namespace Scalpel
         {
             if (_undoStack.Count == 0)
             {
-                SetStatus("Nothing to undo");
+                SetStatus(Loc("Str_St_NothingToUndo"));
                 return;
             }
 
@@ -229,18 +265,36 @@ namespace Scalpel
             if (entry.Kind == UndoKind.Annotation)
             {
                 int pageIdx = entry.PageIdx;
+                PageAnnotation? removed = null;
                 if (_annotations.ContainsKey(pageIdx) && _annotations[pageIdx].Count > 0)
+                {
+                    removed = _annotations[pageIdx][^1];
                     _annotations[pageIdx].RemoveAt(_annotations[pageIdx].Count - 1);
+                }
+                PushRedoEntry(entry with { Annotation = removed });
                 ClearSelection();
                 RenderAllAnnotations(pageIdx);
                 MarkDirty(entry.WasDirty);
-                SetStatus("Undid last annotation");
+                SetStatus(Loc("Str_St_Undid"));
             }
             else // Document snapshot
             {
                 if (entry.DocBytes is null) return;
+                // Snapshot the current state first so Redo can return to it.
+                try
+                {
+                    if (_doc is not null)
+                    {
+                        using var redoMs = new System.IO.MemoryStream();
+                        _doc.Save(redoMs);
+                        PushRedoEntry(new UndoEntry(UndoKind.Document, DocBytes: redoMs.ToArray(),
+                                                      WasDirty: _isDirty));
+                        TrimUndoAcrossTabs();
+                    }
+                }
+                catch { /* a missing redo step must never block the undo */ }
                 int selectedIdx = PageList.SelectedIndex;
-                var tempPath = App.MakeTempFile("undo");
+                var tempPath = App.MakeTempFile("undo", _s.Id);
                 System.IO.File.WriteAllBytes(tempPath, entry.DocBytes);
                 _doc?.Close();
                 // PdfSharpCore can write a snapshot whose xref offset points at the xref table,
@@ -252,7 +306,7 @@ namespace Scalpel
                 }
                 catch (Exception undoOpenEx) when (IsXRefException(undoOpenEx))
                 {
-                    var fixedPath = App.MakeTempFile("undofixed");
+                    var fixedPath = App.MakeTempFile("undofixed", _s.Id);
                     if (!TryImportRepairToPath(tempPath, fixedPath)
                         && !TryPdfiumSaveWithZeroRotations(tempPath, fixedPath))
                         throw;
@@ -273,16 +327,110 @@ namespace Scalpel
                 // RefreshPageList only updates the sidebar, and re-selecting the same page does not
                 // fire SelectionChanged, so grid/two-page tiles would otherwise stay stale.
                 int reIdx = PageList.SelectedIndex;
+                // A tab switch before these run makes them another document's work: bail.
+                int reIdxGen = _sessionGeneration;
                 if (_viewMode == ViewMode.Continuous)
                     Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                        (Action)(() => SetupContinuousView(reIdx)));
+                        (Action)(() => { if (!IsStale(reIdxGen)) SetupContinuousView(reIdx); }));
                 else
                     Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)(() =>
                     {
+                        if (IsStale(reIdxGen)) return;
                         RenderPage(_viewMode == ViewMode.Grid ? 0 : reIdx);
                         ReapplyGridOrFit();
                     }));
-                SetStatus("Undid document change");
+                SetStatus(Loc("Str_St_UndidDoc"));
+            }
+        }
+
+        /// <summary>
+        /// Ctrl+Y / Ctrl+Shift+Z. Re-applies what Undo took away. The chain is cleared by any
+        /// new edit, so redo can only ever walk back up the path the user just undid.
+        /// </summary>
+        private void Redo_Click(object sender, RoutedEventArgs e)
+        {
+            if (_redoStack.Count == 0)
+            {
+                SetStatus(Loc("Str_St_NothingToRedo"));
+                return;
+            }
+
+            var entry = _redoStack.Pop();
+
+            if (entry.Kind == UndoKind.Annotation)
+            {
+                if (entry.Annotation is null) { SetStatus(Loc("Str_St_NothingToRedo")); return; }
+                int pageIdx = entry.PageIdx;
+                if (!_annotations.ContainsKey(pageIdx)) _annotations[pageIdx] = [];
+                _annotations[pageIdx].Add(entry.Annotation);
+                // Push straight onto the undo stack rather than through AddAnnotation, which
+                // would clear the redo chain we are walking.
+                PushUndoEntry(new UndoEntry(UndoKind.Annotation, pageIdx, WasDirty: _isDirty));
+                ClearSelection();
+                RenderAllAnnotations(pageIdx);
+                MarkDirty();
+                SetStatus(Loc("Str_St_Redid"));
+                return;
+            }
+
+            if (entry.DocBytes is null) return;
+            try
+            {
+                int selectedIdx = PageList.SelectedIndex;
+                using (var undoMs = new System.IO.MemoryStream())
+                {
+                    _doc?.Save(undoMs);
+                    PushUndoEntry(new UndoEntry(UndoKind.Document, DocBytes: undoMs.ToArray(),
+                                                  WasDirty: _isDirty));
+                    TrimUndoAcrossTabs();
+                }
+
+                var tempPath = App.MakeTempFile("redo", _s.Id);
+                System.IO.File.WriteAllBytes(tempPath, entry.DocBytes);
+                _doc?.Close();
+                try
+                {
+                    _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+                }
+                catch (Exception redoOpenEx) when (IsXRefException(redoOpenEx))
+                {
+                    var fixedPath = App.MakeTempFile("redofixed", _s.Id);
+                    if (!TryImportRepairToPath(tempPath, fixedPath)
+                        && !TryPdfiumSaveWithZeroRotations(tempPath, fixedPath))
+                        throw;
+                    tempPath = fixedPath;
+                    _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+                }
+                _currentFile = tempPath;
+                _annotations.Clear();
+                _renderDims.Clear();
+                ClearSelection();
+                MarkDirty();
+                RefreshPageList();
+                if (selectedIdx >= 0 && selectedIdx < PageList.Items.Count)
+                    PageList.SelectedIndex = selectedIdx;
+                else if (PageList.Items.Count > 0)
+                    PageList.SelectedIndex = 0;
+
+                int reIdx2 = PageList.SelectedIndex;
+                // A tab switch before these run makes them another document's work: bail.
+                int reIdx2Gen = _sessionGeneration;
+                if (_viewMode == ViewMode.Continuous)
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
+                        (Action)(() => { if (!IsStale(reIdx2Gen)) SetupContinuousView(reIdx2); }));
+                else
+                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)(() =>
+                    {
+                        if (IsStale(reIdx2Gen)) return;
+                        RenderPage(_viewMode == ViewMode.Grid ? 0 : reIdx2);
+                        ReapplyGridOrFit();
+                    }));
+                SetStatus(Loc("Str_St_RedidDoc"));
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Edit", "redo.fail", ex.Message, ex);
+                SetStatus(Loc("Str_St_NothingToRedo"));
             }
         }
 

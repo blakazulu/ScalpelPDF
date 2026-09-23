@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -24,7 +24,12 @@ namespace Scalpel
         private bool         _loadRequested;
 
         public int    PageIndex { get; } = pageIndex;
-        public string Label     => $"Page {PageIndex + 1}";
+        public string Label     => string.Format(LabelFormat, PageIndex + 1);
+
+        // This VM is not a MainWindow partial, so it reads the locale dictionary directly.
+        // Falls back to English if the dictionary is not merged yet (design time, early startup).
+        private static string LabelFormat =>
+            Application.Current?.TryFindResource("Str_PageN") as string ?? "Page {0}";
 
         private readonly string _filePath = filePath;
         private readonly int    _rotation = ((rotation % 360) + 360) % 360; // degrees: 0, 90, 180, 270
@@ -74,11 +79,17 @@ namespace Scalpel
         {
             try
             {
-                using var docReader = DocLib.Instance.GetDocReader(filePath, new PageDimensions(128, 256));
-                using var pr = docReader.GetPageReader(pageIndex);
-                int tw  = pr.GetPageWidth();
-                int th  = pr.GetPageHeight();
-                var raw = pr.GetImage();
+                // PDFium is single-threaded: hold the gate for the reader's whole
+                // lifetime, including its Dispose, which is where the crash lands.
+                // All PDFium work runs on the one PDFium thread; the encode below does not.
+                var (raw, tw, th) = Scalpel.Services.PdfiumGate.Run(() =>
+                {
+                    using var docReader = Scalpel.Services.PinnedDocReader.Open(filePath, new PageDimensions(128, 256));
+                    using var pr = docReader.GetPageReader(pageIndex);
+                    return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                        Scalpel.Services.AnnotationRenderPolicy.ForOutput()),
+                            pr.GetPageWidth(), pr.GetPageHeight());
+                });
                 if (tw <= 0 || th <= 0 || raw == null || raw.Length < tw * th * 4)
                     return null;
                 // Apply in-memory rotation (temp file stores /Rotate=0; _pageRotations holds true angle)

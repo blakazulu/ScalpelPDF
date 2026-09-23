@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">התקנת Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">להתקין את Scalpel בפרופיל המשתמש שלך?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">להתקין את Scalpel בפרופיל המשתמש שלך?
 
 הפעולה תעתיק את האפליקציה אל %LocalAppData%\Scalpel ותיצור קיצור דרך בתפריט התחל.
 ניתן להסיר את ההתקנה דרך הוספה/הסרה של תוכניות בכל עת.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">יש לך שינויים שלא נשמרו. לסגור את הקובץ ללא שמירה?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">יש לך שינויים שלא נשמרו. לסגור את Scalpel ללא שמירה?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">פתיחת ה-PDF נכשלה:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">פתיחת ה-PDF נכשלה:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@
     <sys:String x:Key="Str_Recent_Remove">הסר מאחרונים</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">הקובץ לא נמצא — הוסר מהאחרונים</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">סגור כרטיסייה</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">לשמור את השינויים ב-{0} לפני הסגירה?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} כבר פתוח.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">לא ניתן היה לפתוח מחדש את {0}.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">יש לסיים או לבטל את הפעולה הנוכחית לפני מעבר בין מסמכים.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">לפתוח {0} קבצים כלשוניות נפרדות?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">סגירה</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">סגירת שאר הלשוניות</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">סגירת הלשוניות הבאות</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">פתיחת התיקייה המכילה</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">העתקת הנתיב</sys:String>
+    <sys:String x:Key="Str_Tab_New">לשונית חדשה (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">כל הלשוניות</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">לשוניות</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">לשונית חדשה</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">הלשונית הבאה / הקודמת</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">מעבר ללשונית 1 עד 8</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">מעבר ללשונית האחרונה</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">בחירת צבע</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">צבע מותאם אישית…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">בחירת צבע מכל מקום במסך</sys:String>
@@ -324,4 +341,96 @@
     <sys:String x:Key="Str_Ocr_Progress_Starting">מתכונן…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">מזהה עמוד {0} מתוך {1}…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">ביטול</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">הקישור נחסם מטעמי אבטחה - ניתן לפתוח רק קישורי אינטרנט ודואר אלקטרוני</sys:String>
+    <sys:String x:Key="Str_PageN">עמוד {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">נדרשת סיסמה</sys:String>
+    <sys:String x:Key="Str_St_FileSize">גודל הקובץ: {0} ({1} בתים)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">סגירת שאר הלשוניות</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">התאמה לרוחב</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">התאמה לעמוד</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">עמוד ראשון / אחרון</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">הצגת גודל הקובץ</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">כלים לפי מספר</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">הסרת הסיסמה</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">לשמור את המסמך הזה חזרה על הקובץ המקורי ללא הגנת הסיסמה?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">נשמר ללא הגנת סיסמה</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">המסמך הזה אינו מוגן בסיסמה</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">נשמר - הגנת הסיסמה הוסרה</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">יש לפתוח קובץ PDF תחילה.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">השמירה נכשלה: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">לא לזכור קבצים שנפתחו לאחרונה</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">סגירת החיפוש (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = הבא  Shift+Enter = הקודם</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">אין תוצאות</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{0} תוצאות ב-{1} עמודים</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">תוצאה אחת בעמוד אחד</sys:String>
+    <sys:String x:Key="Str_Search_Error">שגיאת חיפוש</sys:String>
+    <sys:String x:Key="Str_St_Undid">בוטלה ההערה האחרונה</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">בוטל השינוי במסמך</sys:String>
+    <sys:String x:Key="Str_St_Redid">בוצעה מחדש ההערה האחרונה</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">בוצע מחדש השינוי במסמך</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">אין מה לבצע מחדש</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">אין מה לבטל</sys:String>
+    <sys:String x:Key="Str_KS_Redo">ביצוע מחדש</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">בדיקת קדם-הפקה</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">בודק את המסמך…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">בדיקת קדם-הפקה הסתיימה: {0} בעיות, {1} אזהרות</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">נבדקו {0} עמודים. {1} בעיות, {2} אזהרות.</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">אין ממצאים - נראה שהמסמך מוכן לשליחה.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">בעיות (תוכנות אחרות ידחו או יציגו אותן שגוי):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">אזהרות (עלול להיראות שגוי):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">הערות:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">עמודים</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">בדיקת קדם-ההפקה לא הושלמה: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">הערות</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">בחר הערה כדי לקרוא אותה. אפשר לתקן את הטקסט, לשנות ממי היא, או להסיר אותה. שום דבר לא נכתב עד שתבחר שמירה, ולאחר מכן עדיין יש לשמור את המסמך.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">מאת</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">הערה</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">מחיקת ההערה</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">שמירת ההערה</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">שמירת השינויים</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">לא שונתה אף הערה</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">{0} הערות נערכו, {1} הוסרו</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">מודגש / נטוי / קו תחתון בזמן הקלדה</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">מילוי שדות טופס באמצעות OCR</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">בעמוד זה אין שדות טקסט או בחירה למילוי.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">קורא {0} שדות...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">קורא שדה {0} מתוך {1}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">{0} שדות מולאו מהעמוד</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">לא נמצא תוכן קריא בשדות</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">לא ניתן היה לקרוא את השדות: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">יישור עמוד מצולם</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">יישור עמוד</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">גרור את ארבע הידיות אל פינות העמוד בתצלום, ואז בחר יישור.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">יישור</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">עמוד {0} יושר</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">לא ניתן היה ליישר את העמוד: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">מדידת מרחק</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">גרור על פני העמוד כדי למדוד. החזק Shift כדי לשמור על קו ישר; Esc לעצירה.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} מ"מ  /  {1} אינץ'  /  {2} נק'</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">השוואה מול PDF אחר</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">בחר את קובץ ה-PDF להשוואה</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">משווה מסמכים...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">ההשוואה הסתיימה</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">ההשוואה נכשלה: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">משווה בין {0} לבין {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">מספר העמודים שונה: {0} מול {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">שני המסמכים זהים.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">כל עמוד המשותף לשניהם זהה.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{0} מתוך {1} עמודים משותפים שונים:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  עמוד {0}: {1}% מהעמוד השתנה, ב-{2} אזורים</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">ייצוא עמודים כתמונות</sys:String>
+    <sys:String x:Key="Str_Exp_Format">תבנית</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">צבע</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">צבעוני</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">גווני אפור</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">שחור לבן</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">רזולוציה</sys:String>
+    <sys:String x:Key="Str_Exp_Export">ייצוא</sys:String>
+    <sys:String x:Key="Str_Exp_Note">ייכתבו {0} עמודים, קובץ תמונה אחד לכל עמוד.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">מייצא {0} עמודים...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">{0} תמונות יוצאו אל {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">הייצוא נכשל: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">אין הערות במסמך הזה.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">{0} הערות במסמך הזה.</sys:String>
 </ResourceDictionary>

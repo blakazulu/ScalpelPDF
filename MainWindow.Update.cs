@@ -109,6 +109,23 @@ namespace Scalpel
         {
             if (UpdateCheckToggle != null)
                 UpdateCheckToggle.IsChecked = App.GetSetting(KeyUpdateEnabled) == "1";
+            if (NoRecentFilesToggle != null)
+                NoRecentFilesToggle.IsChecked = App.RecentFilesDisabled;
+        }
+
+        /// <summary>
+        /// "Don't remember recently opened files". Turning it on also empties the existing list,
+        /// so nothing about the user's documents is left behind on a shared machine.
+        /// </summary>
+        private void NoRecentFilesToggle_Click(object sender, RoutedEventArgs e)
+        {
+            bool on = NoRecentFilesToggle.IsChecked == true;
+            App.SetSetting(App.NoRecentFilesSetting, on ? "1" : "0");
+            if (on)
+            {
+                App.ClearRecentFiles();
+                PopulateRecentList();
+            }
         }
 
         private void UpdateCheckToggle_Click(object sender, RoutedEventArgs e)

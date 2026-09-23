@@ -40,7 +40,7 @@ namespace Scalpel
         // Opens a recent file; if it has vanished, toasts and drops it from the list.
         private void OpenRecent(string path)
         {
-            if (File.Exists(path)) { OpenFile(path); return; }
+            if (File.Exists(path)) { OpenInTab(path); return; }
             ShowToast(Loc("Str_Recent_NotFound"));
             App.RemoveRecentFile(path);
             PopulateRecentList();

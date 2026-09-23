@@ -18,26 +18,19 @@ namespace Scalpel
         {
             try
             {
-                var (file, edit) = SingleInstanceProtocol.PickLaunchTarget(args, File.Exists);
+                var (files, edit) = SingleInstanceProtocol.PickLaunchTargets(args, File.Exists);
                 Logger.Info("App", "instance.forwarded", "Launch forwarded from a second instance",
-                    new { file, edit, argc = args.Length });
+                    new { files = files.Count, edit, argc = args.Length });
 
-                if (file is not null && !PathEq(file, _originalFile))
+                if (files.Count > 0)
                 {
-                    // Same guard SwitchToTab applies: never silently discard unsaved edits.
-                    if (_isDirty)
-                    {
-                        BringToFront();
-                        var res = ScalpelDialog.Show(this, Loc("Str_Dlg_UnsavedClose"), "Scalpel",
-                            MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                        if (res != MessageBoxResult.Yes) return;
-                    }
-                    OpenFile(file); // FinishOpenFile adds the tab and marks it active
-                    if (edit && _doc is not null) SetMode(AppMode.Edit);
-                }
-                else if (file is not null && edit && _doc is not null)
-                {
-                    SetMode(AppMode.Edit);
+                    // Opens each in its own tab (or switches to one already open), so no document
+                    // being edited is ever replaced and nothing needs a discard prompt. A file that
+                    // arrives while a modal is up on this window (e.g. a Save prompt) queues through
+                    // the normal pending-open mechanism; OpenManyInTabs lands on the first file and
+                    // applies /edit once the whole batch has actually opened, even then.
+                    BringToFront();
+                    OpenManyInTabs(files, edit);
                 }
 
                 BringToFront();

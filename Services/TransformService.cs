@@ -105,7 +105,7 @@ namespace Scalpel.Services
                 }
                 catch { /* skip a page that won't accept the rotation rather than abort */ }
             }
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
 
         // ---- rasterized: flip / fine-angle / scale ------------------------------------------------
@@ -193,7 +193,7 @@ namespace Scalpel.Services
                 }
             }
 
-            outDoc.Save(outputPath);
+            PdfSaveGuard.Save(outDoc, outputPath);
         }
 
         private static void TryCopyThrough(PdfDocument outDoc, PdfDocument srcDoc, int index)

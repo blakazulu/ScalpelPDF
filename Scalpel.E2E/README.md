@@ -16,6 +16,7 @@ Plan: [`docs/superpowers/plans/2026-06-21-e2e-test-harness.md`](../docs/superpow
 | `pairwise` | Every ordered pair of Edit-mode tools (state-leak detection). |
 | `monkey`   | A **seeded** random-action stress run incl. window resize. The seed makes any crash reproducible from the JSONL click-trail. |
 | `fonts`    | Drives the new font/Hebrew features via the **canvas** (3 scenarios): **A** place a NEW Hebrew text annotation (Text tool → click → type Hebrew → commit by re-clicking the tool → Ctrl+S) and assert (PdfPig) a Hebrew-block char (U+0590–U+05FF) burned in; **B** edit EXISTING Hebrew (Select tool → double-click the text → append → commit → save) and assert Hebrew in output; **C** the font-missing **toast** — open a PDF whose text names an uninstalled font, double-click it, assert `ToastCopyBtn` becomes visible. Exercises `BidiReorder`, the Noto-Hebrew fallback, `DrawTextRun`, `FontResolver`, and the toast. |
+| `tabs`     | Chrome-style document tabs (sequential only - not in the `--parallel` pool): switch keeps annotations/dirty, close prompts (Save / Don't save / Cancel), multi-open, the all-tabs chevron, Save As renames, Ctrl+1..9 / Ctrl+PageUp/Down, zoom presets on Ctrl+Shift+2/3 and Ctrl+0, per-tab zoom + page, already-open switch, the tab right-click menu (Copy path / Close tabs to the right / Close other tabs), per-tab temp cleanup, restore of open tabs at startup (no-argument relaunch), single-instance forwarding of a second launch (needs no other Scalpel running), opens queued behind a long operation, window close with dirty tabs. Manual only: drag-to-reorder and middle-click close. |
 
 Verification per action: the app stays alive (no crash), the expected `UI/click`
 event appears in the log, no `ERROR`/`crash.*`/`*.fail` line appears, and — for
@@ -53,7 +54,7 @@ dotnet run --project Scalpel.E2E -- --suite singles `
   --app bin\Release\net48\publish\Scalpel.exe --report-dir e2e-reports --stamp run1
 ```
 
-Flags: `--suite singles|journeys|pairwise|monkey|fonts|all`, `--parallel` (default for
+Flags: `--suite singles|journeys|pairwise|monkey|fonts|save|tabs|all`, `--parallel` (default for
 `all`), `--sequential` (force the classic one-instance path), `--instances <K>` (cap
 concurrency; default `min(jobCount, max(2, cores/2))`), `--app <Scalpel.exe>`,
 `--report-dir <dir>`, `--seed <int>` (monkey), `--stamp <id>` (names the report files;

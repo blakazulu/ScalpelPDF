@@ -38,7 +38,15 @@ namespace Scalpel
             MessageBoxImage image = MessageBoxImage.None)
 #pragma warning restore IDE0060
         {
-            var result = MessageBoxResult.OK;
+            // What closing the window without a button means (Alt+F4, the taskbar, accessibility
+            // tools): the cancelling answer, as with MessageBox. Defaulting to OK made a closed
+            // "Remove metadata?" confirm go ahead and strip the document.
+            var result = buttons switch
+            {
+                MessageBoxButton.OKCancel or MessageBoxButton.YesNoCancel => MessageBoxResult.Cancel,
+                MessageBoxButton.YesNo => MessageBoxResult.No,
+                _ => MessageBoxResult.OK,
+            };
 
             // Every user-visible error/warning dialog goes through here, so log it centrally:
             // a bug report of "I got an error saying X" must be findable in the session log
@@ -127,15 +135,20 @@ namespace Scalpel
                 HorizontalAlignment = HorizontalAlignment.Right
             };
 
-            Button MakeBtn(string label, MessageBoxResult res, bool primary = false)
+            Button MakeBtn(string label, MessageBoxResult res, bool primary = false,
+                           bool isDefault = false, bool isCancel = false)
             {
                 var styleKey = primary ? "StudioPrimaryButton" : "StudioToolButton";
                 var btn = new Button
                 {
-                    Content = label,
-                    Style   = (Style)Application.Current.FindResource(styleKey),
-                    Width   = 80,
-                    Margin  = new Thickness(8, 0, 0, 0)
+                    Content   = label,
+                    Style     = (Style)Application.Current.FindResource(styleKey),
+                    Width     = 80,
+                    Margin    = new Thickness(8, 0, 0, 0),
+                    // Enter activates the safe choice, Esc the cancelling one. Without these the
+                    // dialog swallowed both keys and could only be answered with the mouse.
+                    IsDefault = isDefault,
+                    IsCancel  = isCancel
                 };
                 btn.Click += (_, _2) => { result = res; win.Close(); };
                 return btn;
@@ -144,19 +157,23 @@ namespace Scalpel
             switch (buttons)
             {
                 case MessageBoxButton.OK:
-                    btnPanel.Children.Add(MakeBtn("OK", MessageBoxResult.OK, primary: true));
+                    btnPanel.Children.Add(MakeBtn("OK", MessageBoxResult.OK, primary: true,
+                                                  isDefault: true, isCancel: true));
                     break;
                 case MessageBoxButton.OKCancel:
-                    btnPanel.Children.Add(MakeBtn("Cancel", MessageBoxResult.Cancel));
-                    btnPanel.Children.Add(MakeBtn("OK",     MessageBoxResult.OK,     primary: true));
+                    btnPanel.Children.Add(MakeBtn("Cancel", MessageBoxResult.Cancel, isCancel: true));
+                    btnPanel.Children.Add(MakeBtn("OK",     MessageBoxResult.OK,     primary: true,
+                                                  isDefault: true));
                     break;
                 case MessageBoxButton.YesNo:
-                    btnPanel.Children.Add(MakeBtn("No",  MessageBoxResult.No));
+                    // Enter picks No: these prompts guard destructive answers (discard changes,
+                    // overwrite), so a stray Enter must never be the one that says yes.
+                    btnPanel.Children.Add(MakeBtn("No",  MessageBoxResult.No, isDefault: true, isCancel: true));
                     btnPanel.Children.Add(MakeBtn("Yes", MessageBoxResult.Yes, primary: true));
                     break;
                 case MessageBoxButton.YesNoCancel:
-                    btnPanel.Children.Add(MakeBtn("Cancel", MessageBoxResult.Cancel));
-                    btnPanel.Children.Add(MakeBtn("No",     MessageBoxResult.No));
+                    btnPanel.Children.Add(MakeBtn("Cancel", MessageBoxResult.Cancel, isCancel: true));
+                    btnPanel.Children.Add(MakeBtn("No",     MessageBoxResult.No, isDefault: true));
                     btnPanel.Children.Add(MakeBtn("Yes",    MessageBoxResult.Yes,    primary: true));
                     break;
             }

@@ -60,7 +60,23 @@ namespace Scalpel
                         if (lTarget is int tp)
                             PageList.SelectedIndex = tp;
                         else if (lTarget is string u)
-                            try { Process.Start(new ProcessStartInfo(u) { UseShellExecute = true }); } catch { }
+                        {
+                            // A PDF's /URI is untrusted text: only http/https/mailto may reach the
+                            // shell, so a document cannot launch a local program or protocol handler.
+                            if (Scalpel.Services.LinkTargetPolicy.TryNormalize(u, out var safeUrl))
+                            {
+                                try { Process.Start(new ProcessStartInfo(safeUrl) { UseShellExecute = true }); }
+                                catch (Exception ex)
+                                {
+                                    Scalpel.Services.Logger.Warn("Links", "link.open.fail", ex.Message);
+                                }
+                            }
+                            else
+                            {
+                                Scalpel.Services.Logger.Warn("Links", "link.blocked", u);
+                                SetStatus(Loc("Str_St_LinkBlocked"));
+                            }
+                        }
                         e.Handled = true;
                         return;
                     }
@@ -229,6 +245,12 @@ namespace Scalpel
                     _activeCanvas.Children.Add(poly);
                     _activePreview = poly;
                     _activeCanvas.CaptureMouse();
+                    break;
+
+                case EditTool.Measure:
+                    ClearSelection();
+                    BeginMeasure(pos);
+                    e.Handled = true;
                     break;
 
                 case EditTool.Line:
@@ -435,6 +457,10 @@ namespace Scalpel
                     break;
                 }
 
+                case EditTool.Measure:
+                    UpdateMeasure(pos, _activeCanvas.Tag is int mvPage ? mvPage : PageList.SelectedIndex);
+                    break;
+
                 case EditTool.Crop when _activePreview is Rectangle crect:
                     Canvas.SetLeft(crect, Math.Min(pos.X, _drawStart.X));
                     Canvas.SetTop(crect, Math.Min(pos.Y, _drawStart.Y));
@@ -575,7 +601,7 @@ namespace Scalpel
                 {
                     var regionBounds = new Rect(
                         Math.Min(pos.X, _selectStart.X), Math.Min(pos.Y, _selectStart.Y), dragW, dragH);
-                    if (_selectRect is not null) { _activeCanvas.Children.Remove(_selectRect); _selectRect = null; }
+                    if (_selectRect is not null) { RemoveFromOwner(_selectRect); _selectRect = null; }
                     FinishOcrRegion(_ocrRegionPage, regionBounds, dragW, dragH);
                     return;
                 }
@@ -626,7 +652,7 @@ namespace Scalpel
                     }
                     else
                     {
-                        _activeCanvas.Children.Remove(rect);
+                        RemoveFromOwner(rect);
                     }
                     break;
 
@@ -637,7 +663,7 @@ namespace Scalpel
                     }
                     else
                     {
-                        _activeCanvas.Children.Remove(_activePreview);
+                        RemoveFromOwner(_activePreview);
                     }
                     _activeInk = null;
                     break;
@@ -649,10 +675,15 @@ namespace Scalpel
                     if ((b - a).Length > 3)
                         AddAnnotation(_activeInk);
                     else
-                        _activeCanvas.Children.Remove(_activePreview);
+                        RemoveFromOwner(_activePreview);
                     _activeInk = null;
                     break;
                 }
+
+                case EditTool.Measure:
+                    EndMeasure(e.GetPosition(_activeCanvas),
+                               _activeCanvas.Tag is int upPage ? upPage : PageList.SelectedIndex);
+                    break;
 
                 case EditTool.Crop when _activePreview is Rectangle cr:
                     _activeCanvas.ReleaseMouseCapture(); // MUST release before showing handles
@@ -667,7 +698,7 @@ namespace Scalpel
                     }
                     else
                     {
-                        _activeCanvas.Children.Remove(cr);
+                        RemoveFromOwner(cr);
                         _cropPreviewRect = null;
                     }
                     break;

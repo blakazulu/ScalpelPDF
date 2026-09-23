@@ -26,18 +26,15 @@ namespace Scalpel
         // Crop tool
         // ============================================================
 
-        // ── Crop coordinate helpers ──────────────────────────────────────────
+        // -- Crop coordinate helpers -----------------------------------------
         //
-        // The rendered canvas already incorporates the user-applied rotation stored
-        // in _pageRotations.  These helpers invert / apply the same transforms that
-        // the link-overlay code uses (lines ~1925-1957), so canvas↔PDF coords are
-        // consistent with how Docnet drew the bitmap.
-        //
-        //  rot=0:   canvas_x = native_x * cW/pW,  canvas_y = (pH - native_y) * cH/pH
-        //  rot=90:  canvas_x = native_y * cW/pH,  canvas_y = native_x * cH/pW
-        //  rot=180: canvas_x = (pW - nx) * cW/pW, canvas_y = (pH - ny) * cH/pH
-        //  rot=270: canvas_x = (pH - ny) * cW/pH, canvas_y = (pW - nx) * cH/pW
-        // ─────────────────────────────────────────────────────────────────────
+        // The rendered canvas already incorporates the page rotation, so canvas<->PDF
+        // conversion is rotation-aware. The maths lives in Services/PageSpaceMap.cs, shared with
+        // the form-widget overlay, because this transform was previously hand-derived in both
+        // places and the copies disagreed at 180 degrees - where the rotation's vertical flip and
+        // the y-up/y-down flip cancel out. The crop copy flipped anyway and wrote a CropBox for
+        // the mirrored half of the page. See PageSpaceMapTests.
+        // ---------------------------------------------------------------------
 
         /// <summary>
         /// Convert a canvas-space <see cref="Rect"/> to PDF CropBox coordinates
@@ -45,70 +42,23 @@ namespace Scalpel
         /// </summary>
         private static (double x1, double y1, double x2, double y2) CanvasToPdfRect(
             Rect cr, double pdfW, double pdfH, double canvasW, double canvasH, int rot)
-        {
-            double cx = cr.X, cy = cr.Y, cw = cr.Width, ch = cr.Height;
-            return rot switch
-            {
-                90  => (cy      * pdfW / canvasH,
-                        cx      * pdfH / canvasW,
-                       (cy + ch) * pdfW / canvasH,
-                       (cx + cw) * pdfH / canvasW),
-
-                180 => (pdfW - (cx + cw) * pdfW / canvasW,
-                        pdfH - (cy + ch) * pdfH / canvasH,
-                        pdfW -  cx       * pdfW / canvasW,
-                        pdfH -  cy       * pdfH / canvasH),
-
-                270 => (pdfW - (cy + ch) * pdfW / canvasH,
-                        pdfH - (cx + cw) * pdfH / canvasW,
-                        pdfW -  cy       * pdfW / canvasH,
-                        pdfH -  cx       * pdfH / canvasW),
-
-                _   => (cx       * pdfW / canvasW,           // 0°
-                        pdfH - (cy + ch) * pdfH / canvasH,
-                       (cx + cw) * pdfW / canvasW,
-                        pdfH -  cy       * pdfH / canvasH),
-            };
-        }
+            => Scalpel.Services.PageSpaceMap.ToPdf(
+                   cr.X, cr.Y, cr.Width, cr.Height, pdfW, pdfH, canvasW, canvasH, rot);
 
         /// <summary>
-        /// Inverse of <see cref="CanvasToPdfRect"/> — map PDF CropBox coords back to a canvas-space
+        /// Inverse of <see cref="CanvasToPdfRect"/> - map PDF CropBox coords back to a canvas-space
         /// <see cref="Rect"/>.
         /// </summary>
         private static Rect PdfToCanvasRect(
             double x1, double y1, double x2, double y2,
             double pdfW, double pdfH, double canvasW, double canvasH, int rot)
         {
-            double cx, cy, cw, ch;
-            switch (rot)
-            {
-                case 90:
-                    cx = y1 * canvasW / pdfH;
-                    cy = x1 * canvasH / pdfW;
-                    cw = (y2 - y1) * canvasW / pdfH;
-                    ch = (x2 - x1) * canvasH / pdfW;
-                    break;
-                case 180:
-                    cx = (pdfW - x2) * canvasW / pdfW;
-                    cy = (pdfH - y2) * canvasH / pdfH;
-                    cw = (x2 - x1)   * canvasW / pdfW;
-                    ch = (y2 - y1)   * canvasH / pdfH;
-                    break;
-                case 270:
-                    cx = (pdfH - y2) * canvasW / pdfH;
-                    cy = (pdfW - x2) * canvasH / pdfW;
-                    cw = (y2 - y1)   * canvasW / pdfH;
-                    ch = (x2 - x1)   * canvasH / pdfW;
-                    break;
-                default: // 0°
-                    cx = x1 * canvasW / pdfW;
-                    cy = (pdfH - y2) * canvasH / pdfH;
-                    cw = (x2 - x1)  * canvasW / pdfW;
-                    ch = (y2 - y1)  * canvasH / pdfH;
-                    break;
-            }
-            return new Rect(Math.Max(0, cx), Math.Max(0, cy),
-                            Math.Max(10, cw), Math.Max(10, ch));
+            var r = Scalpel.Services.PageSpaceMap.ToCanvas(
+                        x1, y1, x2, y2, pdfW, pdfH, canvasW, canvasH, rot);
+
+            // Keep the handle grabbable even if the stored box is degenerate.
+            return new Rect(Math.Max(0, r.X), Math.Max(0, r.Y),
+                            Math.Max(10, r.W), Math.Max(10, r.H));
         }
 
         /// <summary>

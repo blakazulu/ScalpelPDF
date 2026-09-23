@@ -54,6 +54,15 @@ public static class Reporter
             }
         }
 
+        sb.AppendLine($"## Warnings ({report.Warnings.Count})");
+        sb.AppendLine();
+        if (report.Warnings.Count == 0)
+            sb.AppendLine("_None._");
+        else
+            foreach (var w in report.Warnings)
+                sb.AppendLine($"- {w}");
+        sb.AppendLine();
+
         sb.AppendLine("## Controls never exercised");
         sb.AppendLine();
         if (report.UntestedControls.Count == 0)
@@ -73,6 +82,7 @@ public static class Reporter
             passed = report.Passed(),
             failed = report.Failed(),
             untestedControls = report.UntestedControls,
+            warnings = report.Warnings,
             suites = report.Suites().Select(s => new
             {
                 name = s,

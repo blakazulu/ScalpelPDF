@@ -5,7 +5,7 @@ namespace Scalpel.E2E;
 public sealed class ActionRunner
 {
     private readonly AppDriver _driver;
-    private readonly LogReader _log;
+    private LogReader _log;
     private readonly string _openWith;
 
     public ActionRunner(AppDriver driver, LogReader log, string openWithPath)
@@ -13,6 +13,30 @@ public sealed class ActionRunner
         _driver = driver;
         _log = log;
         _openWith = openWithPath;
+        _driver.Relaunched += RebindLog;
+    }
+
+    /// <summary>
+    /// Follows the relaunched process to its own session log. Each launch starts a new
+    /// <c>scalpel-&lt;timestamp&gt;.jsonl</c>; reading on from the dead process's file made every
+    /// action after a relaunch (crash recovery here, or a suite's own Relaunch) fail with
+    /// "expected click ... not logged".
+    /// </summary>
+    private void RebindLog()
+    {
+        string old = _log.FilePath;
+        string dir = System.IO.Path.GetDirectoryName(old) ?? LogReader.DefaultLogDir();
+        for (int i = 0; i < 40; i++)
+        {
+            var latest = LogReader.FindLatestLog(dir);
+            if (latest != null && !string.Equals(latest, old, StringComparison.OrdinalIgnoreCase))
+            {
+                _log = new LogReader(latest);
+                return;
+            }
+            System.Threading.Thread.Sleep(125);
+        }
+        // Same second as the old session (same file name) or no new file: keep reading the old one.
     }
 
     public ActionResult RunControl(string suite, ControlSpec spec)

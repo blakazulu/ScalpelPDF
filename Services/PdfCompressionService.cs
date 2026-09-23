@@ -37,7 +37,7 @@ namespace Scalpel.Services
                 var (wPt, hPt) = source.PageSizePt(i);
                 PdfRasterTools.AppendImagePage(doc, jpeg, wPt, hPt);
             }
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
     }
 }

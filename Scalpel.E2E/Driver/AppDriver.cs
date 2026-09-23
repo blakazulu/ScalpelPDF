@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using FlaUI.Core;
@@ -32,6 +32,8 @@ public sealed class AppDriver : IDisposable
     [DllImport("user32.dll")] private static extern bool SetWindowPos(
         IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
     [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] private static extern bool IsWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hWnd);
     private const uint SWP_NOZORDER = 0x0004;
     private const uint SWP_NOACTIVATE = 0x0010;
     private const uint SWP_NOSIZE = 0x0001;
@@ -124,8 +126,9 @@ public sealed class AppDriver : IDisposable
             psi.Environment["SCALPEL_LOG_DIR"] = logDir;
         }
         var app = Application.Launch(psi);
-        var driver = new AppDriver(exePath, app, automation, logDir);
+        var driver = new AppDriver(exePath, app, automation, logDir) { _launchArg = openWithPath };
         driver.WaitForMainWindow();
+        driver.PinMainWindowHandle();
         driver.FocusMainWindow();
         return driver;
     }
@@ -277,6 +280,22 @@ public sealed class AppDriver : IDisposable
         catch { }
     }
 
+    /// <summary>The window height the settings baseline gives every launch: 1300 px, or the target
+    /// monitor's working-area height less a margin when that is smaller.</summary>
+    public static int BaselineWindowHeight()
+    {
+        int h = 1300;
+        try
+        {
+            var b = ResolveMonitorBounds(TargetMonitor <= 0 ? 1 : TargetMonitor);
+            var screen = b is null ? System.Windows.Forms.Screen.PrimaryScreen
+                                   : System.Windows.Forms.Screen.FromRectangle(b.Value);
+            h = Math.Min(h, screen.WorkingArea.Height - 40);
+        }
+        catch { }
+        return Math.Max(700, h);
+    }
+
     // Resolves a Windows Display Settings monitor number to its screen bounds. Screen.AllScreens
     // doesn't expose that "Identify" number directly, so this matches the trailing digits of each
     // screen's DeviceName ("\\.\DISPLAY1" -> 1) — the convention Display Settings numbering follows
@@ -325,23 +344,74 @@ public sealed class AppDriver : IDisposable
         }
     }
 
-    // WPF can keep a stray top-level Popup HWND (a tooltip/adorner) alongside the real window, and
-    // FlaUI.GetMainWindow sometimes returns that Popup — which has none of our controls, making
-    // every Find() fail. Prefer the process's actual application window: the top-level whose
-    // ClassName is not "Popup" (its title is "Scalpel").
+    /// <summary>
+    /// Resolves Scalpel's own application window.
+    ///
+    /// <para>WPF can keep a stray top-level Popup HWND (a tooltip/adorner) alongside the real
+    /// window, and FlaUI.GetMainWindow sometimes returns that Popup - which has none of our
+    /// controls, making every Find() fail.</para>
+    ///
+    /// <para>Selecting "the first top-level that is not a Popup" is NOT enough, and used to be a
+    /// real defect: a native Open/Save dialog has ClassName "#32770", which passes that test, so
+    /// while a file dialog was open the driver could cache the DIALOG as the main window. Every
+    /// Find() then searched the dialog, the coverage cross-check reported the dialog's own chrome
+    /// (UpButton, DropDown, GUID-named parts) as un-exercised Scalpel controls, and - worst -
+    /// DismissModals would treat the dialog as the window to protect and close the real one.</para>
+    ///
+    /// <para>So the process's own main-window handle, captured at launch before any dialog can
+    /// exist, is the authority. The class-name heuristic is only a fallback.</para>
+    /// </summary>
     private Window ResolveMainWindow()
     {
         try
         {
             var tops = _app.GetAllTopLevelWindows(_automation);
+
+            if (_pinnedMainHandle != IntPtr.Zero)
+            {
+                var pinned = tops.FirstOrDefault(w =>
+                {
+                    try { return w.Properties.NativeWindowHandle.ValueOrDefault == _pinnedMainHandle; }
+                    catch { return false; }
+                });
+                if (pinned != null) return pinned;
+            }
+
+            // Fallback: a real WPF application window, never a Popup and never a native dialog.
             var real = tops.FirstOrDefault(w =>
             {
-                try { return w.ClassName != "Popup"; } catch { return false; }
+                try
+                {
+                    string cls = w.ClassName ?? "";
+                    return cls != "Popup" && cls != "#32770";
+                }
+                catch { return false; }
             });
             if (real != null) return real;
         }
         catch { }
         return _app.GetMainWindow(_automation, TimeSpan.FromSeconds(5));
+    }
+
+    /// <summary>
+    /// The process's main window handle, pinned once while no dialog can be open. Everything that
+    /// needs to tell "the app" apart from "a window the app put up" keys off this.
+    /// </summary>
+    private IntPtr _pinnedMainHandle;
+
+    private void PinMainWindowHandle()
+    {
+        try
+        {
+            using var proc = System.Diagnostics.Process.GetProcessById(_app.ProcessId);
+            for (int i = 0; i < 40 && proc.MainWindowHandle == IntPtr.Zero; i++)
+            {
+                System.Threading.Thread.Sleep(100);
+                proc.Refresh();
+            }
+            if (proc.MainWindowHandle != IntPtr.Zero) _pinnedMainHandle = proc.MainWindowHandle;
+        }
+        catch { }
     }
 
     public bool IsAlive
@@ -353,47 +423,100 @@ public sealed class AppDriver : IDisposable
         }
     }
 
-    public void Relaunch(string openWithPath)
+    /// <summary>The Scalpel.exe this driver launches (a scenario that spawns a second process
+    /// - the single-instance forwarding check - needs the same binary).</summary>
+    public string ExePath => _exePath;
+
+    /// <summary>PID of the current app process, or -1 if it cannot be read. Temp working files
+    /// carry it in their name (<c>scalpel_p{pid}_*.pdf</c>).</summary>
+    public int ProcessId
+    {
+        get { try { return _app.ProcessId; } catch { return -1; } }
+    }
+
+    /// <summary>
+    /// Relaunch the app. <paramref name="openWithPath"/> null starts it with NO file argument, so
+    /// the app runs its startup tab restore (the <c>OpenTabs</c> setting) instead of opening a
+    /// file. <paramref name="multiInstance"/> false leaves <c>SCALPEL_MULTI_INSTANCE</c> unset, so
+    /// the new process becomes the single-instance primary and serves forwarded launches - only
+    /// the forwarding scenario wants that; every other launch keeps multi-instance on. The settings
+    /// baseline is applied either way (it does not touch <c>OpenTabs</c>/<c>LastFile</c>, so the
+    /// tabs persisted by the graceful close below survive into the relaunch).
+    /// </summary>
+    public void Relaunch(string? openWithPath, bool multiInstance = true)
     {
         // Fully tear down the old instance BEFORE launching the new one. Closing without waiting
         // raced the new launch: while the heavy first instance was still shutting down, the new
         // process's command-line file-open could be dropped, leaving the relaunched app with no
         // document loaded (no page to place annotations on). Wait for the old PID to actually exit.
-        int oldPid = -1;
-        try { oldPid = _app.ProcessId; } catch { }
-        try { _app.Close(); } catch { }
-        try { _app.Dispose(); } catch { }
-        if (oldPid > 0)
-        {
-            try
-            {
-                using var op = System.Diagnostics.Process.GetProcessById(oldPid);
-                if (!op.WaitForExit(4000)) { try { op.Kill(); op.WaitForExit(1000); } catch { } }
-            }
-            catch { /* already gone */ }
-        }
+        CloseApp();
+        _launchNo++;
+        _launchArg = openWithPath;
         _mainWindowCache = null; // the relaunched app is a new window — drop the stale cache
         _lastMainHandle = IntPtr.Zero;
+        _pinnedMainHandle = IntPtr.Zero;
         // Re-apply the settings baseline so the relaunched app opens in a known state. Prior suites
         // persist theme/locale/view-mode by clicking those controls; without this the relaunch
         // would inherit, e.g., an RTL locale that breaks canvas annotation placement.
         AppSettingsGuard.WriteBaseline();
-        var psi = new ProcessStartInfo(_exePath, $"\"{openWithPath}\"") { UseShellExecute = false };
-        psi.Environment["SCALPEL_MULTI_INSTANCE"] = "1"; // see Launch()
+        string args = openWithPath is null ? "" : $"\"{openWithPath}\"";
+        var psi = new ProcessStartInfo(_exePath, args) { UseShellExecute = false };
+        if (multiInstance) psi.Environment["SCALPEL_MULTI_INSTANCE"] = "1"; // see Launch()
+        else psi.Environment.Remove("SCALPEL_MULTI_INSTANCE");
         // Preserve this instance's private log dir across relaunches, otherwise the new
         // session would log to the shared default dir and collide with sibling instances.
         if (!string.IsNullOrEmpty(_logDir)) psi.Environment["SCALPEL_LOG_DIR"] = _logDir;
         _app = Application.Launch(psi);
         WaitForMainWindow();
+        // Pin the NEW process's window. (This used to run before the launch, against the process
+        // that had just exited, so every relaunched instance ran unpinned on the class-name
+        // fallback - which can pick a dialog while one is up.)
+        PinMainWindowHandle();
+        try { Relaunched?.Invoke(); } catch { }
     }
+
+    /// <summary>Raised after every <see cref="Relaunch"/>. The new process writes a NEW session log,
+    /// so anything reading the old one (ActionRunner's LogReader) must rebind or it goes blind: after
+    /// one crash-recovery relaunch every later click read as "not logged".</summary>
+    public event Action? Relaunched;
 
     public AutomationElement? Find(string automationId)
     {
         try
         {
-            return MainWindow.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+            var inWindow = MainWindow.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+            if (inWindow != null) return inWindow;
         }
-        catch { return null; }
+        catch { }
+
+        // A WPF ContextMenu renders in its own popup HWND, so its items are NOT descendants of
+        // the main window - the Tools menu items are invisible to a main-window-only search.
+        // Fall back to the other top-level windows this app owns.
+        return FindInPopups(automationId);
+    }
+
+    /// <summary>
+    /// Looks for a control in the app's popup / dialog windows (anything top-level that is not
+    /// the main window). This is what makes menu items reachable.
+    /// </summary>
+    private AutomationElement? FindInPopups(string automationId)
+    {
+        try
+        {
+            IntPtr mainHandle = GetMainWindowHandle();
+            foreach (var w in _app.GetAllTopLevelWindows(_automation))
+            {
+                try
+                {
+                    if (w.Properties.NativeWindowHandle.ValueOrDefault == mainHandle) continue;
+                    var hit = w.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+                    if (hit != null) return hit;
+                }
+                catch { }
+            }
+        }
+        catch { }
+        return null;
     }
 
     public bool Click(string automationId)
@@ -521,6 +644,13 @@ public sealed class AppDriver : IDisposable
                 // catalogued radios are reachable.
                 ExpandSettingsSections();
                 break;
+            case Surface.ToolsMenu:
+                // The Tools menu is a ContextMenu that FileMenu_Click opens on the button.
+                // Clicking an item closes it again, so it is reopened before each item rather
+                // than left open across the group.
+                Click("ToolsMenuBtn");
+                System.Threading.Thread.Sleep(300);
+                break;
             case Surface.AlwaysVisible: default: break;
         }
         System.Threading.Thread.Sleep(150);
@@ -606,6 +736,10 @@ public sealed class AppDriver : IDisposable
 
     private IntPtr GetMainWindowHandle()
     {
+        // The pinned handle is authoritative: deriving this from MainWindow is circular, and if
+        // that cache ever held a dialog then DismissModals would protect the dialog and close the
+        // real window instead.
+        if (_pinnedMainHandle != IntPtr.Zero) return _pinnedMainHandle;
         try
         {
             var h = MainWindow?.Properties.NativeWindowHandle.ValueOrDefault ?? IntPtr.Zero;
@@ -624,22 +758,136 @@ public sealed class AppDriver : IDisposable
     /// </summary>
     public void DismissModals()
     {
+        // Several passes: a native Windows file dialog often ignores the first Close (it is still
+        // finishing its own initialization), and closing one dialog can reveal another behind it.
+        for (int pass = 0; pass < 4; pass++)
+        {
+            if (!DismissModalsOnce()) return;   // nothing left to close
+            System.Threading.Thread.Sleep(200);
+        }
+    }
+
+    /// <summary>True when any window other than the main window is still up.</summary>
+    public bool HasOpenModal()
+    {
         try
         {
             IntPtr mainHandle = GetMainWindowHandle();
-            if (mainHandle == IntPtr.Zero) return; // can't identify main → never risk closing it
+            if (mainHandle == IntPtr.Zero) return false;
+            return DialogWindows(mainHandle).Count > 0;
+        }
+        catch { return false; }
+    }
 
-            foreach (var w in _app.GetAllTopLevelWindows(_automation))
+    /// <summary>
+    /// Every window of the app except the main one: the unowned top-level windows (WPF popups and
+    /// menus) AND the dialogs the main window owns.
+    /// <para>UIA lists an owned window as a child of its owner, not of the desktop, so
+    /// <c>GetAllTopLevelWindows</c> alone never sees a dialog shown with an owner - and that is
+    /// every dialog Scalpel shows (ScalpelDialog, the tool forms, the native Open/Save dialogs,
+    /// all shown with <c>Owner = this</c> / <c>ShowDialog(this)</c>). Looking only there made
+    /// AnswerDialog, DriveOpenDialog/DriveSaveDialog, HasOpenModal and DismissModals blind to
+    /// them: the dialog stayed up, which disables the main window, and the next relaunch's close
+    /// was refused.</para>
+    /// </summary>
+    private List<Window> DialogWindows(IntPtr mainHandle)
+    {
+        var found = new List<Window>();
+        var seen = new HashSet<IntPtr>();
+        void Add(Window w)
+        {
+            try
+            {
+                IntPtr h = w.Properties.NativeWindowHandle.ValueOrDefault;
+                if (h == mainHandle || !seen.Add(h)) return;
+                found.Add(w);
+                // A dialog can own one of its own (e.g. a native Save dialog's overwrite prompt).
+                foreach (var inner in w.ModalWindows) Add(inner);
+            }
+            catch { }
+        }
+        try { foreach (var w in _app.GetAllTopLevelWindows(_automation)) Add(w); } catch { }
+        try { foreach (var w in MainWindow.ModalWindows) Add(w); } catch { }
+        return found;
+    }
+
+    /// <summary>
+    /// Closes every top-level window that is not the main window. Returns true if any were found.
+    /// <para>Escalates: Close(), then the dialog's own Cancel button, then Escape. A native
+    /// Open/Save dialog frequently survives Close() but always answers Cancel - and leaving one
+    /// open puts its chrome (UpButton, DropDown, SearchBoxSearchButton, GUID-named parts) into the
+    /// automation tree, where the coverage cross-check reports them as un-exercised Scalpel
+    /// controls.</para>
+    /// </summary>
+    private bool DismissModalsOnce()
+    {
+        bool found = false;
+        try
+        {
+            IntPtr mainHandle = GetMainWindowHandle();
+            if (mainHandle == IntPtr.Zero) return false; // can't identify main → never risk closing it
+
+            foreach (var w in DialogWindows(mainHandle))
             {
                 try
                 {
-                    if (w.Properties.NativeWindowHandle.ValueOrDefault == mainHandle) continue;
-                    w.AsWindow()?.Close();
+                    found = true;
+                    IntPtr h = IntPtr.Zero;
+                    try { h = w.Properties.NativeWindowHandle.ValueOrDefault; } catch { }
+
+                    try { w.AsWindow()?.Close(); } catch { }
+
+                    // Still there? Ask it to cancel the way a user would.
+                    if (StillOpen(h))
+                    {
+                        try
+                        {
+                            var cancel = w.FindFirstDescendant(cf => cf.ByName("Cancel"))?.AsButton();
+                            if (cancel != null && cancel.Patterns.Invoke.IsSupported)
+                                cancel.Patterns.Invoke.Pattern.Invoke();
+                        }
+                        catch { }
+                    }
+
+                    // Last resort: a physical Escape. It goes to whatever window has the keyboard,
+                    // and Escape in Scalpel's MAIN window closes the app (KeyboardShortcuts: with the
+                    // Select tool active a second Esc exits). Close()/Cancel usually take effect a
+                    // moment later, so pressing blind landed the key on the main window once the
+                    // dialog was gone and killed the run ("app crashed" at the first Tools menu
+                    // item). Only press it while this very window is still up and in front.
+                    if (StillOpen(h))
+                    {
+                        try
+                        {
+                            w.Focus();
+                            System.Threading.Thread.Sleep(60);
+                            // A dialog takes the foreground; a WPF popup (menu) never does, it owns
+                            // the keyboard while the main window stays foreground.
+                            bool popup = (w.ClassName ?? "") == "Popup";
+                            if (IsWindow(h) && IsWindowVisible(h) && (popup || GetForegroundWindow() == h))
+                                FlaUI.Core.Input.Keyboard.Press(FlaUI.Core.WindowsAPI.VirtualKeyShort.ESCAPE);
+                        }
+                        catch { }
+                    }
                 }
                 catch { }
             }
         }
         catch { }
+        return found;
+    }
+
+    /// <summary>True while <paramref name="h"/> is still a visible window, after giving a close that
+    /// was just requested up to ~400 ms to take effect (WPF closes asynchronously).</summary>
+    private static bool StillOpen(IntPtr h)
+    {
+        if (h == IntPtr.Zero) return false;
+        for (int i = 0; i < 8; i++)
+        {
+            if (!IsWindow(h) || !IsWindowVisible(h)) return false;
+            System.Threading.Thread.Sleep(50);
+        }
+        return IsWindow(h) && IsWindowVisible(h);
     }
 
     public bool DriveOpenDialog(string path) => DriveFileDialog(path, confirmButtonName: "Open");
@@ -659,14 +907,37 @@ public sealed class AppDriver : IDisposable
         {
             for (int i = 0; i < 40; i++)
             {
-                var dialog = _app.GetAllTopLevelWindows(_automation)
+                IntPtr mainHandle = GetMainWindowHandle();
+                if (mainHandle == IntPtr.Zero) { System.Threading.Thread.Sleep(250); continue; }
+                var dialog = DialogWindows(mainHandle)
                     .FirstOrDefault(w => w.IsModal || (w.Name?.Contains("PDF") ?? false));
                 if (dialog != null)
                 {
-                    var edit = dialog.FindFirstDescendant(cf => cf.ByControlType(ControlType.Edit));
-                    edit?.AsTextBox()?.Enter(path);
-                    var btn = dialog.FindFirstDescendant(cf => cf.ByName(confirmButtonName))?.AsButton();
-                    btn?.Invoke();
+                    // The file-name box by its common-dialog control id: 1148 in an Open dialog,
+                    // 1001 in a Save dialog. NOT "the first Edit": in the Explorer-style dialog that
+                    // is a file row's Name cell, so the path went nowhere (the Open dialog stayed up
+                    // with an empty name) or was typed into the file list, whose type-ahead picked
+                    // an unrelated file ("corrupted.pdf already exists - replace it?").
+                    AutomationElement? edit = null;
+                    for (int j = 0; j < 20 && edit == null; j++)
+                    {
+                        edit = dialog.FindFirstDescendant(cf => cf.ByAutomationId("1148").And(cf.ByControlType(ControlType.Edit)))
+                            ?? dialog.FindFirstDescendant(cf => cf.ByAutomationId("1001").And(cf.ByControlType(ControlType.Edit)))
+                            ?? dialog.FindFirstDescendant(cf => cf.ByName("File name:").And(cf.ByControlType(ControlType.Edit)));
+                        if (edit == null) System.Threading.Thread.Sleep(150);
+                    }
+                    if (edit == null) return false;
+                    if (edit.Patterns.Value.IsSupported) edit.Patterns.Value.Pattern.SetValue(path);
+                    else edit.AsTextBox().Enter(path);
+                    // The confirm button is IDOK (control id 1): a Button in the Save dialog, a
+                    // SplitButton in the Open dialog. Matching by name alone hits the Open split
+                    // button's drop-down arrow (a Button also named "Open"), and id 1 alone can be a
+                    // file row (ListItem).
+                    var btn = dialog.FindFirstDescendant(cf => cf.ByAutomationId("1")
+                                  .And(cf.ByControlType(ControlType.Button).Or(cf.ByControlType(ControlType.SplitButton))))
+                              ?? dialog.FindFirstDescendant(cf => cf.ByName(confirmButtonName).And(cf.ByControlType(ControlType.Button)));
+                    if (btn == null || !btn.Patterns.Invoke.IsSupported) return false;
+                    btn.Patterns.Invoke.Pattern.Invoke();
                     return true;
                 }
                 System.Threading.Thread.Sleep(250);
@@ -769,6 +1040,11 @@ public sealed class AppDriver : IDisposable
                         cf => cf.ByControlType(FlaUI.Core.Definitions.ControlType.Image));
 
                 var r = pageImage?.BoundingRectangle ?? scrollEl.BoundingRectangle;
+                // Aim inside the part of the page that is actually on screen. A page taller than the
+                // viewport (a small window, e.g. one the monkey suite resized) extends below it, and
+                // 45% down the WHOLE page then lies on the status bar or off the window entirely.
+                var visible = System.Drawing.Rectangle.Intersect(r, scrollEl.BoundingRectangle);
+                if (visible.Width > 20 && visible.Height > 20) r = visible;
                 int screenX = (int)(r.X + r.Width  * 0.45);
                 int screenY = (int)(r.Y + r.Height * 0.45);
 
@@ -953,10 +1229,273 @@ public sealed class AppDriver : IDisposable
         System.Threading.Thread.Sleep(100);
     }
 
+    /// <summary>
+    /// Best-effort text of a control's UIA Name — how a plain TextBlock (FileNameLabel, ToastText;
+    /// neither has a Value pattern) surfaces its content. Returns null if the control is absent or
+    /// unreadable, so callers can tell "not found" apart from an empty string.
+    /// </summary>
+    public string? ReadText(string automationId)
+    {
+        var el = Find(automationId);
+        if (el == null) return null;
+        try { return el.Name; } catch { return null; }
+    }
+
+    /// <summary>
+    /// Best-effort UIA Value of a control - the text of a TextBox (PageJumpBox) or an editable
+    /// ComboBox (ZoomBox: "Fit Width", "Fit Page", "100%", "134%"). Falls back to the Name when the
+    /// control has no Value pattern. Null if the control is absent or unreadable.
+    /// </summary>
+    public string? ReadValue(string automationId)
+    {
+        var el = Find(automationId);
+        if (el == null) return null;
+        try
+        {
+            if (el.Patterns.Value.IsSupported) return el.Patterns.Value.Pattern.Value.ValueOrDefault;
+            return el.Name;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// Waits for a non-main top-level window (a <c>ScalpelDialog</c> Yes/No/Cancel prompt, or a
+    /// <c>ShowToolForm</c> tool dialog) and invokes the button named <paramref name="buttonName"/>
+    /// in it — e.g. "Yes"/"No"/"Cancel" for the tab close/save prompt, or a tool form's own action
+    /// button ("Compress", "Apply", ...). Both dialog builders give their buttons a plain string
+    /// Content, which WPF's ButtonAutomationPeer surfaces as the UIA Name — the same mechanism
+    /// <see cref="DismissModalsOnce"/> already relies on for its "Cancel" fallback. Returns false if
+    /// no such window/button appears within the timeout.
+    /// </summary>
+    public bool AnswerDialog(string buttonName, int timeoutMs = 5000)
+    {
+        try
+        {
+            IntPtr mainHandle = GetMainWindowHandle();
+            for (int waited = 0; waited < timeoutMs; waited += 200)
+            {
+                foreach (var w in DialogWindows(mainHandle))
+                {
+                    try
+                    {
+                        var btn = w.FindFirstDescendant(cf => cf.ByName(buttonName))?.AsButton();
+                        if (btn != null && btn.Patterns.Invoke.IsSupported)
+                        {
+                            btn.Patterns.Invoke.Pattern.Invoke();
+                            return true;
+                        }
+                    }
+                    catch { }
+                }
+                System.Threading.Thread.Sleep(200);
+            }
+            return false;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// Closes the main window through the UIA WindowPattern — the same signal a physical click on
+    /// the title-bar Close button sends, so it raises WPF's <c>OnClosing</c> (the per-tab dirty-save
+    /// prompt loop) exactly as the real chrome button would. The chrome Close button itself carries
+    /// no AutomationId to <see cref="Click"/> by id (see <c>MainWindow.xaml</c>'s title bar).
+    /// </summary>
+    public bool CloseMainWindow()
+    {
+        try { MainWindow.Close(); return true; }
+        catch { return false; }
+    }
+
     public void Dispose()
     {
-        try { _app.Close(); } catch { }
-        try { _app.Dispose(); } catch { }
+        CloseApp();
         try { _automation.Dispose(); } catch { }
+    }
+
+    /// <summary>What <see cref="CloseApp"/> had to do to end an instance, for the run report.</summary>
+    public sealed record CloseEvent(CloseEventKind Kind, string Suite, string Launch, string Detail);
+
+    public enum CloseEventKind
+    {
+        /// <summary>A save prompt raised by the close, answered "No". A warning, not a failure.</summary>
+        SavePromptAnswered,
+        /// <summary>A save prompt a scenario left open before the close, cancelled. A warning.</summary>
+        LeftoverSavePrompt,
+        /// <summary>Any other dialog left open (before the close or raised by it). A failure.</summary>
+        LeftoverDialog,
+        /// <summary>The process did not exit after the close and was killed. A failure.</summary>
+        ForcedKill,
+    }
+
+    /// <summary>The suite now driving this instance; tags <see cref="CloseEvents"/>. Set by the runner.</summary>
+    public string CurrentSuite { get; set; } = "harness";
+
+    private int _launchNo = 1;
+    private string? _launchArg;
+    private readonly List<CloseEvent> _closeEvents = [];
+
+    /// <summary>Every event recorded by <see cref="CloseApp"/> so far, oldest first.</summary>
+    public IReadOnlyList<CloseEvent> CloseEvents { get { lock (_closeEvents) return _closeEvents.ToList(); } }
+
+    /// <summary>Closes the current instance now (as Dispose would), so the final close is recorded
+    /// in <see cref="CloseEvents"/> before the report is written. Safe to call twice.</summary>
+    public void Shutdown() => CloseApp();
+
+    /// <summary>
+    /// Folds <see cref="CloseEvents"/> into <paramref name="report"/>: a forced kill (a hang at
+    /// close) and a leftover dialog that is not a save prompt are failures of the suite that was
+    /// running; save prompts (answered "No" or left open) are warnings carrying the prompt text.
+    /// </summary>
+    public void AddCloseEventsTo(RunReport report)
+    {
+        foreach (var e in CloseEvents)
+        {
+            switch (e.Kind)
+            {
+                case CloseEventKind.ForcedKill:
+                case CloseEventKind.LeftoverDialog:
+                    string action = e.Kind == CloseEventKind.ForcedKill
+                        ? "close:app-did-not-exit" : "close:leftover-dialog";
+                    report.Results.Add(new ActionResult(e.Suite, action, Outcome.Fail,
+                        $"[{e.Launch}] {e.Detail}", Array.Empty<LogEntry>()));
+                    break;
+                default:
+                    report.Warnings.Add($"[{e.Suite}, {e.Launch}] {e.Kind}: {e.Detail}");
+                    break;
+            }
+        }
+    }
+
+    private string LaunchLabel =>
+        $"launch #{_launchNo} ({(_launchArg is null ? "no file" : System.IO.Path.GetFileName(_launchArg))})";
+
+    private void RecordClose(CloseEventKind kind, string detail)
+    {
+        var ev = new CloseEvent(kind, CurrentSuite, LaunchLabel, detail);
+        lock (_closeEvents) _closeEvents.Add(ev);
+        Console.WriteLine($"[AppDriver.CloseApp] {kind} [{ev.Suite}, {ev.Launch}] {detail}");
+    }
+
+    /// <summary>Title plus every text line of a dialog, e.g. "'Scalpel': Save changes to a.pdf before closing?".</summary>
+    private static string DescribeDialog(Window w)
+    {
+        string title = "";
+        try { title = w.Name ?? ""; } catch { }
+        var lines = new List<string>();
+        try
+        {
+            foreach (var t in w.FindAllDescendants(cf => cf.ByControlType(ControlType.Text)))
+            {
+                try { var n = t.Name; if (!string.IsNullOrWhiteSpace(n)) lines.Add(n.Trim()); } catch { }
+            }
+        }
+        catch { }
+        return lines.Count == 0 ? $"'{title}'" : $"'{title}': {string.Join(" | ", lines.Distinct())}";
+    }
+
+    // Str_Tab_SavePrompt in every locale (Strings/*.xaml), split around its {0} file name. The
+    // relaunch baseline is EnUS, but a suite that clicks the language radios (singles, monkey)
+    // leaves the running instance in another locale, and its final close prompts in that one.
+    private static readonly (string Before, string After)[] SavePromptParts =
+    [
+        ("Save changes to ", " before closing?"),                       // en-US
+        ("¿Guardar los cambios en ", " antes de cerrar?"),              // es
+        ("關閉前要儲存對 ", " 的變更嗎？"),                               // zh-TW
+        ("关闭前要保存对 ", " 的更改吗？"),                               // zh-CN
+        ("বন্ধ করার আগে ", "-এর পরিবর্তনগুলি সংরক্ষণ করবেন?"),           // bn
+        ("Kapatmadan önce ", " dosyasındaki değişiklikler kaydedilsin mi?"), // tr-TR
+        ("לשמור את השינויים ב-", " לפני הסגירה?"),                      // he
+        ("هل تريد حفظ التغييرات في ", " قبل الإغلاق؟"),                 // ar
+        ("Сохранить изменения в ", " перед закрытием?"),                // ru
+    ];
+
+    private static bool IsSavePrompt(string description) =>
+        SavePromptParts.Any(p => description.Contains(p.Before) && description.Contains(p.After));
+
+    /// <summary>The modal dialogs up right now (popups and menus are not dialogs).</summary>
+    private List<Window> OpenDialogs()
+    {
+        try
+        {
+            IntPtr mainHandle = GetMainWindowHandle();
+            if (mainHandle == IntPtr.Zero) return [];
+            return DialogWindows(mainHandle)
+                .Where(w => { try { return w.IsModal; } catch { return false; } })
+                .ToList();
+        }
+        catch { return []; }
+    }
+
+    /// <summary>
+    /// Ends the current app instance the way a user would and waits for the process to go.
+    /// <para>FlaUI's <c>Application.Close</c> only posts WM_CLOSE, and Windows refuses even that
+    /// while a dialog has the main window disabled; after 5 s it prints "Application failed to
+    /// exit" and kills. So: dialogs a scenario left up are cancelled first, the close is sent, and
+    /// the unsaved-changes prompt a dirty tab raises is answered "No" - a test relaunch discards
+    /// its edits. None of that is silent: each one is recorded in <see cref="CloseEvents"/> and
+    /// ends up in the run report - an answered or leftover save prompt as a warning, any other
+    /// dialog and a process that had to be killed (a real hang at close) as a failure.</para>
+    /// </summary>
+    private void CloseApp()
+    {
+        int pid = -1;
+        try { pid = _app.ProcessId; } catch { }
+        System.Diagnostics.Process? proc = null;
+        try { if (pid > 0) proc = System.Diagnostics.Process.GetProcessById(pid); } catch { }
+        try
+        {
+            if (proc is null || proc.HasExited) return;
+
+            foreach (var d in OpenDialogs())
+            {
+                string what = DescribeDialog(d);
+                RecordClose(IsSavePrompt(what) ? CloseEventKind.LeftoverSavePrompt : CloseEventKind.LeftoverDialog,
+                    $"still open before closing, cancelled: {what}");
+            }
+            // Also clears stray popups (menus, tooltips), which are not recorded.
+            DismissModals();
+
+            try { proc.CloseMainWindow(); } catch { }
+            var sw = Stopwatch.StartNew();
+            var handled = new HashSet<IntPtr>();
+            while (!proc.WaitForExit(200) && sw.ElapsedMilliseconds < 10000)
+            {
+                // One prompt per dirty tab, one after another.
+                foreach (var d in OpenDialogs())
+                {
+                    IntPtr h = IntPtr.Zero;
+                    try { h = d.Properties.NativeWindowHandle.ValueOrDefault; } catch { }
+                    if (!handled.Add(h)) continue;   // already answered; the app is still closing
+                    string what = DescribeDialog(d);
+                    if (IsSavePrompt(what))
+                    {
+                        var no = d.FindFirstDescendant(cf => cf.ByName("No"))?.AsButton();
+                        if (no != null && no.Patterns.Invoke.IsSupported)
+                        {
+                            no.Patterns.Invoke.Pattern.Invoke();
+                            RecordClose(CloseEventKind.SavePromptAnswered, $"answered \"No\": {what}");
+                        }
+                        else handled.Remove(h);      // not ready yet; retry on the next pass
+                    }
+                    else
+                    {
+                        RecordClose(CloseEventKind.LeftoverDialog, $"unexpected dialog while closing, cancelled: {what}");
+                        DismissModals();
+                    }
+                }
+            }
+            if (!proc.HasExited)
+            {
+                RecordClose(CloseEventKind.ForcedKill,
+                    $"Scalpel (pid {pid}) did not exit within 10 s of closing - killed");
+                try { proc.Kill(); proc.WaitForExit(2000); } catch { }
+            }
+        }
+        catch { }
+        finally
+        {
+            try { proc?.Dispose(); } catch { }
+            try { _app.Dispose(); } catch { }
+        }
     }
 }

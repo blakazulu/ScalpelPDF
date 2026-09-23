@@ -29,6 +29,13 @@ Design pillars:
 - **Outline/bookmark tree** (OUTLINES sidebar tab) and clickable internal links / cross-references / TOC back-links.
 - Per-monitor DPI v2 aware.
 
+### Document tabs
+- **Chrome-style tabs:** every open PDF is its own tab with a fully live, independent document - its own unsaved annotations, undo/redo, dirty flag, zoom, page and scroll position. Switching tabs never reopens the file and never loses any of that. Opening another file (Open, drag-and-drop, Explorer, a second Scalpel launch) always opens into its own new tab rather than discarding unsaved work.
+- **Open several at once:** the Open dialog, a multi-file drop, and a multi-file command line/Explorer launch each open every file as its own tab, landing on the first one once it is actually open.
+- **Close/save rules:** closing a tab, or closing Scalpel with unsaved tabs, asks "Save changes to {name}?" (Yes/No/Cancel) once per unsaved tab; Cancel leaves everything untouched. A running Tools operation (Compress, OCR, etc.) refuses a tab switch/close with a toast instead of letting a result land in the wrong document.
+- **Restores on launch:** unless a file was passed on the command line, Scalpel reopens the tabs open when it last closed - the previously-active tab loads immediately, the rest load on first click.
+- Shortcuts: Ctrl+T (new tab), Ctrl+W / Ctrl+Shift+W (close / close others), Ctrl+Tab / Ctrl+Shift+Tab (or Ctrl+PgDn/PgUp) to cycle, Ctrl+1..8 to jump to a tab, Ctrl+9 for the last one.
+
 ### Editing & annotation
 - **Inline text editing** of existing PDF text with font matching (whites out original bounds, redraws). Double-click placed text to re-edit.
 - Free-standing **text boxes**, **freehand ink drawing**, and **highlight** overlays with adjustable color/size/opacity.
@@ -99,7 +106,9 @@ Scalpel.sln
 
 ### Key architectural decisions
 
-**1. The MainWindow monolith.** `MainWindow.xaml.cs` (~9,200 lines, 440 KB) holds nearly the entire application: open/save with all fallbacks, every editing tool, rendering for all four view modes, search, form filling, signing, cropping, page operations, links, and outlines. Representative method families: `RenderPage`/`RenderContinuousPages`/`RenderAdditionalPages`, `Save_Click`/`SaveInPlace`/`SaveFlattened_Click`/`SaveTempAndReload`, `RenderFormFields`/`GetPageFormFields`/`GenerateTextFieldAppearance`, `Merge_Click`/`Split_Click`, `LoadOutlines`/`RenderPageLinks`/`RewriteNamedDestLinks`, `StartCropDraw`/`ApplyCrop`. Expect to work here for most behavior changes.
+**1. The MainWindow monolith.** `MainWindow.xaml.cs` (~9,200 lines, 440 KB) holds nearly the entire application: open/save with all fallbacks, every editing tool, rendering for all four view modes, search, form filling, signing, cropping, page operations, links, and outlines. Representative method families: `RenderPage`/`RenderContinuousPages`/`RenderAdditionalPages`, `Save_Click`/`SaveInPlace`/`SaveFlattened_Click`/`SaveTempAndReload`, `RenderFormFields`/`GetPageFormFields`/`GenerateTextFieldAppearance`, `Merge_Click`/`Split_Click`, `LoadOutlines`/`RenderPageLinks`/`RewriteNamedDestLinks`, `StartCropDraw`/`ApplyCrop`. Expect to work here for most behavior changes. `MainWindow` is actually a `partial class` split across ~30 `MainWindow.<Area>.cs` files by responsibility (`Tabs`, `DocumentSession`, `FileOps`, `KeyboardShortcuts`, ... - see `CLAUDE.md` for the full list); find or add the matching area file rather than growing the core.
+
+**1a. Document tabs: one live `DocumentSession` per open file.** Everything that used to be a single set of `MainWindow` fields - `_doc`, the annotation dictionary, the undo/redo stacks, the dirty flag, zoom/view-mode/scroll - now lives on a `DocumentSession` (`MainWindow.DocumentSession.cs`); the old field names are forwarding properties onto the *active* session, `_s`. `MainWindow.Tabs.cs` owns the ordered tab list (`TabListModel<DocumentSession>`, `Services/TabListModel.cs`), the option-C chip strip, and every open/switch/close code path. A tab switch is `DeactivateSession()`, then `_s = target`, then `BindSessionToUi(target, newContent: false)`; the file is never reopened, so nothing about the tab is lost. A `LongOperationGate` (`Services/LongOperationGate.cs`, held as `_longOps`) is taken for the duration of every long Tools operation and refuses a tab switch/close while it is busy, so a result can never land in the wrong document; async code that must keep writing to the document it started on captures `var s = _s;` before its first `await` and writes through `s`, never through the shim. Each tab's temp files are made with `App.MakeTempFile(tag, session.Id)` and deleted immediately on close (`App.ReleaseTempFiles`). At startup, `TryRestoreOpenTabs()` reopens the tabs open at last exit (the `OpenTabs` registry setting) - the previously-active one loads now, the rest become **deferred** tabs that load on first click.
 
 **2. Three PDF libraries, three jobs.** Rendering (Docnet/PDFium), structure (PdfSharpCore), and text (PdfPig) are intentionally separated. A critical constraint: **PdfSharpCore can read encrypted PDFs but cannot re-save them once modified**, so encrypted files are decrypted to a temp copy via PDFium (`FPDF_SaveWithVersion` with `FPDF_REMOVE_SECURITY`) before editing.
 
@@ -123,10 +132,11 @@ Scalpel.sln
 | Data | Location |
 |---|---|
 | Settings (theme, locale, view mode, window size, zoom, fit mode) | Registry `HKCU\Software\Scalpel\Settings` |
+| Open tabs to restore at next launch (`OpenTabs`) | Registry `HKCU\Software\Scalpel\Settings` (`OpenTabsSetting`: `activeIndex|path|path|...`) |
 | Install / file-handler state | Registry `HKCU\Software\Scalpel` + standard Uninstall key |
 | Saved signatures | `%LOCALAPPDATA%\Scalpel\signatures.json` |
 | Crash logs (rolling, 20 MB cap) | `%LOCALAPPDATA%\Scalpel\Logs\crash_*.log` |
-| Session temp PDFs | `scalpel_*.pdf`, swept on startup/exit |
+| Session temp PDFs (per-tab; released on tab close, swept by PID on stale startup) | `scalpel_p<pid>_<tag>_<guid>.pdf` under `%LOCALAPPDATA%\Scalpel\Temp` |
 
 ---
 

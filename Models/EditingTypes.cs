@@ -1,9 +1,9 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 
 namespace Scalpel
 {
-    public enum EditTool { Select, Text, Highlight, Draw, Signature, Image, Crop, Line }
+    public enum EditTool { Select, Text, Highlight, Draw, Signature, Image, Crop, Line, Measure }
 
     public abstract class PageAnnotation
     {
@@ -27,6 +27,13 @@ namespace Scalpel
         public Point Position { get; set; }
         public string Content { get; set; } = "";
         public double FontSize { get; set; } = 14;
+
+        // Character styling. Kept as plain flags for the whole run: Scalpel's text annotations
+        // are single-style boxes, not rich text, which is what the burn can faithfully reproduce.
+        public bool Bold { get; set; }
+        public bool Italic { get; set; }
+        public bool Underline { get; set; }
+
         public byte ColorR { get; set; } = 0;
         public byte ColorG { get; set; } = 0;
         public byte ColorB { get; set; } = 0;

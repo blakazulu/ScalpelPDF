@@ -46,5 +46,32 @@ namespace Scalpel.Tests
             }
             finally { try { System.IO.File.Delete(existing); } catch { } }
         }
+
+        [Fact]
+        public void PickLaunchTargets_returns_every_existing_file_in_order()
+        {
+            var existing = new[] { @"C:\a.pdf", @"C:\b.pdf" };
+            var (files, edit) = SingleInstanceProtocol.PickLaunchTargets(
+                [@"C:\a.pdf", "/edit", @"C:\missing.pdf", @"C:\b.pdf"],
+                p => Array.IndexOf(existing, p) >= 0);
+            Assert.Equal(existing, files);
+            Assert.True(edit);
+        }
+
+        [Fact]
+        public void PickLaunchTargets_drops_duplicates_of_the_same_file()
+        {
+            var (files, _) = SingleInstanceProtocol.PickLaunchTargets(
+                [@"C:\a.pdf", @"c:\A.PDF"], _ => true);
+            Assert.Single(files);
+        }
+
+        [Fact]
+        public void PickLaunchTargets_survives_a_throwing_existence_check()
+        {
+            var (files, _) = SingleInstanceProtocol.PickLaunchTargets(
+                [@"C:\a.pdf"], _ => throw new System.IO.IOException());
+            Assert.Empty(files);
+        }
     }
 }

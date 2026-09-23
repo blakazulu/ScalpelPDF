@@ -126,6 +126,7 @@ Accent overlays continue to override only the accent keys.
 | `BgPanel` | `#181B21` | `#FDFDFE` | `#0A0A0A` |
 | `BgControl` | `#23272F` | `#EEF0F3` | `#141414` |
 | `BgHover` | `#2A2E36` | `#E4E8EC` | `#1F1F1F` |
+| `TabCloseHover` (tab chip close button hover) | `#3A3F4A` | `#D3D9E0` | `#3A3A3A` |
 | `BorderDim` | `#20242B` | `#E0E3E8` | `#FFFFFF` |
 | `TextPrimary` | `#E7E9EE` | `#1A1D22` | `#FFFFFF` |
 | `TextSecondary` | `#7C818C` | `#525A64` | `#E0E0E0` |

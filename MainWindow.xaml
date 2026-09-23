@@ -1,4 +1,4 @@
-<Window x:Class="Scalpel.MainWindow" Icon="pack://application:,,,/Resources/scalpel.ico"
+﻿<Window x:Class="Scalpel.MainWindow" Icon="pack://application:,,,/Resources/scalpel.ico"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -466,11 +466,21 @@
                             <ContextMenu>
                                 <MenuItem Header="{DynamicResource Str_Lbl_SaveAs}" Click="SaveAs_Click"/>
                                 <MenuItem Header="{DynamicResource Str_Lbl_SaveFlattened}" Click="SaveFlattened_Click"/>
+                                <Separator/>
+                                <MenuItem x:Name="RemovePasswordItem" Header="{DynamicResource Str_Lbl_RemovePassword}" Click="RemovePassword_Click"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
                     <Button Style="{StaticResource QatButton}" Click="Print_Click" Content="{StaticResource Ico_Print}" ToolTip="{DynamicResource Str_TT_Print}" Margin="1,0,0,0"/>
                     <Button Style="{StaticResource QatButton}" Click="Undo_Click" Content="{StaticResource Ico_Undo}" ToolTip="{DynamicResource Str_TT_UndoLast}" Margin="1,0,0,0"/>
+                    <!-- Redo reuses the undo glyph mirrored: the Tabler subset ships 39 glyphs and
+                         adding one means re-subsetting the font, which this does not need. -->
+                    <Button Style="{StaticResource QatButton}" Click="Redo_Click" Content="{StaticResource Ico_Undo}" ToolTip="{DynamicResource Str_KS_Redo}" Margin="1,0,0,0"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Button.RenderTransform>
+                            <ScaleTransform ScaleX="-1"/>
+                        </Button.RenderTransform>
+                    </Button>
                 </StackPanel>
                 <TextBlock Text="" x:Name="FileNameLabel" HorizontalAlignment="Center" VerticalAlignment="Center"
                            Foreground="{DynamicResource ChromeTextDim}" FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsBody}"
@@ -510,29 +520,64 @@
                     </StackPanel>
                     <Button.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="{DynamicResource Str_Tool_Numbering}" Click="ToolsNumbering_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Watermark}" Click="ToolsWatermark_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Transform}" Click="ToolsTransform_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Compress}" Click="ToolsCompress_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Ocr}" Click="ToolsOcr_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_OcrClipboard}" Click="ToolsOcrPageToClipboard_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_OcrRegion}" Click="ToolsOcrRegion_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_OcrExtract}" Click="ToolsOcrExtractText_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_OcrLanguage}" Click="ToolsOcrLanguage_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_DocInfo}" Click="ToolsDocumentInfo_Click"/>
+                            <MenuItem x:Name="ToolsNumberingMenuItem" Header="{DynamicResource Str_Tool_Numbering}" Click="ToolsNumbering_Click"/>
+                            <MenuItem x:Name="ToolsWatermarkMenuItem" Header="{DynamicResource Str_Tool_Watermark}" Click="ToolsWatermark_Click"/>
+                            <MenuItem x:Name="ToolsTransformMenuItem" Header="{DynamicResource Str_Tool_Transform}" Click="ToolsTransform_Click"/>
+                            <MenuItem x:Name="ToolsCompressMenuItem" Header="{DynamicResource Str_Tool_Compress}" Click="ToolsCompress_Click"/>
+                            <MenuItem x:Name="ToolsOcrMenuItem" Header="{DynamicResource Str_Tool_Ocr}" Click="ToolsOcr_Click"/>
+                            <MenuItem x:Name="ToolsOcrPageToClipboardMenuItem" Header="{DynamicResource Str_Tool_OcrClipboard}" Click="ToolsOcrPageToClipboard_Click"/>
+                            <MenuItem x:Name="ToolsOcrRegionMenuItem" Header="{DynamicResource Str_Tool_OcrRegion}" Click="ToolsOcrRegion_Click"/>
+                            <MenuItem x:Name="ToolsOcrExtractTextMenuItem" Header="{DynamicResource Str_Tool_OcrExtract}" Click="ToolsOcrExtractText_Click"/>
+                            <MenuItem x:Name="ToolsOcrLanguageMenuItem" Header="{DynamicResource Str_Tool_OcrLanguage}" Click="ToolsOcrLanguage_Click"/>
+                            <MenuItem x:Name="ToolsOcrFormMenuItem" Header="{DynamicResource Str_Tool_FormOcr}" Click="ToolsOcrForm_Click"/>
+                            <MenuItem x:Name="ToolsDocumentInfoMenuItem" Header="{DynamicResource Str_Tool_DocInfo}" Click="ToolsDocumentInfo_Click"/>
+                            <MenuItem x:Name="ToolsPreflightMenuItem" Header="{DynamicResource Str_Tool_Preflight}" Click="ToolsPreflight_Click"/>
+                            <MenuItem x:Name="ToolsCommentsMenuItem" Header="{DynamicResource Str_Tool_Comments}" Click="ToolsComments_Click"/>
+                            <MenuItem x:Name="ToolsExportImagesMenuItem" Header="{DynamicResource Str_Tool_ExportImages}" Click="ToolsExportImages_Click"/>
+                            <MenuItem x:Name="ToolsCompareMenuItem" Header="{DynamicResource Str_Tool_Compare}" Click="ToolsCompare_Click"/>
+                            <MenuItem x:Name="ToolsMeasureMenuItem" Header="{DynamicResource Str_Tool_Measure}" Click="ToolsMeasure_Click"/>
+                            <MenuItem x:Name="ToolsStraightenMenuItem" Header="{DynamicResource Str_Tool_Straighten}" Click="ToolsStraighten_Click"/>
                             <Separator/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Redact}" Click="ToolsRedact_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Protect}" Click="ToolsProtect_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Sign}" Click="ToolsSign_Click"/>
-                            <MenuItem Header="{DynamicResource Str_Tool_Sanitize}" Click="ToolsSanitize_Click"/>
+                            <MenuItem x:Name="ToolsRedactMenuItem" Header="{DynamicResource Str_Tool_Redact}" Click="ToolsRedact_Click"/>
+                            <MenuItem x:Name="ToolsProtectMenuItem" Header="{DynamicResource Str_Tool_Protect}" Click="ToolsProtect_Click"/>
+                            <MenuItem x:Name="ToolsSignMenuItem" Header="{DynamicResource Str_Tool_Sign}" Click="ToolsSign_Click"/>
+                            <MenuItem x:Name="ToolsSanitizeMenuItem" Header="{DynamicResource Str_Tool_Sanitize}" Click="ToolsSanitize_Click"/>
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
             </DockPanel>
         </Border>
 
+        <!-- Row 2 = the ribbon band plus the document tab strip under it. They share one row so
+             full screen (which zeroes row 2) hides both, and no other row index moves. -->
+        <DockPanel Grid.Row="2" LastChildFill="False">
+        <!-- Document tab strip ("compact chips", design-mockups/tabs/tab-strip-options.html option C).
+             Always shown. Chips are built in code-behind (MainWindow.Tabs.cs RefreshTabStrip); the
+             empty start state shows no chip, only the + button. -->
+        <Border x:Name="TabStripHost" DockPanel.Dock="Bottom" Height="36"
+                Background="{DynamicResource RibbonBand}"
+                BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1"
+                Padding="10,0" SizeChanged="TabStripHost_SizeChanged">
+            <DockPanel LastChildFill="False" VerticalAlignment="Center">
+                <Button x:Name="TabMoreBtn" DockPanel.Dock="Right" Style="{StaticResource DocumentTabRoundButton}"
+                        Content="{StaticResource Ico_Chevron}" Margin="5,0,0,0" Visibility="Collapsed"
+                        ToolTip="{DynamicResource Str_Tab_AllTabs}" Click="TabMoreBtn_Click"/>
+                <ScrollViewer x:Name="TabScroll" DockPanel.Dock="Left" Focusable="False" MaxWidth="0"
+                              HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                              Padding="0,2" PreviewMouseWheel="TabScroll_PreviewMouseWheel">
+                    <StackPanel x:Name="TabStrip" Orientation="Horizontal" VerticalAlignment="Center"/>
+                </ScrollViewer>
+                <Button x:Name="TabAddBtn" DockPanel.Dock="Left" Style="{StaticResource DocumentTabRoundButton}"
+                        ToolTip="{DynamicResource Str_Tab_New}" Click="TabAddBtn_Click">
+                    <Path Data="M 0,5.5 L 11,5.5 M 5.5,0 L 5.5,11" StrokeThickness="1.6"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                </Button>
+            </DockPanel>
+        </Border>
+
         <!-- Ribbon band (contextual command groups; one mode panel visible at a time) -->
-        <Border x:Name="RibbonBandBorder" Grid.Row="2" Background="{DynamicResource RibbonBand}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1" Padding="10,8,10,6">
+        <Border x:Name="RibbonBandBorder" DockPanel.Dock="Top" Background="{DynamicResource RibbonBand}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1" Padding="10,8,10,6">
           <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Focusable="False">
             <Grid HorizontalAlignment="Left">
               <!-- View panel: Layout group + Display group -->
@@ -665,6 +710,7 @@
             </Grid>
           </ScrollViewer>
         </Border>
+        </DockPanel>
 
         <!-- Main content -->
         <Grid Grid.Row="3" x:Name="MainContentGrid">
@@ -864,16 +910,6 @@
             <!-- Preview area -->
             <Border Grid.Column="2" Background="{DynamicResource BgCanvas}">
                 <DockPanel LastChildFill="True">
-                    <!-- Document tab strip: only shown when 2+ files are open. Chips are built
-                         in code-behind (MainWindow.Tabs.cs). Hidden = byte-identical single-doc UI. -->
-                    <Border x:Name="TabStripHost" DockPanel.Dock="Top" Visibility="Collapsed"
-                            Background="{DynamicResource RibbonBand}"
-                            BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,0,0,1">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                                      Padding="6,4">
-                            <StackPanel x:Name="TabStrip" Orientation="Horizontal"/>
-                        </ScrollViewer>
-                    </Border>
                 <Grid>
                     <!-- Drop zone -->
                     <Border x:Name="DropZone" Background="Transparent"
@@ -930,6 +966,9 @@
                                   VerticalScrollBarVisibility="Auto"
                                   Background="Transparent"
                                   PreviewMouseWheel="PagePreview_PreviewMouseWheel"
+                                  IsManipulationEnabled="True"
+                                  ManipulationStarting="PagePreview_ManipulationStarting"
+                                  ManipulationDelta="PagePreview_ManipulationDelta"
                                   SizeChanged="PagePreviewPanel_SizeChanged"
                                   PreviewMouseDown="PagePreviewPanel_PreviewMouseDown"
                                   PreviewMouseMove="PagePreviewPanel_PreviewMouseMove"
@@ -970,6 +1009,8 @@
         <Border x:Name="StatusBarBorder" Grid.Row="4" Background="{DynamicResource ChromeBg}" BorderBrush="{DynamicResource BorderDim}" BorderThickness="0,1,0,0">
             <Grid Margin="14,0">
                 <TextBlock x:Name="StatusText" Text="{DynamicResource Str_Ready}"
+                           Cursor="Hand" MouseLeftButtonDown="StatusText_MouseLeftButtonDown"
+                           ToolTip="{DynamicResource Str_KS_FileSize}"
                            Foreground="{DynamicResource ChromeTextDim}"
                            FontFamily="{DynamicResource FontUI}" FontSize="{DynamicResource FsStatus}"
                            Typography.NumeralAlignment="Tabular"
@@ -1183,6 +1224,16 @@
                                    FontFamily="{DynamicResource FontUI}" FontSize="12"/>
                     </CheckBox>
 
+                    <CheckBox x:Name="NoRecentFilesToggle"
+                              Foreground="{DynamicResource TextPrimary}"
+                              Margin="0,8,0,0"
+                              Click="NoRecentFilesToggle_Click">
+                        <TextBlock Text="{DynamicResource Str_Settings_NoRecentFiles}"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   FontFamily="{DynamicResource FontUI}" FontSize="12"
+                                   TextWrapping="Wrap" MaxWidth="240"/>
+                    </CheckBox>
+
                     <TextBlock Text="{DynamicResource Str_Settings_Diagnostics}" Foreground="{DynamicResource Accent}"
                                FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold"
                                Margin="0,12,0,4"/>
@@ -1259,16 +1310,29 @@
                                        FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+O" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Open}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+W" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_CloseFile}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Shift+W" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_CloseOthers}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+N" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NewBlank}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Shift+S" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_SaveAs}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+P" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Print}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+
+                            <TextBlock Text="{DynamicResource Str_KS_Tabs}" Foreground="{DynamicResource Accent}"
+                                       FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold" Margin="0,12,0,4"/>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+T" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NewTab}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+(Shift+)Tab" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NextPrevTab}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+PgDn / PgUp" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NextPrevTab}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+1 .. Ctrl+8" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_GoToTab}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+9" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_LastTab}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
 
                             <TextBlock Text="{DynamicResource Str_KS_Navigation}" Foreground="{DynamicResource Accent}"
                                        FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold" Margin="0,12,0,4"/>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="&#x2190; / &#x2192; or &#x2191; / &#x2193;" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_PrevNext}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Scroll" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ZoomCursor}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
-                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+= / Ctrl+-" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ZoomInOut}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock x:Name="ZoomShortcutLabel" Text="Ctrl+= / Ctrl+-" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ZoomInOut}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+B / I / U" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_TextStyle}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+0" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ResetZoom}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Shift+2" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_FitWidth}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Shift+3" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_FitPage}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Home / End" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_HomeEnd}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Middle drag" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_PanView}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,0"><TextBlock Text="Space + drag" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_PanView}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                         </StackPanel>
@@ -1278,12 +1342,14 @@
                             <TextBlock Text="{DynamicResource Str_KS_Editing}" Foreground="{DynamicResource Accent}"
                                        FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Z" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Undo}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+Y / Ctrl+Shift+Z" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Redo}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Delete" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_DeleteAnnot}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Enter / Escape" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ConfirmCancel}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <TextBlock Text="{DynamicResource Str_KS_SearchSelect}" Foreground="{DynamicResource Accent}"
                                        FontFamily="{DynamicResource FontUI}" FontSize="11" FontWeight="SemiBold" Margin="0,12,0,4"/>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+F" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Find}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Enter / Shift+Enter" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NextPrevResult}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="F3 / Shift+F3" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_NextPrevResult}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+A" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_SelectAll}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,0"><TextBlock Text="Ctrl+C" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_CopyText}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <TextBlock Text="{DynamicResource Str_KS_Help}" Foreground="{DynamicResource Accent}"
@@ -1291,13 +1357,15 @@
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="Ctrl+?" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ThisList}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F11" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_FullScreen}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F1" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ThisList}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
-                            <DockPanel Margin="0,0,0,4"><TextBlock Text="F2" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_About}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="F12" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_About}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F5" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ViewSingle}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F6" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ViewContinuous}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F7" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ViewTwoPage}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                             <DockPanel Margin="0,0,0,4"><TextBlock Text="F8" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ViewGrid}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
-                            <DockPanel Margin="0,0,0,4"><TextBlock Text="F12" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_DocInfo}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
-                            <DockPanel Margin="0,0,0,0"><TextBlock Text="V  T  H  D  L  I" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Tools}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="F4 / Ctrl+D" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_DocInfo}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="Shift+F4" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_FileSize}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,4"><TextBlock Text="V T H D L I C G" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_Tools}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
+                            <DockPanel Margin="0,0,0,0"><TextBlock Text="1 2 3 5 6 7 8" FontFamily="Consolas" FontSize="11" Foreground="{DynamicResource TextSecondary}" Width="120"/><TextBlock Text="{DynamicResource Str_KS_ToolDigits}" FontSize="{DynamicResource Str_KS_FontSize}" Foreground="{DynamicResource TextPrimary}"/></DockPanel>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

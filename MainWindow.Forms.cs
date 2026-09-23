@@ -32,6 +32,9 @@ namespace Scalpel
             bool   IsCheckBox,
             bool   IsRadio,
             bool   IsMultiLine,   // /Tx with Multiline flag (bit 12)
+            bool   IsComb,        // /Tx with Comb flag (bit 25) and a /MaxLen
+            int    MaxLen,        // /MaxLen: the number of comb cells
+
             string FieldName,
             string CurrentValue,
             string OnValue,       // radio/checkbox on-state value (e.g. "/Yes")
@@ -75,8 +78,15 @@ namespace Scalpel
             {
                 UIElement? ctrl = null;
 
+                // ── Comb text field ───────────────────────────────────────────────
+                // Handled before the generic text field so a comb keeps its printed cells.
+                if (ctrl is null && !f.IsCheckBox && !f.IsRadio && f.FieldType != "/Ch" && f.IsComb)
+                {
+                    ctrl = BuildCombField(f, greenBrush, fieldBg);
+                }
+
                 // ── Text field ────────────────────────────────────────────────────
-                if (!f.IsCheckBox && !f.IsRadio && f.FieldType != "/Ch")
+                if (ctrl is null && !f.IsCheckBox && !f.IsRadio && f.FieldType != "/Ch" && !f.IsComb)
                 {
                     string cur     = _formTextValues.TryGetValue(f.ObjNum, out var tv) ? tv : f.CurrentValue;
                     // Use the shorter canvas dimension as the font size reference so that
@@ -89,8 +99,8 @@ namespace Scalpel
                     var tb = new TextBox
                     {
                         Tag              = FormOverlayTag,
-                        Width            = f.Cw,
-                        Height           = f.Ch,
+                        Width            = SafeSize(f.Cw, 100),
+                        Height           = SafeSize(f.Ch, 20),
                         Text             = cur,
                         IsReadOnly       = f.IsReadOnly,
                         AcceptsReturn    = f.IsMultiLine,
@@ -107,6 +117,11 @@ namespace Scalpel
                         VerticalContentAlignment = f.IsMultiLine
                             ? VerticalAlignment.Top : VerticalAlignment.Center,
                         ToolTip          = string.IsNullOrEmpty(f.FieldName) ? null : f.FieldName,
+                        // Cursor is an inherited property and the active tool sets it on the
+                        // canvas, so without ForceCursor a fillable field shows the pen or
+                        // crosshair instead of an I-beam and reads as not editable.
+                        Cursor           = Cursors.IBeam,
+                        ForceCursor      = true,
                     };
                     // Highlight border on focus so users can see which field is active.
                     tb.GotFocus  += (_, _) => tb.BorderBrush = new SolidColorBrush(Color.FromRgb(0x22, 0xc5, 0x5e));
@@ -258,6 +273,10 @@ namespace Scalpel
                 if (ctrl is null) continue;
                 Canvas.SetLeft(ctrl, f.Cx);
                 Canvas.SetTop(ctrl, f.Cy);
+                // Field overlays are re-added after the annotation layer is rebuilt, so without an
+                // explicit z-order a signature, stamp or image dropped onto a field would be hidden
+                // behind the field's own box. They stay fully clickable underneath.
+                Panel.SetZIndex(ctrl, FormOverlayZIndex);
                 canvas.Children.Add(ctrl);
                 anyField = true;
             }
@@ -293,17 +312,29 @@ namespace Scalpel
             double cropOffsetX = 0, cropOffsetY = 0;
             try
             {
-                var cropBox = page.CropBox;
-                if (!cropBox.IsEmpty && cropBox.Width > 0 && cropBox.Height > 0
-                    && (Math.Abs(cropBox.X1 - mediaBox.X1) > 0.01
-                        || Math.Abs(cropBox.Y1 - mediaBox.Y1) > 0.01
-                        || Math.Abs(cropBox.Width  - pageW) > 0.01
-                        || Math.Abs(cropBox.Height - pageH) > 0.01))
+                // Read /CropBox through Elements, NOT the page.CropBox property: PdfSharpCore's
+                // getter creates the entry it reads, so merely inspecting a page here used to
+                // plant /CropBox [0 0 0 0] on it, which Acrobat then rejects as "page dimensions
+                // out of range" once the document is saved.
+                var cropArr = page.Elements.GetArray("/CropBox");
+                if (cropArr is not null && cropArr.Elements.Count >= 4)
                 {
-                    cropOffsetX = cropBox.X1 - mediaBox.X1;
-                    cropOffsetY = cropBox.Y1 - mediaBox.Y1;
-                    pageW = cropBox.Width;
-                    pageH = cropBox.Height;
+                    double cx1 = cropArr.Elements.GetReal(0), cy1 = cropArr.Elements.GetReal(1);
+                    double cx2 = cropArr.Elements.GetReal(2), cy2 = cropArr.Elements.GetReal(3);
+                    double cropX = Math.Min(cx1, cx2), cropY = Math.Min(cy1, cy2);
+                    double cropW = Math.Abs(cx2 - cx1), cropH = Math.Abs(cy2 - cy1);
+
+                    if (cropW > 0 && cropH > 0
+                        && (Math.Abs(cropX - mediaBox.X1) > 0.01
+                            || Math.Abs(cropY - mediaBox.Y1) > 0.01
+                            || Math.Abs(cropW - pageW) > 0.01
+                            || Math.Abs(cropH - pageH) > 0.01))
+                    {
+                        cropOffsetX = cropX - mediaBox.X1;
+                        cropOffsetY = cropY - mediaBox.Y1;
+                        pageW = cropW;
+                        pageH = cropH;
+                    }
                 }
             }
             catch { /* unreadable CropBox -> fall back to MediaBox-only mapping */ }
@@ -334,40 +365,12 @@ namespace Scalpel
                     if (rx1 > rx2) (rx1, rx2) = (rx2, rx1);
                     if (ry1 > ry2) (ry1, ry2) = (ry2, ry1);
 
-                    // Map PDF rect (bottom-left origin, unrotated) to canvas coords.
-                    // The canvas matches the Docnet-rendered bitmap which has already applied
-                    // the page rotation, so we must transform accordingly.
-                    double cx, cy, cw, ch;
-                    switch (rotation)
-                    {
-                        case 90: // 90° CW: bottom→left, left→top; canvas is pageH-wide × pageW-tall
-                            // (px,py) → canvas (py, px)
-                            cx = ry1             / pageH * canvasW;
-                            cy = rx1             / pageW * canvasH;
-                            cw = (ry2 - ry1)     / pageH * canvasW;
-                            ch = (rx2 - rx1)     / pageW * canvasH;
-                            break;
-                        case 180: // 180°: both axes flipped
-                            // (px,py) → canvas (pageW-px, py)
-                            cx = (pageW - rx2)   / pageW * canvasW;
-                            cy = ry1             / pageH * canvasH;
-                            cw = (rx2 - rx1)     / pageW * canvasW;
-                            ch = (ry2 - ry1)     / pageH * canvasH;
-                            break;
-                        case 270: // 270° CW (= 90° CCW): bottom→right, right→top; canvas is pageH-wide × pageW-tall
-                            // (px,py) → canvas (pageH-py, pageW-px)
-                            cx = (pageH - ry2)   / pageH * canvasW;
-                            cy = (pageW - rx2)   / pageW * canvasH;
-                            cw = (ry2 - ry1)     / pageH * canvasW;
-                            ch = (rx2 - rx1)     / pageW * canvasH;
-                            break;
-                        default: // 0° — standard bottom-left PDF → top-left canvas
-                            cx = rx1             / pageW * canvasW;
-                            cy = (pageH - ry2)   / pageH * canvasH;
-                            cw = (rx2 - rx1)     / pageW * canvasW;
-                            ch = (ry2 - ry1)     / pageH * canvasH;
-                            break;
-                    }
+                    // Map the PDF rect (bottom-left origin, unrotated) onto the canvas, which
+                    // already shows the page rotated. Shared with the crop box - see
+                    // Services/PageSpaceMap.cs.
+                    var wr = Scalpel.Services.PageSpaceMap.ToCanvas(
+                                 rx1, ry1, rx2, ry2, pageW, pageH, canvasW, canvasH, rotation);
+                    double cx = wr.X, cy = wr.Y, cw = wr.W, ch = wr.H;
                     if (cw < 2 || ch < 2) continue;
 
                     // Walk the parent chain to resolve inherited attributes
@@ -412,6 +415,13 @@ namespace Scalpel
 
                     bool isReadOnly  = (flags & 1) != 0;
                     bool isMultiLine = ft.Contains("Tx") && (flags & 4096) != 0;
+                    // A comb field divides its box into /MaxLen equal cells, one character each
+                    // (ID numbers, dates, postcodes). Bit 25 only means comb when /MaxLen is set,
+                    // and it is mutually exclusive with multiline in every real form.
+                    int maxLen = 0;
+                    try { maxLen = ReadInheritedInt(ann, "/MaxLen"); } catch { }
+                    bool isComb = ft.Contains("Tx") && !isMultiLine
+                                  && (flags & (1 << 24)) != 0 && maxLen > 0;
                     bool isPushBtn   = ft.Contains("Btn") && (flags & (1 << 16)) != 0;
                     bool isRadio     = ft.Contains("Btn") && !isPushBtn && (flags & (1 << 15)) != 0;
                     bool isCheckBox  = ft.Contains("Btn") && !isPushBtn && !isRadio;
@@ -434,6 +444,7 @@ namespace Scalpel
                         objNum = -(pageIndex * 10000 + i); // synthetic key for inline dicts
 
                     result.Add(new FormFieldInfo(objNum, ft, isCheckBox, isRadio, isMultiLine,
+                        isComb, maxLen,
                         name, curVal, onValue, isReadOnly, cx, cy, cw, ch, options));
                 }
             }
@@ -453,6 +464,7 @@ namespace Scalpel
 
             try
             {
+                _formAppearanceFailed = false;
                 for (int p = 0; p < _doc.PageCount; p++)
                 {
                     var page = _doc.Pages[p];
@@ -507,7 +519,16 @@ namespace Scalpel
                         if (_formTextValues.TryGetValue(objNum, out var textVal) && fieldDict is not null)
                         {
                             fieldDict.Elements["/V"] = new PdfString(textVal);
-                            GenerateTextFieldAppearance(ann, textVal, daStr, fieldW, fieldH);
+                            // Multiline is /Ff bit 13 (value 4096) and is inheritable, so it is read
+                            // from the canonical field dict rather than the widget.
+                            int fieldFlags = ReadFieldFlags(fieldDict);
+                            bool multiline = (fieldFlags & 4096) != 0;
+                            // Comb (bit 25) only counts with a /MaxLen, and never with multiline.
+                            int combMax = ReadInheritedInt(fieldDict, "/MaxLen");
+                            int combCells = !multiline && (fieldFlags & (1 << 24)) != 0 && combMax > 0
+                                            ? combMax : 0;
+                            if (!GenerateTextFieldAppearance(ann, textVal, daStr, fieldW, fieldH, multiline, combCells))
+                                _formAppearanceFailed = true;
                         }
                         else if (_formCheckValues.TryGetValue(objNum, out var checkVal) && fieldDict is not null)
                         {
@@ -565,12 +586,19 @@ namespace Scalpel
                     }
                 }
 
-                // Belt-and-suspenders: also set NeedAppearances in case any AP generation failed
+                // Only ask the viewer to rebuild appearances when Scalpel could not write one
+                // itself. Setting it unconditionally makes conforming viewers regenerate (and in
+                // some cases double-draw) fields whose appearance was already correct.
                 try
                 {
                     var acroForm = _doc.Internals.Catalog.Elements.GetDictionary("/AcroForm");
                     if (acroForm is not null)
-                        acroForm.Elements["/NeedAppearances"] = new PdfBoolean(true);
+                    {
+                        if (_formAppearanceFailed)
+                            acroForm.Elements["/NeedAppearances"] = new PdfBoolean(true);
+                        else if (acroForm.Elements.ContainsKey("/NeedAppearances"))
+                            acroForm.Elements.Remove("/NeedAppearances");
+                    }
                 }
                 catch { }
             }
@@ -582,29 +610,173 @@ namespace Scalpel
         /// on the widget annotation. Uses reflection to access PdfSharpCore's internal
         /// PdfDictionary.PdfStream constructor since there is no public factory method.
         /// </summary>
-        private void GenerateTextFieldAppearance(PdfDictionary widgetAnn, string text, string? da, double fieldW, double fieldH)
+
+        /// <summary>
+        /// Builds the overlay for a comb text field: a fixed number of equal cells, one character
+        /// each, the way the printed form is ruled.
+        /// <para>A plain TextBox cannot do this - WPF has no per-character cell layout - so the
+        /// characters are drawn into their own cells and a transparent TextBox sits on top to take
+        /// the typing, keeping normal caret, selection and clipboard behaviour. The geometry (and
+        /// working out which cell a click landed in) comes from
+        /// <see cref="Scalpel.Services.CombFieldLayout"/>.</para>
+        /// </summary>
+        private UIElement BuildCombField(FormFieldInfo f, Brush borderBrush, Brush fieldBg)
+        {
+            double w = SafeSize(f.Cw, 100), h = SafeSize(f.Ch, 20);
+            int cells = Math.Max(1, f.MaxLen);
+            string cur = _formTextValues.TryGetValue(f.ObjNum, out var tv) ? tv : f.CurrentValue;
+            if (cur.Length > cells) cur = cur.Substring(0, cells);
+
+            var grid = new Grid { Tag = FormOverlayTag, Width = w, Height = h };
+
+            grid.Children.Add(new Border
+            {
+                Background = fieldBg,
+                BorderBrush = borderBrush,
+                BorderThickness = new Thickness(1),
+                ToolTip = string.IsNullOrEmpty(f.FieldName) ? null : f.FieldName,
+            });
+
+            // The cell rules and the characters share one canvas so they stay aligned.
+            var cellCanvas = new Canvas { IsHitTestVisible = false };
+            grid.Children.Add(cellCanvas);
+
+            var ruleBrush = new SolidColorBrush(Color.FromArgb(110, 0x22, 0x22, 0x22));
+            for (int i = 1; i < cells; i++)
+            {
+                double x = Scalpel.Services.CombFieldLayout.CellLeft(w, cells, i);
+                var rule = new System.Windows.Shapes.Line
+                {
+                    X1 = x, X2 = x, Y1 = h * 0.15, Y2 = h * 0.85,
+                    Stroke = ruleBrush, StrokeThickness = 1,
+                };
+                cellCanvas.Children.Add(rule);
+            }
+
+            double cellWidth = w / cells;
+            double fontSize = Math.Max(8, Math.Min(h * 0.62, cellWidth * 1.1));
+            var glyphs = new TextBlock[cells];
+            for (int i = 0; i < cells; i++)
+            {
+                var glyph = new TextBlock
+                {
+                    Width = cellWidth, Height = h,
+                    TextAlignment = TextAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Foreground = Brushes.Black,
+                    FontSize = fontSize,
+                    FontFamily = new FontFamily("Consolas, Courier New, monospace"),
+                    LineHeight = h, LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
+                    Text = i < cur.Length ? cur[i].ToString() : "",
+                };
+                Canvas.SetLeft(glyph, Scalpel.Services.CombFieldLayout.CellLeft(w, cells, i));
+                Canvas.SetTop(glyph, 0);
+                cellCanvas.Children.Add(glyph);
+                glyphs[i] = glyph;
+            }
+
+            // The real input surface. Invisible, but fully functional: the caret is drawn, so the
+            // user still sees where they are.
+            var input = new TextBox
+            {
+                Width = w, Height = h,
+                Text = cur,
+                MaxLength = cells,
+                IsReadOnly = f.IsReadOnly,
+                Background = Brushes.Transparent,
+                Foreground = Brushes.Transparent,
+                CaretBrush = Brushes.Black,
+                SelectionOpacity = 0.25,
+                BorderThickness = new Thickness(0),
+                FontSize = fontSize,
+                FontFamily = new FontFamily("Consolas, Courier New, monospace"),
+                Cursor = Cursors.IBeam,
+                ForceCursor = true,
+                ToolTip = string.IsNullOrEmpty(f.FieldName) ? null : f.FieldName,
+            };
+
+            int capturedKey = f.ObjNum;
+            input.TextChanged += (_, _) =>
+            {
+                string text = input.Text;
+                for (int i = 0; i < cells; i++)
+                    glyphs[i].Text = i < text.Length ? text[i].ToString() : "";
+                _formTextValues[capturedKey] = text;
+                MarkDirty(true);
+            };
+
+            // Clicking a cell puts the caret in that cell rather than wherever the invisible
+            // text happens to measure to.
+            input.PreviewMouseLeftButtonDown += (_, e) =>
+            {
+                if (f.IsReadOnly) return;
+                double x = e.GetPosition(input).X;
+                int cell = Scalpel.Services.CombFieldLayout.CellIndexAt(x, w, cells);
+                input.Focus();
+                input.CaretIndex = Math.Min(cell, input.Text.Length);
+                e.Handled = true;
+            };
+
+            grid.Children.Add(input);
+            return grid;
+        }
+
+        /// <summary>Reads an inheritable integer entry, walking up the /Parent chain like /Ff.</summary>
+        private int ReadInheritedInt(PdfDictionary? field, string key)
+        {
+            var node = field;
+            int guard = 0;
+            while (node is not null && guard++ < 32)
+            {
+                if (node.Elements[key] is PdfInteger vi) return vi.Value;
+                var pi = node.Elements["/Parent"];
+                if (pi is null) break;
+                node = pi as PdfDictionary ?? DerefItem(pi) as PdfDictionary;
+            }
+            return 0;
+        }
+
+        /// <summary>Reads the inheritable /Ff field-flag bits, walking up the /Parent chain.</summary>
+        private int ReadFieldFlags(PdfDictionary? field)
+        {
+            var node = field;
+            int guard = 0;
+            while (node is not null && guard++ < 32)
+            {
+                if (node.Elements["/Ff"] is PdfInteger fi) return fi.Value;
+                var pi = node.Elements["/Parent"];
+                if (pi is null) break;
+                node = pi as PdfDictionary ?? DerefItem(pi) as PdfDictionary;
+            }
+            return 0;
+        }
+
+        private bool GenerateTextFieldAppearance(PdfDictionary widgetAnn, string text, string? da, double fieldW, double fieldH, bool multiline, int combCells = 0)
         {
             try
             {
                 var (fontName, fontSize) = ParseDaString(da);
                 if (fontSize <= 0) fontSize = Math.Max(6, Math.Min(fieldH * 0.65, 12));
-                fontSize = Math.Max(6, Math.Min(fontSize, fieldH * 0.85));
+                fontSize = Math.Max(6, Math.Min(fontSize, multiline ? fieldH : fieldH * 0.85));
 
-                // Vertical centering: PDF baseline is measured from bottom of the field rect.
-                double textY = (fieldH - fontSize) / 2 + fontSize * 0.2;
-                if (textY < 1) textY = 1;
-
-                string escaped = EscapePdfString(text);
-                string content =
-                    $"/Tx BMC\nq\n0 0 {fieldW:F2} {fieldH:F2} re W n\n" +
-                    $"BT\n{fontName} {fontSize:F2} Tf\n0 g\n2 {textY:F2} Td\n({escaped}) Tj\nET\nQ\nEMC";
+                // The content stream is built by Scalpel.Services.FormAppearance so numbers are
+                // always invariant-formatted (a comma decimal separator produces a structurally
+                // invalid stream on European locales) and a multiline value is laid out as real
+                // lines instead of a single run.
+                string content = Scalpel.Services.FormAppearance.BuildTextFieldContent(
+                    text, fontName, fontSize, fieldW, fieldH, multiline, combCells);
 
                 var xobj = BuildFormXObject(fontName, fieldW, fieldH, content);
-                if (xobj is null) return;
+                if (xobj is null) return false;
 
                 AttachAppearance(widgetAnn, xobj);
+                return true;
             }
-            catch (Exception ex) { Scalpel.Services.Logger.Error("Error", "GenerateTextFieldAppearance", "GenerateTextFieldAppearance failed", ex); }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Error", "GenerateTextFieldAppearance", "GenerateTextFieldAppearance failed", ex);
+                return false;
+            }
         }
 
         /// <summary>

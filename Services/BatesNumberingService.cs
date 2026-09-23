@@ -74,7 +74,7 @@ namespace Scalpel.Services
         {
             using var doc = PdfReader.Open(inputPath, PdfDocumentOpenMode.Modify);
             Stamp(doc, opts);
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
 
         internal static string Format(string template, int counter, int digitCount, int pageNum, int total)

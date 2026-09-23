@@ -39,41 +39,77 @@ namespace Scalpel
 
         private void New_Click(object sender, RoutedEventArgs e) => NewDocument();
 
+        /// <summary>
+        /// Ctrl+N: a one-page blank document in its own tab (the empty start state is filled
+        /// instead). It has no file yet: the tab reads "Untitled.pdf" and Save goes to Save As.
+        /// </summary>
         private void NewDocument()
         {
-            if (_isDirty)
-            {
-                var res = ScalpelDialog.Show(this,
-                    "You have unsaved changes. Discard them and create a new document?",
-                    "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (res != MessageBoxResult.Yes) return;
-            }
-
+            if (_tabOpDepth > 0) return;
+            if (_longOps.IsBusy) { ShowToast(Loc("Str_Tab_Busy")); return; }
+            string tempPath;
             try
             {
                 var newDoc = new PdfDocument();
                 newDoc.AddPage(); // one blank A4 page
-
-                var tempPath = App.MakeTempFile("new");
-                newDoc.Save(tempPath);
+                tempPath = App.MakeTempFile("new");
+                Scalpel.Services.PdfSaveGuard.Save(newDoc, tempPath);
                 newDoc.Close();
-
-                _doc?.Close();
-                _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
-                FinishOpenFile("Untitled.pdf", tempPath);
-                SetStatus("New blank document");
             }
             catch (Exception ex)
             {
                 ScalpelDialog.Show(this, $"Could not create new document:\n{ex.Message}",
                     "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            BeginTabOp();
+            var previous = _s;
+            bool reusePlaceholder = Scalpel.Services.StartupOpenPolicy.IsReusablePlaceholder(
+                previous.Doc is not null, previous.DeferredPath is not null, previous.IsDirty);
+            DocumentSession? fresh = null;
+            try
+            {
+                if (!reusePlaceholder)
+                {
+                    DeactivateSession();
+                    fresh = DocumentSession.CreateLike(previous);
+                    _s = fresh;
+                    _tabs.Add(fresh);
+                }
+                _doc = PdfReader.Open(tempPath, PdfDocumentOpenMode.Modify);
+                FinishOpenFile(null, tempPath);   // OriginalPath stays null: "Untitled.pdf"
+                SetStatus("New blank document");
+            }
+            catch (Exception ex)
+            {
+                if (fresh is not null && _tabs.IndexOf(fresh) >= 0)
+                {
+                    // Drop the half-made tab (and its temp files) and go back to the tab the user
+                    // was on, loading it if it is deferred (ActivateFallback).
+                    DropFailedSession(fresh);
+                    ActivateFallback(previous, fresh);
+                }
+                ScalpelDialog.Show(this, $"Could not create new document:\n{ex.Message}",
+                    "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                RefreshTabStrip();
+                EndTabOp();
             }
         }
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            var dlg = new OpenFileDialog { Filter = "PDF files|*.pdf", Title = "Open PDF" };
-            if (dlg.ShowDialog(this) == true) OpenFile(dlg.FileName);
+            var dlg = new OpenFileDialog { Filter = "PDF files|*.pdf", Title = "Open PDF", Multiselect = true };
+            bool? ok;
+            // No tab switch while the dialog is up (a queued forwarded launch waits). Only the
+            // dialog is covered: OpenManyInTabs itself must run outside, or it would queue itself.
+            BeginTabOp();
+            try { ok = dlg.ShowDialog(this); }
+            finally { EndTabOp(); }
+            if (ok == true) OpenManyInTabs(dlg.FileNames);
         }
 
         private void Merge_Click(object sender, RoutedEventArgs e)
@@ -294,8 +330,12 @@ namespace Scalpel
             var selected = PageList.SelectedItems;
             if (selected.Count == 0) { ScalpelDialog.Show(this, "Select pages to extract."); return; }
             var dlg = new SaveFileDialog { Filter = "PDF files|*.pdf", Title = "Save extracted pages as",
+                                           DefaultExt = "pdf", AddExtension = true,
                                            CheckFileExists = false, CheckPathExists = true };
             if (dlg.ShowDialog(this) != true) return;
+            // Guarantee the extension: the dialog only adds it when the typed
+            // name has none, so "report.final" would be saved as a .final file.
+            dlg.FileName = ChosenPath(dlg, "pdf");
             try
             {
                 var indices = new List<int>();
@@ -304,7 +344,7 @@ namespace Scalpel
                 var newDoc = new PdfDocument();
                 foreach (var idx in indices.OrderBy(i => i))
                     newDoc.AddPage(importDoc.Pages[idx]);
-                newDoc.Save(dlg.FileName);
+                Scalpel.Services.PdfSaveGuard.Save(newDoc, dlg.FileName);
                 SetStatus(string.Format(Loc("Str_Extracted"), indices.Count, System.IO.Path.GetFileName(dlg.FileName)));
                 Scalpel.Services.Logger.Info("File", "extract.success", "Pages extracted", new { count = indices.Count });
             }
@@ -384,6 +424,15 @@ namespace Scalpel
 
         private void SaveInPlace()
         {
+            // The save acts on `_s` throughout (including a Save As dialog it may open), so no tab
+            // switch may happen until it is done.
+            BeginTabOp();
+            try { SaveInPlaceCore(); }
+            finally { EndTabOp(); }
+        }
+
+        private void SaveInPlaceCore()
+        {
             if (_doc is null) { ScalpelDialog.Show(this, "Open a PDF first."); return; }
             // Save back to the user's real file. After a page edit (crop/rotate) _currentFile is a
             // temp working copy, so the real path is kept in _originalFile. If there is no real path
@@ -406,25 +455,36 @@ namespace Scalpel
                     // Save a clean copy of the doc (without burned annotations), burn
                     // annotations into the real file, then restore the in-memory doc
                     // from the clean copy so future saves don't double-burn.
-                    var tempClean = App.MakeTempFile("clean");
-                    _doc.Save(tempClean);
+                    var tempClean = App.MakeTempFile("clean", _s.Id);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, tempClean);
                     DrawAnnotationsOnDocument();
-                    _doc.Save(saveTarget);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, saveTarget);
                     written = true;
                     _doc.Close();
                     // PdfSharpCore can reject the clean copy it just wrote; recover via PDFium.
                     _doc = Scalpel.Services.PdfReopen.OpenModify(tempClean, TryPdfiumStripEncryption,
-                        () => App.MakeTempFile("fixed"), out var reopened);
+                        () => App.MakeTempFile("fixed", _s.Id), out var reopened);
                     _currentFile = reopened;
                 }
                 else
                 {
-                    _doc.Save(saveTarget);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, saveTarget);
                     written = true;
                 }
 
                 MarkDirty(false);
-                SetStatus($"Saved - {System.IO.Path.GetFileName(saveTarget)}");
+                // A file that needed a password was decrypted into the working copy at open time,
+                // so this save has just written an unprotected PDF. Say so rather than dropping
+                // the protection silently.
+                if (_openedProtected)
+                {
+                    _openedProtected = false;
+                    SetStatus(Loc("Str_St_SavedUnprotected"));
+                }
+                else
+                {
+                    SetStatus($"Saved - {System.IO.Path.GetFileName(saveTarget)}");
+                }
                 Scalpel.Services.Logger.Info("File", "save.success", "PDF saved in place", new { path = saveTarget, hasAnnotations });
             }
             catch (Exception ex) when (written)
@@ -436,6 +496,14 @@ namespace Scalpel
                     new { path = saveTarget, error = ex.Message });
                 MarkDirty(false);
                 OpenFile(saveTarget);
+                if (_doc is null)
+                {
+                    // The reopen failed too (and ReportOpenFailure cleared the session's paths):
+                    // the file on disk is saved, but this tab has nothing left to show. Drop the
+                    // empty tab rather than leave a document-less "Untitled" chip behind.
+                    if (!_closingTab) CloseSession(_s);
+                    else ShowEmptyState();
+                }
                 SetStatus($"Saved - {System.IO.Path.GetFileName(saveTarget)}");
             }
             catch (Exception ex)
@@ -455,24 +523,100 @@ namespace Scalpel
         private void SaveMenu_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button b && b.ContextMenu is not null)
-            { b.ContextMenu.PlacementTarget = b; b.ContextMenu.IsOpen = true; }
+            {
+                // Removing a password is only meaningful for a file that had one.
+                if (RemovePasswordItem is not null)
+                    RemovePasswordItem.IsEnabled = _doc is not null && _openedProtected;
+                b.ContextMenu.PlacementTarget = b; b.ContextMenu.IsOpen = true;
+            }
+        }
+
+        /// <summary>
+        /// Saves the open document back over the original with its password protection dropped.
+        /// Scalpel already decrypts to a working copy when such a file is opened, so every save
+        /// has always produced an unprotected PDF - this makes it a visible, deliberate action
+        /// rather than a silent side effect.
+        /// </summary>
+        private void RemovePassword_Click(object sender, RoutedEventArgs e)
+        {
+            if (_doc is null || string.IsNullOrEmpty(_originalFile))
+            {
+                ScalpelDialog.Show(this, Loc("Str_Dlg_OpenPdfFirst"));
+                return;
+            }
+            if (!_openedProtected)
+            {
+                SetStatus(Loc("Str_St_NotProtected"));
+                return;
+            }
+            if (ScalpelDialog.Show(this, Loc("Str_Dlg_RemovePasswordMsg"), Loc("Str_Lbl_RemovePassword"),
+                                   MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                return;
+
+            CommitActiveTextBox();
+            WriteFormValuesToDocument();
+            try
+            {
+                Scalpel.Services.PdfSaveGuard.Save(_doc, _originalFile!);
+                _openedProtected = false;
+                MarkDirty(false);
+                SetStatus(Loc("Str_St_PasswordRemoved"));
+                Scalpel.Services.Logger.Info("Save", "password.removed", "Saved without encryption");
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Save", "password.remove.fail", ex.Message, ex);
+                ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_SaveFailed"), ex.Message),
+                                   "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SaveAs_Click(object sender, RoutedEventArgs e)
         {
+            // The dialog is modal but a Win32 common dialog may not mark the thread modal; hold
+            // tab switches off explicitly so the document written is the one the user saw.
+            BeginTabOp();
+            try { SaveAsCore(); }
+            finally { EndTabOp(); }
+        }
+
+        private void SaveAsCore()
+        {
             if (_doc is null || _currentFile is null) { ScalpelDialog.Show(this, "Open a PDF first."); return; }
             CommitActiveTextBox();
             var dlg = new SaveFileDialog { Filter = "PDF files|*.pdf", Title = "Save PDF as",
+                                           DefaultExt = "pdf", AddExtension = true,
                                            CheckFileExists = false, CheckPathExists = true };
-            string? seed = _originalFile ?? _currentFile;
-            if (!string.IsNullOrEmpty(seed))
+            // An untitled document's working copy is a temp file; offer "Untitled.pdf" instead.
+            // It has no folder of its own either: start where the user last had a PDF (the newest
+            // recent file), else Documents. (Path.GetDirectoryName("") throws on .NET Framework,
+            // which is how Save on an untitled tab used to crash.)
+            dlg.FileName = string.IsNullOrEmpty(_originalFile) ? _s.DisplayName : System.IO.Path.GetFileName(_originalFile);
+            string? seedDir = null;
+            try
             {
-                dlg.FileName = System.IO.Path.GetFileName(seed);
-                var seedDir = System.IO.Path.GetDirectoryName(_originalFile ?? "");
-                if (!string.IsNullOrEmpty(seedDir) && System.IO.Directory.Exists(seedDir))
-                    dlg.InitialDirectory = seedDir;
+                seedDir = !string.IsNullOrEmpty(_originalFile)
+                    ? System.IO.Path.GetDirectoryName(_originalFile)
+                    : ExistingRecentFiles().Select(System.IO.Path.GetDirectoryName).FirstOrDefault(d => !string.IsNullOrEmpty(d))
+                      ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
+            catch { }
+            if (!string.IsNullOrEmpty(seedDir) && System.IO.Directory.Exists(seedDir))
+                dlg.InitialDirectory = seedDir;
             if (dlg.ShowDialog(this) != true) return;
+            // Guarantee the extension: the dialog only adds it when the typed
+            // name has none, so "report.final" would be saved as a .final file.
+            dlg.FileName = ChosenPath(dlg, "pdf");
+            // Two tabs must never be the same file: saving over a document open in another tab
+            // would leave that tab editing a stale copy that its next Save writes back.
+            // A deferred (startup-restored, not yet loaded) tab counts: it IS that file (same rule
+            // as OpenInTab's dedup).
+            var owner = _tabs.FindByPath(dlg.FileName, t => t.Doc is null ? t.DeferredPath : t.OriginalPath);
+            if (owner is not null && !ReferenceEquals(owner, _s))
+            {
+                ShowToast(string.Format(Loc("Str_Tab_AlreadyOpen"), System.IO.Path.GetFileName(dlg.FileName)));
+                return;
+            }
             try
             {
                 bool hasAnnotations = _annotations.Values.Any(list => list.Count > 0);
@@ -483,26 +627,28 @@ namespace Scalpel
 
                 if (hasAnnotations)
                 {
-                    var tempClean = App.MakeTempFile("clean");
-                    _doc.Save(tempClean);
+                    var tempClean = App.MakeTempFile("clean", _s.Id);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, tempClean);
                     DrawAnnotationsOnDocument();
-                    _doc.Save(dlg.FileName);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, dlg.FileName);
                     _doc.Close();
                     // PdfSharpCore can reject the clean copy it just wrote; recover via PDFium.
                     _doc = Scalpel.Services.PdfReopen.OpenModify(tempClean, TryPdfiumStripEncryption,
-                        () => App.MakeTempFile("fixed"), out var reopened);
+                        () => App.MakeTempFile("fixed", _s.Id), out var reopened);
                     _currentFile = reopened;
                     _originalFile = dlg.FileName;
                     FileNameLabel.Text = System.IO.Path.GetFileName(dlg.FileName);
                     MarkDirty(false);
+                    RefreshTabStrip();   // the tab takes the new name
                     SetStatus($"Saved with annotations to {System.IO.Path.GetFileName(dlg.FileName)}");
                 }
                 else
                 {
-                    _doc.Save(dlg.FileName);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, dlg.FileName);
                     _originalFile = dlg.FileName;
                     FileNameLabel.Text = System.IO.Path.GetFileName(dlg.FileName);
                     MarkDirty(false);
+                    RefreshTabStrip();   // the tab takes the new name
                     SetStatus($"Saved to {System.IO.Path.GetFileName(dlg.FileName)}");
                 }
                 Scalpel.Services.Logger.Info("File", "save.success", "PDF saved", new { path = dlg.FileName });
@@ -518,9 +664,28 @@ namespace Scalpel
         {
             if (_doc is null || _currentFile is null) { ScalpelDialog.Show(this, "Open a PDF first."); return; }
             CommitActiveTextBox();
+            // Typed form values live in overlay state until they are written into the document, so
+            // flatten has to write them first or the rasterized pages come out with empty fields.
+            WriteFormValuesToDocument();
             var dlg = new SaveFileDialog { Filter = "PDF files|*.pdf", Title = "Save Flattened PDF",
+                                           DefaultExt = "pdf", AddExtension = true,
                                            CheckFileExists = false, CheckPathExists = true };
-            if (dlg.ShowDialog(this) != true) return;
+            // No forwarded open may swap the active tab while the dialog is up: the code below
+            // acts on `_s` once it closes (same guard as Save As).
+            bool? picked;
+            BeginTabOp();
+            try { picked = dlg.ShowDialog(this); }
+            finally { EndTabOp(); }
+            if (picked != true) return;
+            // Guarantee the extension: the dialog only adds it when the typed
+            // name has none, so "report.final" would be saved as a .final file.
+            dlg.FileName = ChosenPath(dlg, "pdf");
+
+            // Pinned before the first await: the dirty flag cleared on success must land back on
+            // the document that started the flatten even though tab switching is refused for the
+            // whole run.
+            var session = _s;
+            using var op = _longOps.Begin();
 
             // Burn any pending annotations into a temp source for rasterization
             // (must happen on UI thread before we go async)
@@ -528,11 +693,11 @@ namespace Scalpel
             bool hasAnnotations = _annotations.Values.Any(list => list.Count > 0);
             if (hasAnnotations)
             {
-                var tempClean  = App.MakeTempFile("clean");
-                var tempBurned = App.MakeTempFile("burned");
-                _doc.Save(tempClean);
+                var tempClean  = App.MakeTempFile("clean", session.Id);
+                var tempBurned = App.MakeTempFile("burned", session.Id);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, tempClean);
                 DrawAnnotationsOnDocument();
-                _doc.Save(tempBurned);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, tempBurned);
                 _doc.Close();
                 _doc = PdfReader.Open(tempClean, PdfDocumentOpenMode.Modify);
                 _currentFile = tempClean;
@@ -540,8 +705,8 @@ namespace Scalpel
             }
             else
             {
-                var temp = App.MakeTempFile("src");
-                _doc.Save(temp);
+                var temp = App.MakeTempFile("src", session.Id);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, temp);
                 sourcePath = temp;
             }
 
@@ -583,11 +748,16 @@ namespace Scalpel
                         byte[] bgra; int rw, rh;
                         lock (docGate)
                         {
-                            using var pageDocReader = DocLib.Instance.GetDocReader(sourcePath, new PageDimensions(dimMin, dimMax));
-                            using var pr = pageDocReader.GetPageReader(i);
-                            bgra = pr.GetImage();
-                            rw   = pr.GetPageWidth();
-                            rh   = pr.GetPageHeight();
+                            // PDFium is single-threaded: hold the gate for the reader's whole
+                            // lifetime, including its Dispose, which is where the crash lands.
+                            (bgra, rw, rh) = Scalpel.Services.PdfiumGate.Run(() =>
+                            {
+                                using var pageDocReader = Scalpel.Services.PinnedDocReader.Open(sourcePath, new PageDimensions(dimMin, dimMax));
+                                using var pr = pageDocReader.GetPageReader(i);
+                                return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                    Scalpel.Services.AnnotationRenderPolicy.ForOutput()),
+                                        pr.GetPageWidth(), pr.GetPageHeight());
+                            });
                         }
                         // Encode BGRA to PNG (GDI+) outside the lock so it parallelizes.
                         pngPages[i] = RenderToPng(bgra, rw, rh);
@@ -609,7 +779,7 @@ namespace Scalpel
                             using var gfx = XGraphics.FromPdfPage(newPage);
                             gfx.DrawImage(xi, 0, 0, newPage.Width.Point, newPage.Height.Point);
                         }
-                        outDoc.Save(outputPath);
+                        Scalpel.Services.PdfSaveGuard.Save(outDoc, outputPath);
                     }
                     finally
                     {
@@ -617,8 +787,17 @@ namespace Scalpel
                     }
                 });
 
-                MarkDirty(false);
-                SetStatus($"Flattened PDF saved to {System.IO.Path.GetFileName(outputPath)}");
+                // Write into the pinned session, not the _isDirty shim.
+                session.IsDirty = false;
+                if (ReferenceEquals(session, _s))
+                {
+                    MarkDirty(false);
+                    SetStatus($"Flattened PDF saved to {System.IO.Path.GetFileName(outputPath)}");
+                }
+                else
+                {
+                    RefreshTabStrip();
+                }
                 Scalpel.Services.Logger.Info("File", "flatten.success", "PDF flattened", new { path = outputPath, pages = pageCount });
             }
             catch (Exception ex)
@@ -707,6 +886,13 @@ namespace Scalpel
         {
             if (_doc is null || _currentFile is null) { ScalpelDialog.Show(this, "Open a PDF first."); return; }
             CommitActiveTextBox();
+            // Same as flatten: without this the printed pages would show empty form fields.
+            WriteFormValuesToDocument();
+
+            // Print only reads the document (rasterizes it and shows a preview); it never adopts a
+            // result or changes the dirty flag, so no session needs to be pinned. The gate still
+            // has to be taken so the document cannot be closed out from under the render.
+            using var op = _longOps.Begin();
 
             // Burn pending annotations into a temp copy on the UI thread before going off-thread
             bool hasAnnotations = _annotations.Values.Any(list => list.Count > 0);
@@ -714,11 +900,11 @@ namespace Scalpel
             string? tempFlattened = null;
             if (hasAnnotations)
             {
-                var tempClean = App.MakeTempFile("clean");
-                _doc.Save(tempClean);
+                var tempClean = App.MakeTempFile("clean", _s.Id);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, tempClean);
                 DrawAnnotationsOnDocument();
-                printPath = App.MakeTempFile("print");
-                _doc.Save(printPath);
+                printPath = App.MakeTempFile("print", _s.Id);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, printPath);
                 tempFlattened = printPath;
                 _doc.Close();
                 _doc = PdfReader.Open(tempClean, PdfDocumentOpenMode.Modify);
@@ -748,17 +934,34 @@ namespace Scalpel
                     pngPages = new byte[pageCount][];
                     rasterW  = new int[pageCount];
                     rasterH  = new int[pageCount];
-                    using var docReader = DocLib.Instance.GetDocReader(printPath, new PageDimensions(1536, 1536));
-                    for (int i = 0; i < pageCount; i++)
+                    // PDFium runs on its own thread. Only the native calls are marshalled: the
+                    // PNG encode and the progress Dispatcher.Invoke stay on this task's thread,
+                    // which is what keeps the PDFium thread from ever waiting on the UI.
+                    var reader = Scalpel.Services.PdfiumGate.Run(
+                        () => Scalpel.Services.PinnedDocReader.Open(printPath, new PageDimensions(1536, 1536)));
+                    try
                     {
-                        using var pr = docReader.GetPageReader(i);
-                        int w = pr.GetPageWidth();
-                        int h = pr.GetPageHeight();
-                        pngPages[i] = RenderToPng(pr.GetImage(), w, h);
-                        rasterW[i]  = w;
-                        rasterH[i]  = h;
-                        int captured = i;
-                        Dispatcher.Invoke(() => UpdateFlattenProgress(overlay, captured + 1, pageCount));
+                        for (int i = 0; i < pageCount; i++)
+                        {
+                            int page = i;
+                            var (bgra, w, h) = Scalpel.Services.PdfiumGate.Run(() =>
+                            {
+                                using var pr = reader.GetPageReader(page);
+                                return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                    Scalpel.Services.AnnotationRenderPolicy.ForOutput()),
+                                        pr.GetPageWidth(), pr.GetPageHeight());
+                            });
+
+                            pngPages[i] = RenderToPng(bgra, w, h);
+                            rasterW[i]  = w;
+                            rasterH[i]  = h;
+                            int captured = i;
+                            Dispatcher.Invoke(() => UpdateFlattenProgress(overlay, captured + 1, pageCount));
+                        }
+                    }
+                    finally
+                    {
+                        Scalpel.Services.PdfiumGate.Run(() => reader.Dispose());
                     }
                 });
 

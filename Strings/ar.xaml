@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">تثبيت Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">هل تريد تثبيت Scalpel في ملف تعريف المستخدم الخاص بك؟
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">هل تريد تثبيت Scalpel في ملف تعريف المستخدم الخاص بك؟
 
 سيؤدي هذا إلى نسخ التطبيق إلى %LocalAppData%\Scalpel وإنشاء اختصار في قائمة ابدأ.
 يمكنك إلغاء التثبيت عبر إضافة/إزالة البرامج في أي وقت.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">لديك تغييرات غير محفوظة. إغلاق هذا الملف دون حفظ؟</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">لديك تغييرات غير محفوظة. إغلاق Scalpel دون حفظ؟</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">تعذّر فتح ملف PDF:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">تعذّر فتح ملف PDF:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@
     <sys:String x:Key="Str_Recent_Remove">إزالة من الأخيرة</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">الملف غير موجود — تمت إزالته من الأخيرة</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">إغلاق علامة التبويب</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">هل تريد حفظ التغييرات في {0} قبل الإغلاق؟</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} مفتوح بالفعل.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">تعذّر إعادة فتح {0}.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">أنهِ العملية الحالية أو ألغِها قبل التبديل بين المستندات.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">هل تريد فتح {0} ملفات كعلامات تبويب منفصلة؟</sys:String>
+    <sys:String x:Key="Str_Tab_Close">إغلاق</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">إغلاق علامات التبويب الأخرى</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">إغلاق علامات التبويب التالية</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">فتح المجلد المحتوي</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">نسخ المسار</sys:String>
+    <sys:String x:Key="Str_Tab_New">علامة تبويب جديدة (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">كل علامات التبويب</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">علامات التبويب</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">علامة تبويب جديدة</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">علامة التبويب التالية / السابقة</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">الانتقال إلى علامة التبويب 1 إلى 8</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">الانتقال إلى آخر علامة تبويب</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">اختر لونًا</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">لون مخصص…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">التقط لونًا من أي مكان على الشاشة</sys:String>
@@ -324,4 +341,96 @@
     <sys:String x:Key="Str_Ocr_Progress_Starting">جارٍ التحضير…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">التعرف على الصفحة {0} من {1}…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">إلغاء</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">تم حظر الرابط لأسباب أمنية - يمكن فتح روابط الويب والبريد الإلكتروني فقط</sys:String>
+    <sys:String x:Key="Str_PageN">صفحة {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">كلمة المرور مطلوبة</sys:String>
+    <sys:String x:Key="Str_St_FileSize">حجم الملف: {0} ({1} بايت)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">إغلاق علامات التبويب الأخرى</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">ملاءمة العرض</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">ملاءمة الصفحة</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">الصفحة الأولى / الأخيرة</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">إظهار حجم الملف</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">الأدوات بالأرقام</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">إزالة كلمة المرور</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">هل تريد حفظ هذا المستند فوق الملف الأصلي بدون حماية كلمة المرور؟</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">تم الحفظ بدون حماية كلمة المرور</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">هذا المستند غير محمي بكلمة مرور</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">تم الحفظ - تمت إزالة حماية كلمة المرور</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">افتح ملف PDF أولاً.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">فشل الحفظ: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">عدم تذكر الملفات المفتوحة مؤخرًا</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">إغلاق البحث (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = التالي  Shift+Enter = السابق</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">لا توجد نتائج</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{0} نتيجة في {1} صفحة</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">نتيجة واحدة في صفحة واحدة</sys:String>
+    <sys:String x:Key="Str_Search_Error">خطأ في البحث</sys:String>
+    <sys:String x:Key="Str_St_Undid">تم التراجع عن آخر تعليق</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">تم التراجع عن تغيير المستند</sys:String>
+    <sys:String x:Key="Str_St_Redid">تمت إعادة آخر تعليق</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">تمت إعادة تغيير المستند</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">لا يوجد ما يمكن إعادته</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">لا يوجد ما يمكن التراجع عنه</sys:String>
+    <sys:String x:Key="Str_KS_Redo">إعادة</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">فحص ما قبل الطباعة</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">جارٍ فحص المستند…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">انتهى الفحص: {0} مشكلة، {1} تحذير</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">تم فحص {0} صفحة. {1} مشكلة، {2} تحذير.</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">لا شيء للإبلاغ عنه - يبدو أن المستند جاهز للإرسال.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">مشكلات (قد ترفضها البرامج الأخرى أو تعرضها بشكل خاطئ):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">تحذيرات (قد تبدو غير صحيحة):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">ملاحظات:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">الصفحات</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">تعذّر إكمال الفحص: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">التعليقات</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">اختر تعليقًا لقراءته. يمكنك تصحيح النص أو تغيير كاتبه أو إزالته. لا يُكتب شيء حتى تختار حفظ، وبعد ذلك لا يزال يتعين حفظ المستند.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">من</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">تعليق</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">حذف هذا التعليق</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">الإبقاء على هذا التعليق</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">حفظ التغييرات</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">لم يتم تغيير أي تعليق</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">تم تحرير {0} تعليق وإزالة {1}</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">عريض / مائل / تسطير أثناء الكتابة</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">ملء حقول النموذج بالتعرف الضوئي</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">لا تحتوي هذه الصفحة على حقول نصية أو حقول اختيار قابلة للملء.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">جارٍ قراءة {0} حقل...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">جارٍ قراءة الحقل {0} من {1}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">تم ملء {0} حقل من الصفحة</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">لم يتم العثور على محتوى مقروء في الحقول</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">تعذرت قراءة الحقول: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">تعديل الصفحة المصورة</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">تعديل الصفحة</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">اسحب المقابض الأربعة إلى زوايا الصفحة في الصورة، ثم اختر تعديل.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">تعديل</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">تم تعديل الصفحة {0}</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">تعذر تعديل الصفحة: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">قياس المسافة</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">اسحب عبر الصفحة للقياس. اضغط Shift للحفاظ على الاستقامة؛ Esc للإيقاف.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} مم  /  {1} بوصة  /  {2} نقطة</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">المقارنة مع ملف PDF آخر</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">اختر ملف PDF للمقارنة</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">جارٍ مقارنة المستندات...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">انتهت المقارنة</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">فشلت المقارنة: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">مقارنة {0} مع {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">عدد الصفحات مختلف: {0} مقابل {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">المستندان متطابقان.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">كل صفحة مشتركة بينهما متطابقة.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{0} من {1} صفحة مشتركة مختلفة:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  صفحة {0}: تغير {1}% من الصفحة، في {2} منطقة</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">تصدير الصفحات كصور</sys:String>
+    <sys:String x:Key="Str_Exp_Format">الصيغة</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">اللون</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">ملون</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">تدرج الرمادي</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">أبيض وأسود</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">الدقة</sys:String>
+    <sys:String x:Key="Str_Exp_Export">تصدير</sys:String>
+    <sys:String x:Key="Str_Exp_Note">سيتم كتابة {0} صفحة، ملف صورة واحد لكل صفحة.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">جارٍ تصدير {0} صفحة...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">تم تصدير {0} صورة إلى {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">فشل التصدير: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">لا توجد تعليقات في هذا المستند.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">{0} تعليق في هذا المستند.</sys:String>
 </ResourceDictionary>

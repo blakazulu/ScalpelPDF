@@ -47,10 +47,11 @@ namespace Scalpel
             UpdateViewModeButtons();
             if (_doc is null) return;
             int idx = PageList.SelectedIndex;
+            int gen = _sessionGeneration;
             if (mode == ViewMode.Continuous)
             {
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                    () => SetupContinuousView(idx));
+                    () => { if (!IsStale(gen)) SetupContinuousView(idx); });
             }
             else
             {
@@ -59,6 +60,7 @@ namespace Scalpel
                 _pageContentPanel.Width = double.NaN;
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, () =>
                 {
+                    if (IsStale(gen)) return;   // another document is shown now
                     RenderPage(mode == ViewMode.Grid ? 0 : idx);
                     // Grid: apply a clean column-fit zoom (continuous's zoom is far too large for a
                     // grid, and a non-column zoom leaves a gap). SetZoom -> ApplyZoom defers the
@@ -90,6 +92,11 @@ namespace Scalpel
         private void PagePreviewPanel_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_viewMode != ViewMode.Continuous || _continuousTops.Count == 0) return;
+            // Only the preview's own scrolling (not a nested scroller bubbling up), and never while
+            // a tab is being bound: the rebuild's intermediate offsets would overwrite the page
+            // the incoming tab is being restored to.
+            if (!ReferenceEquals(e.OriginalSource, PagePreviewPanel)) return;
+            if (_bindingSession) return;
 
             double viewportCenter = (PagePreviewPanel.VerticalOffset + PagePreviewPanel.ViewportHeight * 0.5)
                                     / Math.Max(0.01, _zoomLevel);
@@ -116,7 +123,8 @@ namespace Scalpel
 
         private void SetupContinuousView(int initialPage)
         {
-            if (_doc is null) return;
+            // A malformed PDF whose page tree parses to zero pages must not reach Pages[0].
+            if (_doc is null || _doc.PageCount == 0) return;
             _continuousRenderCts?.Cancel();
             _continuousPanel.Children.Clear();
             _continuousTops.Clear();
@@ -182,7 +190,15 @@ namespace Scalpel
                     Child = slotGrid
                 };
                 int capturedI = i;
-                placeholder.PreviewMouseLeftButtonDown += (_, _) => PageList.SelectedIndex = capturedI;
+                placeholder.PreviewMouseLeftButtonDown += (_, _) =>
+                {
+                    // Selecting the clicked page must not re-anchor the view: clicks in the
+                    // document are for tools and selection, and the current page already follows
+                    // the viewport as the user scrolls.
+                    _suppressScrollToPage = true;
+                    try { PageList.SelectedIndex = capturedI; }
+                    finally { _suppressScrollToPage = false; }
+                };
                 _continuousPanel.Children.Add(placeholder);
                 y += slotH + 12;
             }
@@ -192,8 +208,9 @@ namespace Scalpel
             if (_fitMode == FitMode.Width) FitToWidth(); else FitToPage();
 
             _continuousScrollTarget = initialPage;
+            int gen = _sessionGeneration;
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                () => ScrollContinuousToPage(initialPage));
+                () => { if (!IsStale(gen)) ScrollContinuousToPage(initialPage); });
 
             _ = RenderContinuousPages();
         }
@@ -208,7 +225,13 @@ namespace Scalpel
             string currentFile = _currentFile;
             int pageCount      = _doc.PageCount;
             double targetW     = _continuousPageW;
-            int renderW        = Math.Max(800, Math.Min(2048, (int)(targetW * 2)));
+            // Render at the device's real resolution rather than a flat 2x: on a 100% DPI
+            // display the old factor cost twice the memory for no visible gain, and on a
+            // high-DPI display it was not enough to stay sharp.
+            var contDpi = VisualTreeHelper.GetDpi(this);
+            int renderW = Math.Max(800, Math.Min(
+                Scalpel.Services.ViewerRenderResolution.Primary(contDpi.DpiScaleX, contDpi.DpiScaleY, _zoomLevel),
+                (int)(targetW * Math.Max(1.0, Math.Max(contDpi.DpiScaleX, contDpi.DpiScaleY)) * 1.5)));
 
             // Capture per-page rotations on the UI thread before going async
             var rotations = new Dictionary<int, int>(_pageRotations);
@@ -217,16 +240,28 @@ namespace Scalpel
             {
                 try
                 {
-                    using var docReader = DocLib.Instance.GetDocReader(
-                        currentFile, new PageDimensions(renderW, renderW * 2));
-
+                    // PDFium is single-threaded: hold the gate for the reader's whole
+                    // lifetime, including its Dispose, which is where the crash lands.
+                    // Only the native calls go to the PDFium thread. The Dispatcher.Invoke below
+                    // stays on this task's thread - running it on the PDFium thread would block
+                    // that thread on the UI while the UI could be waiting for PDFium work of its
+                    // own, which is a deadlock.
+                    bool hasForms = _docHasFormFields;
+                    var docReader = Scalpel.Services.PdfiumGate.Run(() => Scalpel.Services.PinnedDocReader.Open(
+                        currentFile, new PageDimensions(renderW, renderW * 2)));
+                    try
+                    {
                     for (int i = 0; i < pageCount; i++)
                     {
                         if (cts.IsCancellationRequested) return;
-                        using var pr = docReader.GetPageReader(i);
-                        int w = pr.GetPageWidth();
-                        int h = pr.GetPageHeight();
-                        var raw = pr.GetImage();
+                        int page = i;
+                        var (raw, w, h) = Scalpel.Services.PdfiumGate.Run(() =>
+                        {
+                            using var pr = docReader.GetPageReader(page);
+                            return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                Scalpel.Services.AnnotationRenderPolicy.ForViewer(hasForms)),
+                                    pr.GetPageWidth(), pr.GetPageHeight());
+                        });
                         if (w <= 0 || h <= 0 || raw is null) continue;
                         if (rotations.TryGetValue(i, out int rot) && rot != 0)
                             (raw, w, h) = RotateBitmap(raw, w, h, rot);
@@ -289,14 +324,17 @@ namespace Scalpel
                                 {
                                     int tgt = _continuousScrollTarget;
                                     _continuousScrollTarget = -1;
+                                    int scrollGen = _sessionGeneration;
                                     Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                                        (Action)(() => ScrollContinuousToPage(tgt)));
+                                        (Action)(() => { if (!IsStale(scrollGen)) ScrollContinuousToPage(tgt); }));
                                 }
 
                                 RenderAllAnnotations(fi);
                             }
                         });
                     }
+                    }
+                    finally { Scalpel.Services.PdfiumGate.Run(() => docReader.Dispose()); }
                 }
                 catch { /* render cancelled or doc closed */ }
             }, cts.Token);

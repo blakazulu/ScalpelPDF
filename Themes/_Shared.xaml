@@ -474,6 +474,86 @@
     </Style>
 
     <!-- ============================================================ -->
+    <!-- Document tab strip ("compact chips", option C of             -->
+    <!-- design-mockups/tabs/tab-strip-options.html). The chips are   -->
+    <!-- built in MainWindow.Tabs.cs; the active chip overrides the   -->
+    <!-- colours locally (AccentDim / AccentBorder / AccentText).     -->
+    <!-- ============================================================ -->
+
+    <!-- DocumentTab: one 26 px pill chip. Hover = BgHover (a local active fill wins over it). -->
+    <Style x:Key="DocumentTab" TargetType="Border">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="CornerRadius" Value="13"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="11,0,5,0"/>
+        <Setter Property="Margin" Value="0,0,5,0"/>
+        <Setter Property="Background" Value="{DynamicResource BgControl}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDim}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- DocumentTabClose: the 18 px round close button at a chip's end. Foreground is set per
+         chip (it follows the label colour); hover is the TabCloseHover token (one step past BgHover, so it reads on
+         a hovered chip, which is already BgHover, and on the active AccentDim chip). -->
+    <Style x:Key="DocumentTabClose" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcon}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="9">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource TabCloseHover}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- DocumentTabRoundButton: the 26 px round + (new tab) and chevron (all tabs) buttons. -->
+    <Style x:Key="DocumentTabRoundButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontIcon}"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="13">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BgHover}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================ -->
     <!-- App-wide implicit styles (moved from MainWindow.xaml)        -->
     <!-- ============================================================ -->
 
@@ -563,7 +643,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <ContentPresenter ContentSource="Header" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="{TemplateBinding InputGestureText}"
+                            <TextBlock x:Name="Gesture" Grid.Column="1" Text="{TemplateBinding InputGestureText}"
                                        Foreground="{DynamicResource TextSecondary}" FontSize="11"
                                        VerticalAlignment="Center" Margin="24,0,0,0"/>
                         </Grid>
@@ -572,7 +652,34 @@
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="MenuBd" Property="Background" Value="{DynamicResource BgHover}"/>
                         </Trigger>
+                        <!-- A disabled item reads as unavailable (it has no hover either). -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource TextFooter}"/>
+                            <Setter TargetName="MenuBd" Property="Background" Value="Transparent"/>
+                            <Setter TargetName="Gesture" Property="Foreground" Value="{DynamicResource TextFooter}"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ScrollingContextMenu: the themed context menu with a height cap and a vertical scroll,
+         for lists that can grow long (the tab strip's "All tabs" menu). -->
+    <Style x:Key="ScrollingContextMenu" TargetType="ContextMenu" BasedOn="{StaticResource {x:Type ContextMenu}}">
+        <Setter Property="MaxHeight" Value="380"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4" Padding="4">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      Focusable="False">
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                        </ScrollViewer>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

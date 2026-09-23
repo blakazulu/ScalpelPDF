@@ -41,6 +41,12 @@ namespace Scalpel
         private ComboBox _printerCombo = null!;
         private TextBox _copiesBox = null!;
         private TextBox _pagesBox = null!;
+        private CheckBox _grayscaleBox = null!;
+        private CheckBox _duplexBox = null!;
+        private ComboBox _subsetCombo = null!;
+        private Button _printBtn = null!;
+        private TextBlock _rangeHint = null!;
+        private Scalpel.Services.PrintSubset _subset = Scalpel.Services.PrintSubset.All;
 
         /// <summary>Number of pages sent to the printer (set when the user prints).</summary>
         public int PrintedPageCount { get; private set; }
@@ -240,15 +246,59 @@ namespace Scalpel
                 Padding      = new Thickness(6, 4, 6, 4)
             };
             panel.Children.Add(_pagesBox);
-            panel.Children.Add(new TextBlock
+            _rangeHint = new TextBlock
             {
                 Text         = "e.g. 1-3,5  (blank = all)",
                 Foreground   = R("TextSecondary"),
                 FontFamily   = FontUI(),
                 FontSize     = (double)Application.Current.FindResource("FsStatus"),
-                Margin       = new Thickness(0, 0, 0, 16),
+                Margin       = new Thickness(0, 0, 0, 12),
                 TextWrapping = TextWrapping.Wrap
-            });
+            };
+            panel.Children.Add(_rangeHint);
+            _pagesBox.TextChanged += (_, _) => { _previewIndex = 0; UpdatePreview(); };
+
+            // Odd/even: print the odds, flip the stack, print the evens - manual duplex on a
+            // printer with no duplexer.
+            var subset = new ComboBox { Margin = new Thickness(0, 4, 0, 12), Height = 26 };
+            ApplyComboStyle(subset);
+            subset.Items.Add("All pages");
+            subset.Items.Add("Odd pages only");
+            subset.Items.Add("Even pages only");
+            subset.SelectedIndex = 0;
+            subset.SelectionChanged += (s, _) =>
+            {
+                _subset = ((ComboBox)s).SelectedIndex switch
+                {
+                    1 => Scalpel.Services.PrintSubset.Odd,
+                    2 => Scalpel.Services.PrintSubset.Even,
+                    _ => Scalpel.Services.PrintSubset.All,
+                };
+                _previewIndex = 0;
+                UpdatePreview();
+            };
+            _subsetCombo = subset;
+            panel.Children.Add(subset);
+
+            _grayscaleBox = new CheckBox
+            {
+                Content    = "Print in grayscale",
+                Foreground = R("TextPrimary"),
+                FontFamily = FontUI(),
+                Margin     = new Thickness(0, 0, 0, 8)
+            };
+            panel.Children.Add(_grayscaleBox);
+
+            _duplexBox = new CheckBox
+            {
+                Content    = "Two-sided (long edge)",
+                Foreground = R("TextPrimary"),
+                FontFamily = FontUI(),
+                Margin     = new Thickness(0, 0, 0, 16)
+            };
+            _duplexBox.Checked   += (_, _) => UpdatePreview();
+            _duplexBox.Unchecked += (_, _) => UpdatePreview();
+            panel.Children.Add(_duplexBox);
 
             var btnRow = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             var cancel = MakeButton("Cancel", false);
@@ -256,6 +306,7 @@ namespace Scalpel
             var print = MakeButton("Print", true);
             print.Margin = new Thickness(8, 0, 0, 0);
             print.Click += (_, _) => DoPrint();
+            _printBtn = print;
             btnRow.Children.Add(cancel);
             btnRow.Children.Add(print);
             panel.Children.Add(btnRow);
@@ -289,7 +340,7 @@ namespace Scalpel
             var prev = MakeButton("◀", false);   // left triangle
             prev.Click += (_, _) => { if (_previewIndex > 0) { _previewIndex--; UpdatePreview(); } };
             var next = MakeButton("▶", false);   // right triangle
-            next.Click += (_, _) => { if (_previewIndex < _pages.Length - 1) { _previewIndex++; UpdatePreview(); } };
+            next.Click += (_, _) => { if (_previewIndex < SelectedIndices().Count - 1) { _previewIndex++; UpdatePreview(); } };
             _pageLabel.Foreground = R("TextPrimary");
             _pageLabel.FontFamily = FontUI();
             _pageLabel.VerticalAlignment = VerticalAlignment.Center;
@@ -393,10 +444,20 @@ namespace Scalpel
         private void UpdatePreview()
         {
             _previewHost.Children.Clear();
-            if (_pages.Length == 0) { _pageLabel.Text = "No pages"; return; }
 
-            int idx = Math.Max(0, Math.Min(_previewIndex, _pages.Length - 1));
-            _previewIndex = idx;
+            // The preview shows only pages the job will actually print, so a typed range or the
+            // odd/even selector is visible before anything reaches the printer.
+            var selected = SelectedIndices();
+            UpdatePrintAvailability(selected);
+            if (_pages.Length == 0 || selected.Count == 0)
+            {
+                _pageLabel.Text = _pages.Length == 0 ? "No pages" : "No pages match";
+                return;
+            }
+
+            int pos = Math.Max(0, Math.Min(_previewIndex, selected.Count - 1));
+            _previewIndex = pos;
+            int idx = selected[pos];
 
             var paper = new Grid { Width = _areaW, Height = _areaH, Background = Brushes.White };
             double scale = Math.Min(_areaW / _rasterW[idx], _areaH / _rasterH[idx]);
@@ -414,7 +475,11 @@ namespace Scalpel
             var vb = new Viewbox { Child = paper, Stretch = Stretch.Uniform, Margin = new Thickness(20) };
             _previewHost.Children.Add(vb);
 
-            _pageLabel.Text = $"Page {idx + 1} of {_pages.Length}";
+            int sheets = Scalpel.Services.PrintPageRange.SheetCount(
+                selected.Count, ReadCopies(), _duplexBox?.IsChecked == true);
+            _pageLabel.Text = selected.Count == _pages.Length
+                ? $"Page {idx + 1} of {_pages.Length}  ({sheets} sheets)"
+                : $"Page {idx + 1} of {_pages.Length}  ({pos + 1}/{selected.Count} selected, {sheets} sheets)";
         }
 
         private void DoPrint()
@@ -426,7 +491,7 @@ namespace Scalpel
                 return;
             }
 
-            var indices = ParseRange(_pagesBox.Text, _pages.Length);
+            var indices = SelectedIndices();
             if (indices.Count == 0)
             {
                 ScalpelDialog.Show(this, "No valid pages in that range.", "Scalpel",
@@ -434,8 +499,9 @@ namespace Scalpel
                 return;
             }
 
-            int.TryParse(_copiesBox.Text?.Trim(), out int copies);
-            if (copies < 1) copies = 1;
+            int copies = ReadCopies();
+            bool grayscale = _grayscaleBox?.IsChecked == true;
+            bool duplex    = _duplexBox?.IsChecked == true;
 
             try
             {
@@ -443,6 +509,11 @@ namespace Scalpel
                 var ticket = pd.PrintTicket;
                 ticket.CopyCount      = copies;
                 ticket.PageOrientation = _landscape ? PageOrientation.Landscape : PageOrientation.Portrait;
+                // Both of these must be stated explicitly: leaving them unset lets the printer
+                // driver's own saved defaults decide, which is how a job came out two-sided (or
+                // in colour) after the user had turned that off here.
+                ticket.OutputColor = grayscale ? OutputColor.Grayscale : OutputColor.Color;
+                ticket.Duplexing   = duplex ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided;
                 pd.PrintTicket = ticket;
 
                 double aw = pd.PrintableAreaWidth, ah = pd.PrintableAreaHeight;
@@ -458,7 +529,10 @@ namespace Scalpel
                     double ih = _rasterH[idx] * scale;
 
                     var fp  = new FixedPage { Width = aw, Height = ah };
-                    var img = new Image { Source = _pages[idx], Width = iw, Height = ih };
+                    var source = grayscale
+                        ? Scalpel.Services.PrintColorConverter.CreateGrayscaleBitmap(_pages[idx])
+                        : _pages[idx];
+                    var img = new Image { Source = source, Width = iw, Height = ih };
                     RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.HighQuality);
                     FixedPage.SetLeft(img, (aw - iw) / 2);
                     FixedPage.SetTop(img, (ah - ih) / 2);
@@ -483,36 +557,33 @@ namespace Scalpel
             }
         }
 
-        // Parses "1-3,5" style ranges into sorted 0-based indices. Blank/invalid = all pages.
-        private static List<int> ParseRange(string? text, int count)
+        /// <summary>Copies as typed, never below one.</summary>
+        private int ReadCopies()
         {
-            text = text?.Trim() ?? "";
-            if (text.Length == 0) return [.. Enumerable.Range(0, count)];
-
-            var set = new SortedSet<int>();
-            foreach (var raw in text.Split(','))
-            {
-                var part = raw.Trim();
-                if (part.Length == 0) continue;
-                if (part.Contains('-'))
-                {
-                    var seg = part.Split('-');
-                    if (seg.Length == 2 &&
-                        int.TryParse(seg[0].Trim(), out int a) &&
-                        int.TryParse(seg[1].Trim(), out int b))
-                    {
-                        if (a > b) (a, b) = (b, a);
-                        for (int i = a; i <= b; i++)
-                            if (i >= 1 && i <= count) set.Add(i - 1);
-                    }
-                }
-                else if (int.TryParse(part, out int v))
-                {
-                    if (v >= 1 && v <= count) set.Add(v - 1);
-                }
-            }
-            return set.Count == 0 ? [.. Enumerable.Range(0, count)] : [.. set];
+            int.TryParse(_copiesBox?.Text?.Trim(), out int copies);
+            return copies < 1 ? 1 : copies;
         }
+
+        /// <summary>
+        /// Print is only available when the range actually matches something. Previously an
+        /// unmatched range silently fell back to every page and printed the whole document.
+        /// </summary>
+        private void UpdatePrintAvailability(IReadOnlyList<int> selected)
+        {
+            if (_printBtn is not null) _printBtn.IsEnabled = selected.Count > 0;
+            if (_rangeHint is not null)
+                _rangeHint.Text = selected.Count == 0 && _pages.Length > 0
+                    ? "No pages match that range."
+                    : "e.g. 1-3,5  (blank = all)";
+        }
+
+        /// <summary>
+        /// The pages the job will actually print: the typed range filtered by the odd/even
+        /// selector. Preview, page navigation, the sheet count and the job all read this one
+        /// list, so what the preview shows is exactly what comes out of the printer.
+        /// </summary>
+        private IReadOnlyList<int> SelectedIndices()
+            => Scalpel.Services.PrintPageRange.Parse(_pagesBox?.Text, _pages.Length, _subset);
 
         // ---- Button factory — wraps Studio styles ----
 

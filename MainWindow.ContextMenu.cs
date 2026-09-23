@@ -103,10 +103,29 @@ namespace Scalpel
             {
                 var indices = new List<int>();
                 foreach (PageThumbnailVm vm in selected) indices.Add(vm.PageIndex);
+
+                // Snapshot each rotated page's render size BEFORE the turn: the annotations on it
+                // are positioned against that frame and have to be carried through the rotation.
+                // Without this the reload below discarded every unsaved annotation on the page.
+                var preRotationDims = new Dictionary<int, (double W, double H)>();
+                foreach (var idx in indices)
+                    if (_renderDims.TryGetValue(idx, out var rd) && rd.w > 0 && rd.h > 0)
+                        preRotationDims[idx] = (rd.w, rd.h);
+
                 foreach (var idx in indices)
                     _doc.Pages[idx].Rotate = ((_doc.Pages[idx].Rotate + delta) % 360 + 360) % 360;
                 int restoreIdx = PageList.SelectedIndex;
-                SaveTempAndReload();
+
+                SaveTempAndReload(keepAnnotations: true);
+
+                // Turn the kept annotations with the page they sit on. Items near a shrinking edge
+                // are clamped inside the new frame by the remap, so nothing lands off-page.
+                foreach (var idx in indices)
+                {
+                    if (!_annotations.TryGetValue(idx, out var pageAnnots) || pageAnnots.Count == 0) continue;
+                    if (!preRotationDims.TryGetValue(idx, out var dims)) continue;
+                    Scalpel.Services.AnnotationRotate.Remap(pageAnnots, delta, dims.W, dims.H, MeasureTextAnnotation);
+                }
                 PageList.SelectedIndex = Math.Min(restoreIdx, PageList.Items.Count - 1);
                 // After a rotation the page aspect ratio changes; always fit-to-page so the
                 // full rotated page is visible regardless of the previous zoom level.

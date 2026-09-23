@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 
 namespace Scalpel.Services
@@ -33,6 +33,27 @@ namespace Scalpel.Services
 
         // ── Internal ─────────────────────────────────────────────────────
 
+        /// <summary>
+        /// A translation file supplied on the command line with --lang-file, or null.
+        /// <para>Lets a translator run their own <c>.xaml</c> against the real app and see every
+        /// string in place without a rebuild - the loop that otherwise makes translating this many
+        /// keys guesswork. Any key the file omits falls back to English, because the English
+        /// dictionary is merged underneath it.</para>
+        /// </summary>
+        public static string? OverrideFile { get; private set; }
+
+        /// <summary>Records a --lang-file path, if it names a readable file.</summary>
+        public static bool TrySetOverrideFile(string? path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) return false;
+                OverrideFile = System.IO.Path.GetFullPath(path);
+                return true;
+            }
+            catch { return false; }
+        }
+
         private static void ApplyInternal(Locale locale)
         {
             var uri = locale switch
@@ -50,6 +71,30 @@ namespace Scalpel.Services
 
             var dict   = new ResourceDictionary { Source = uri };
             var merged = Application.Current.Resources.MergedDictionaries;
+
+            // A --lang-file translation is layered ON TOP of English rather than replacing it,
+            // so a partial file still runs: its keys win, everything else stays readable.
+            if (OverrideFile is not null)
+            {
+                try
+                {
+                    var baseDict = new ResourceDictionary
+                    { Source = new Uri("pack://application:,,,/Strings/en-US.xaml") };
+                    var overrideDict = new ResourceDictionary
+                    { Source = new Uri(OverrideFile, UriKind.Absolute) };
+
+                    var combined = new ResourceDictionary();
+                    combined.MergedDictionaries.Add(baseDict);
+                    combined.MergedDictionaries.Add(overrideDict);
+                    dict = combined;
+                }
+                catch (Exception ex)
+                {
+                    // A malformed translation must not stop the app starting in English.
+                    Logger.Warn("Locale", "langfile.load.fail", "Could not load --lang-file",
+                                new { path = OverrideFile, error = ex.Message });
+                }
+            }
 
             // Index 0 = theme dict, Index 1 = strings dict
             if (merged.Count > 1)

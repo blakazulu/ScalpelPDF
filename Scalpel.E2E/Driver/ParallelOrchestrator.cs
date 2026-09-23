@@ -63,6 +63,7 @@ public static class ParallelOrchestrator
             while (jobs.TryDequeue(out var job))
             {
                 Console.WriteLine($"[instance {ctx.Index}] {job.Name}...");
+                ctx.Driver.CurrentSuite = job.Name;
                 try { ctx.Driver.ResetToBaseState(); } catch { }
                 try { job.Run(ctx); }
                 catch (Exception ex)
@@ -75,10 +76,13 @@ public static class ParallelOrchestrator
         Task.WaitAll(workers);
 
         // Merge per-instance reports into one (single-threaded — no locking needed here).
+        // Each instance is closed first so how its close went is part of the report.
         var merged = new RunReport();
         foreach (var ctx in pool)
         {
+            try { ctx.Driver.Shutdown(); } catch { }
             merged.Results.AddRange(ctx.Report.Results);
+            ctx.Driver.AddCloseEventsTo(merged);
             foreach (var u in ctx.Report.UntestedControls)
                 if (!merged.UntestedControls.Contains(u)) merged.UntestedControls.Add(u);
         }

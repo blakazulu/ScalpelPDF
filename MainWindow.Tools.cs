@@ -23,8 +23,16 @@ namespace Scalpel
         // ---- shared document lifecycle helpers --------------------------------------------------
 
         /// <summary>Burns pending annotations/form values into a temp file and returns its path,
-        /// leaving the live <c>_doc</c> intact and editable (mirrors the SaveFlattened pattern).</summary>
-        private string BuildWorkingSourceFile()
+        /// leaving the live <c>_doc</c> intact and editable (mirrors the SaveFlattened pattern).
+        /// Acts on the active session - this is the shape every synchronous tool handler calls.</summary>
+        private string BuildWorkingSourceFile() => BuildWorkingSourceFile(_s.Id);
+
+        /// <summary>Same as <see cref="BuildWorkingSourceFile()"/>, but the temp files it creates
+        /// are owned by <paramref name="owner"/> instead of whatever <c>_s</c> happens to be right
+        /// now. A long operation that pinned <c>var session = _s;</c> before an await must pass
+        /// <c>session.Id</c> here so the temp files are still cleaned up correctly even if a
+        /// (normally refused) tab switch could ever happen mid-run.</summary>
+        private string BuildWorkingSourceFile(Guid owner)
         {
             CommitActiveTextBox();
             WriteFormValuesToDocument();
@@ -33,31 +41,92 @@ namespace Scalpel
             bool hasAnnotations = _annotations.Values.Any(list => list.Count > 0);
             if (hasAnnotations)
             {
-                var tempClean = App.MakeTempFile("clean");
-                var tempBurned = App.MakeTempFile("burned");
-                _doc!.Save(tempClean);
+                var tempClean = App.MakeTempFile("clean", owner);
+                var tempBurned = App.MakeTempFile("burned", owner);
+                Scalpel.Services.PdfSaveGuard.Save(_doc!, tempClean);
                 DrawAnnotationsOnDocument();
-                _doc.Save(tempBurned);
+                Scalpel.Services.PdfSaveGuard.Save(_doc, tempBurned);
                 _doc.Close();
                 _doc = PdfReader.Open(tempClean, PdfDocumentOpenMode.Modify);
                 _currentFile = tempClean;
                 return tempBurned;
             }
 
-            var temp = App.MakeTempFile("src");
-            _doc!.Save(temp);
+            var temp = App.MakeTempFile("src", owner);
+            Scalpel.Services.PdfSaveGuard.Save(_doc!, temp);
             return temp;
         }
 
-        /// <summary>Swaps in a transformed file as the new working document and refreshes the view.</summary>
-        private void AdoptTransformedFile(string transformedPath, string statusMsg)
+        /// <summary>Swaps in a transformed file as the new working document and refreshes the view.
+        /// Delegates to the <paramref name="target"/>-aware overload below, acting on the active
+        /// session - this is the shape every synchronous tool handler still calls.</summary>
+        private void AdoptTransformedFile(string transformedPath, string statusMsg) =>
+            AdoptTransformedFile(_s, transformedPath, statusMsg);
+
+        /// <summary>
+        /// Swaps in a transformed file as the working document of <paramref name="target"/>. Long
+        /// operations (compress, OCR, redact, straighten, form OCR) pin <c>var session = _s;</c>
+        /// before their first await and pass it here as <paramref name="target"/>, so the result
+        /// always lands in the document that started the operation even though tab switching is
+        /// refused for the whole run (Task 7) and <c>_s</c> cannot actually have moved.
+        /// <para>When <paramref name="target"/> is not the active session, no UI is touched (no
+        /// bind, no status text, no dirty-colour repaint) - only the tab strip's dirty dot updates.</para>
+        /// </summary>
+        private void AdoptTransformedFile(DocumentSession target, string workingPath, string statusMsg)
         {
-            string display = _originalFile ?? transformedPath;
-            if (_doc is not null) { _doc.Close(); _doc = null; }
-            _doc = PdfReader.Open(transformedPath, PdfDocumentOpenMode.Modify);
-            FinishOpenFile(display, transformedPath);
-            MarkDirty(true); // working copy lives in temp — user must Save As
-            SetStatus(statusMsg);
+            bool wasProtected = target.OpenedProtected;   // a decrypted working copy either way; must survive the reset
+            // An untitled document (no real file yet) stays untitled: falling back to the temp
+            // working path here renamed its tab to "scalpel_p..._sanitized_....pdf" and pointed
+            // Save at that temp file, which is deleted when the app exits.
+            string? display = target.OriginalPath;
+            bool isActive = ReferenceEquals(target, _s);
+
+            if (isActive)
+            {
+                // Same as OpenFile: tiles still streaming for the old pages must not paint over the new.
+                try { _continuousRenderCts?.Cancel(); _secondaryRenderCts?.Cancel(); } catch { }
+            }
+            try { target.Doc?.Close(); } catch { }
+            target.Doc = PdfReader.Open(workingPath, PdfDocumentOpenMode.Modify);
+            // New content in the SAME session (and tab): no recent-list entry, no new tab.
+            target.WorkingPath = workingPath;
+            target.OriginalPath = display;
+            ResetSessionContent(target);
+            target.OpenedProtected = wasProtected;
+            target.HasFormFields = DocumentHasFormFieldsIn(target.Doc);
+            target.IsDirty = true;   // working copy lives in temp — user must Save As
+
+            if (isActive)
+            {
+                BindSessionToUi(target, newContent: true);
+                SetStatus(statusMsg);
+            }
+            RefreshTabStrip();
+
+            Scalpel.Services.Logger.Info("File", "adopt.success", "Tool output adopted as the working copy",
+                new { path = display ?? workingPath, pages = target.Doc.PageCount });
+        }
+
+        /// <summary>
+        /// Puts text on the clipboard, riding out another process holding it open.
+        /// <para>Clipboard.SetText already retries internally (WPF's OleSetClipboard loop sleeps the
+        /// calling UI thread up to about a second), but clipboard history, a remote-desktop clipboard
+        /// monitor or an automation tool can keep the clipboard longer than that; the OCR result was
+        /// then lost behind an "OCR failed: OpenClipboard failed (CLIPBRD_E_CANT_OPEN)" dialog. One
+        /// more attempt after a short delay; the last failure is rethrown so the caller still reports it.</para>
+        /// </summary>
+        private static async Task SetClipboardTextAsync(string text)
+        {
+            const int ClipboardCantOpen = unchecked((int)0x800401D0);   // CLIPBRD_E_CANT_OPEN
+            for (int attempt = 1; ; attempt++)
+            {
+                try { Clipboard.SetText(text); return; }
+                catch (System.Runtime.InteropServices.COMException ex)
+                    when (ex.HResult == ClipboardCantOpen && attempt < 2)
+                {
+                    await Task.Delay(250);
+                }
+            }
         }
 
         private bool RequireOpenDoc()
@@ -306,7 +375,7 @@ namespace Scalpel
 
             RunFileTransform("Applying numbering…", src =>
             {
-                var outPath = App.MakeTempFile("numbered");
+                var outPath = App.MakeTempFile("numbered", _s.Id);
                 BatesNumberingService.StampFile(src, outPath, opts);
                 return outPath;
             }, "Numbering applied.");
@@ -337,7 +406,12 @@ namespace Scalpel
                     Filter = "Images|*.png;*.jpg;*.jpeg;*.bmp;*.gif|All files|*.*",
                     Title = "Choose an image to stamp",
                 };
-                if (ofd.ShowDialog(this) == true) imagePath = ofd.FileName;
+                SeedPickerFolder(ofd, Scalpel.Services.LastFolders.Stamp);
+                if (ofd.ShowDialog(this) == true)
+                {
+                    imagePath = ofd.FileName;
+                    RememberPickerFolder(Scalpel.Services.LastFolders.Stamp, ofd.FileName);
+                }
             }
 
             if (string.IsNullOrWhiteSpace(text.Value) && string.IsNullOrEmpty(imagePath))
@@ -358,7 +432,7 @@ namespace Scalpel
 
             RunFileTransform("Applying watermark…", src =>
             {
-                var outPath = App.MakeTempFile("watermarked");
+                var outPath = App.MakeTempFile("watermarked", _s.Id);
                 WatermarkService.ApplyFile(src, outPath, opts);
                 return outPath;
             }, "Watermark applied.");
@@ -414,7 +488,7 @@ namespace Scalpel
 
             RunFileTransform(Loc("Str_Tf_Working"), src =>
             {
-                var outPath = App.MakeTempFile("transformed");
+                var outPath = App.MakeTempFile("transformed", _s.Id);
                 TransformService.ApplyFile(src, outPath, opts);
                 return outPath;
             }, Loc("Str_Tf_Done"));
@@ -459,6 +533,9 @@ namespace Scalpel
             if (!string.IsNullOrEmpty(_originalFile))
                 dlg.FileName = System.IO.Path.GetFileNameWithoutExtension(_originalFile) + "-protected.pdf";
             if (dlg.ShowDialog(this) != true) return;
+            // Guarantee the extension: these dialogs have no AddExtension, so a typed name
+            // with no ".pdf" was saved without one and would not reopen in Scalpel.
+            dlg.FileName = ChosenPath(dlg, "pdf");
 
             try
             {
@@ -555,7 +632,9 @@ namespace Scalpel
                     Filter = "Certificate files|*.pfx;*.p12|All files|*.*",
                     Title = Loc("Str_Sign_PickCert"),
                 };
+                SeedPickerFolder(ofd, Scalpel.Services.LastFolders.Certificate);
                 if (ofd.ShowDialog(this) != true) return;
+                RememberPickerFolder(Scalpel.Services.LastFolders.Certificate, ofd.FileName);
                 var pw = new ToolField(Loc("Str_Sign_Password"), ToolFieldKind.Password);
                 if (!ShowToolForm(Loc("Str_Tool_Sign"), new[] { pw }, Loc("Str_Sign_Apply"))) return;
                 pfxPath = ofd.FileName; pfxPassword = pw.Value;
@@ -570,6 +649,9 @@ namespace Scalpel
             if (!string.IsNullOrEmpty(_originalFile))
                 dlg.FileName = System.IO.Path.GetFileNameWithoutExtension(_originalFile) + "-signed.pdf";
             if (dlg.ShowDialog(this) != true) return;
+            // Guarantee the extension: these dialogs have no AddExtension, so a typed name
+            // with no ".pdf" was saved without one and would not reopen in Scalpel.
+            dlg.FileName = ChosenPath(dlg, "pdf");
 
             // Sign the already-saved bytes by appending an incremental update — the document is
             // NOT re-serialized, so the signed /ByteRange stays valid. Written straight to the
@@ -619,7 +701,7 @@ namespace Scalpel
 
             RunFileTransform("Removing metadata…", src =>
             {
-                var outPath = App.MakeTempFile("sanitized");
+                var outPath = App.MakeTempFile("sanitized", _s.Id);
                 MetadataSanitizer.SanitizeFile(src, outPath);
                 return outPath;
             }, "Metadata removed.");
@@ -643,13 +725,18 @@ namespace Scalpel
                 _ => CompressionOptions.Medium,
             };
 
+            // Pinned before the first await: the result must land back in the document that
+            // started the compression even though tab switching is refused for the whole run.
+            var session = _s;
+            using var op = _longOps.Begin();
+
             // Whole flow inside one try so any managed failure (building the working copy, the
             // native rasterization, or adopting the result) shows a dialog instead of crashing.
-            string outPath = App.MakeTempFile("compressed");
+            string outPath = App.MakeTempFile("compressed", session.Id);
             SetStatus("Compressing…");
             try
             {
-                string src = BuildWorkingSourceFile();
+                string src = BuildWorkingSourceFile(session.Id);
                 long before = SafeLen(src);
                 await Task.Run(() =>
                 {
@@ -657,7 +744,7 @@ namespace Scalpel
                     PdfCompressionService.Compress(rasterizer, opts, outPath);
                 });
                 long after = SafeLen(outPath);
-                AdoptTransformedFile(outPath,
+                AdoptTransformedFile(session, outPath,
                     $"Compressed {FmtSize(before)} → {FmtSize(after)} ({Pct(before, after)}). Text is now image-based.");
             }
             catch (Exception ex)
@@ -709,11 +796,18 @@ namespace Scalpel
         private async void ToolsOcr_Click(object sender, RoutedEventArgs e)
         {
             if (!RequireOpenDoc()) return;
+
+            // Pinned before the first await (including the OCR-data download EnsureOcrReady may
+            // run): the result must land back in the document that started OCR even though tab
+            // switching is refused for the whole run.
+            var session = _s;
+            using var op = _longOps.Begin();
+
             var r = await EnsureOcrReady(); if (r is null) return;
 
             // Whole flow inside one try so any managed failure (building the working copy, the
             // native rasterization/OCR, or adopting the result) shows a dialog instead of crashing.
-            string outPath = App.MakeTempFile("ocr");
+            string outPath = App.MakeTempFile("ocr", session.Id);
             _ocrCts = new System.Threading.CancellationTokenSource();
             var token = _ocrCts.Token;
             OcrProgressText.Text = Loc("Str_Ocr_Progress_Starting");
@@ -721,7 +815,7 @@ namespace Scalpel
             SetStatus("Running OCR — making text searchable…");
             try
             {
-                string src = BuildWorkingSourceFile();
+                string src = BuildWorkingSourceFile(session.Id);
                 await Task.Run(() =>
                 {
                     using var rasterizer = new DocnetPageRasterizer(src, 2000);
@@ -732,7 +826,7 @@ namespace Scalpel
                         cancel: token);
                 }, token);
                 OcrProgressOverlay.Visibility = Visibility.Collapsed;
-                AdoptTransformedFile(outPath, "OCR complete — the document text is now selectable and searchable.");
+                AdoptTransformedFile(session, outPath, "OCR complete — the document text is now selectable and searchable.");
             }
             catch (OperationCanceledException)
             {
@@ -778,23 +872,53 @@ namespace Scalpel
         private async void ToolsOcrPageToClipboard_Click(object sender, RoutedEventArgs e)
         {
             if (!RequireOpenDoc()) return;
+
+            // Every selected page, in page order - a multi-page selection in the Pages panel now
+            // recognises the whole selection instead of only the page that happens to be current.
+            // Captured, along with the session, before the first await: EnsureOcrReady can itself
+            // await a tessdata download, during which a tab switch must not repoint this OCR run at
+            // a different document or a stale selection.
+            var session = _s;
+            using var op = _longOps.Begin();
+            var pages = PageList.SelectedItems.Count > 1
+                ? [.. PageList.SelectedItems.Cast<object>()
+                        .Select(o => PageList.Items.IndexOf(o))
+                        .Where(i => i >= 0)
+                        .OrderBy(i => i)]
+                : new System.Collections.Generic.List<int> { System.Math.Max(0, PageList.SelectedIndex) };
+            if (pages.Count == 0) return;
+
             var r = await EnsureOcrReady(); if (r is null) return;
-            int page = System.Math.Max(0, PageList.SelectedIndex);
+
             SetStatus("Running OCR…");
             try
             {
-                var src = App.MakeTempFile("ocrclip"); _doc!.Save(src);
+                var src = App.MakeTempFile("ocrclip", session.Id); Scalpel.Services.PdfSaveGuard.Save(session.Doc!, src);
+                var progress = new Progress<int>(done =>
+                    SetStatus(string.Format(Loc("Str_Ocr_Progress_Page"), done, pages.Count)));
                 string text = await Task.Run(() =>
                 {
                     using var rast = new DocnetPageRasterizer(src, 2000);
-                    var raster = rast.RenderPage(page);
-                    var (wPt, hPt) = rast.PageSizePt(page);
-                    var ocr = new TesseractCliOcrEngine(r.Value.exe, r.Value.tessdata, r.Value.lang)
-                        .Recognize(raster.ImageBytes, wPt, hPt);
-                    return OcrTextJoiner.Join(ocr.Words);
+                    var engine = new TesseractCliOcrEngine(r.Value.exe, r.Value.tessdata, r.Value.lang);
+                    var parts = new System.Collections.Generic.List<string>();
+                    for (int i = 0; i < pages.Count; i++)
+                    {
+                        ((IProgress<int>)progress).Report(i + 1);
+                        var raster = rast.RenderPage(pages[i]);
+                        var (wPt, hPt) = rast.PageSizePt(pages[i]);
+                        var ocr = engine.Recognize(raster.ImageBytes, wPt, hPt);
+                        var pageText = OcrTextJoiner.Join(ocr.Words);
+                        if (!string.IsNullOrWhiteSpace(pageText)) parts.Add(pageText);
+                    }
+                    return string.Join(Environment.NewLine + Environment.NewLine, parts);
                 });
-                if (string.IsNullOrWhiteSpace(text)) { SetStatus("No text recognized on this page"); return; }
-                Clipboard.SetText(text);
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    SetStatus(pages.Count > 1 ? "No text recognized on those pages"
+                                              : "No text recognized on this page");
+                    return;
+                }
+                await SetClipboardTextAsync(text);
                 SetStatus(Loc("Str_Ocr_Copied"));
             }
             catch (Exception ex)
@@ -829,10 +953,16 @@ namespace Scalpel
             if (_doc is null || pageIdx < 0 || pageIdx >= _doc.PageCount) return;
             if (!_renderDims.TryGetValue(pageIdx, out var dims)) return;
 
+            // Pinned before the first await: the region OCR must stay bound to the document (and
+            // its rotation/page geometry) that was on screen when the drag was made, even though
+            // EnsureOcrReady's possible tessdata download would otherwise let a tab switch happen.
+            var session = _s;
+            using var op = _longOps.Begin();
+
             var r = await EnsureOcrReady(); if (r is null) return;
 
-            _pageRotations.TryGetValue(pageIdx, out int rot);
-            var page = _doc.Pages[pageIdx];
+            session.PageRotations.TryGetValue(pageIdx, out int rot);
+            var page = session.Doc!.Pages[pageIdx];
             double pdfW = page.Width.Point, pdfH = page.Height.Point;
             var (x1, y1, x2, y2) = CanvasToPdfRect(canvasRect, pdfW, pdfH, dims.w, dims.h, rot);
             // Native top-left-origin fractions (PDF y is bottom-up; the raster is top-down).
@@ -844,7 +974,7 @@ namespace Scalpel
             SetStatus("Running OCR…");
             try
             {
-                var src = App.MakeTempFile("ocrregion"); _doc!.Save(src);
+                var src = App.MakeTempFile("ocrregion", session.Id); Scalpel.Services.PdfSaveGuard.Save(session.Doc!, src);
                 string text = await Task.Run(() =>
                 {
                     using var rast = new DocnetPageRasterizer(src, 3000);
@@ -852,7 +982,7 @@ namespace Scalpel
                     return OcrService.RecognizeRegionText(rast, engine, pageIdx, fracX, fracY, fracW, fracH, rot);
                 });
                 if (string.IsNullOrWhiteSpace(text)) { SetStatus(Loc("Str_Ocr_RegionEmpty")); return; }
-                Clipboard.SetText(text);
+                await SetClipboardTextAsync(text);
                 SetStatus(Loc("Str_Ocr_Copied"));
             }
             catch (Exception ex)
@@ -865,14 +995,23 @@ namespace Scalpel
         private async void ToolsOcrExtractText_Click(object sender, RoutedEventArgs e)
         {
             if (!RequireOpenDoc()) return;
+
+            // Pinned before the first await: extraction must read the document that was open when
+            // the user invoked it, even though EnsureOcrReady's possible tessdata download would
+            // otherwise let a tab switch happen first.
+            var session = _s;
+            using var op = _longOps.Begin();
+
             var r = await EnsureOcrReady(); if (r is null) return;
             var dlg = new SaveFileDialog { Filter = "Text|*.txt|Markdown|*.md", FileName = "extracted-text.txt" };
             if (dlg.ShowDialog() != true) return;
-            string outPath = dlg.FileName;
+            // Two formats are on offer here, so the chosen filter decides the extension and a name
+            // that already carries one is left alone - forcing .txt would rename "notes.md".
+            string outPath = ChosenPath(dlg, dlg.FilterIndex == 2 ? "md" : "txt", requireExtension: false);
             bool md = outPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase);
             try
             {
-                var src = App.MakeTempFile("ocrtxt"); _doc!.Save(src);
+                var src = App.MakeTempFile("ocrtxt", session.Id); Scalpel.Services.PdfSaveGuard.Save(session.Doc!, src);
                 await Task.Run(() =>
                 {
                     using var rast = new DocnetPageRasterizer(src, 2000);
@@ -896,6 +1035,168 @@ namespace Scalpel
                 Scalpel.Services.Logger.Error("Tools", "ocr.extract.fail", ex.Message, ex);
                 ScalpelDialog.Show(this, $"OCR failed:\n{ex.Message}", "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Tools > Comments: lists the notes a reviewer left in the PDF. Scalpel paints these
+        /// annotations onto the page, but a sticky note only shows its icon, so the words
+        /// themselves need somewhere to be read.
+        /// </summary>
+        private void ToolsComments_Click(object sender, RoutedEventArgs e)
+        {
+            if (!RequireOpenDoc()) return;
+            try
+            {
+                var comments = Scalpel.Services.PdfComments.Read(_doc!);
+                if (comments.Count == 0)
+                {
+                    ScalpelDialog.Show(this, Loc("Str_Comments_None"), Loc("Str_Tool_Comments"));
+                    return;
+                }
+
+                var editor = new CommentsWindow(this, comments, Loc);
+                if (editor.ShowDialog() != true || editor.Result.Count == 0)
+                {
+                    SetStatus(string.Format(Loc("Str_Comments_Summary"), comments.Count));
+                    return;
+                }
+
+                ApplyCommentEdits(editor.Result);
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Tools", "comments.fail", ex.Message, ex);
+                ScalpelDialog.Show(this, ex.Message, Loc("Str_Tool_Comments"),
+                                   MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Writes accepted comment edits into the open document.
+        /// <para>Deletions are handed to the service in one batch on purpose: removing an
+        /// annotation shifts the index of every later one on that page, so applying them one call
+        /// at a time would hit the wrong annotation after the first.</para>
+        /// </summary>
+        private void ApplyCommentEdits(
+            IReadOnlyList<(Scalpel.Services.PdfComment Comment, string Text, string Author, bool Deleted)> edits)
+        {
+            PushDocUndo();
+
+            int edited = 0;
+            foreach (var change in edits.Where(c => !c.Deleted))
+            {
+                bool wrote = false;
+                if (!string.Equals(change.Text, change.Comment.Contents, StringComparison.Ordinal))
+                    wrote |= Scalpel.Services.PdfComments.UpdateContents(_doc!, change.Comment, change.Text);
+                if (!string.Equals(change.Author, change.Comment.Author, StringComparison.Ordinal))
+                    wrote |= Scalpel.Services.PdfComments.UpdateAuthor(_doc!, change.Comment, change.Author);
+                if (wrote) edited++;
+            }
+
+            int removed = Scalpel.Services.PdfComments.Delete(
+                _doc!, edits.Where(c => c.Deleted).Select(c => c.Comment));
+
+            if (edited == 0 && removed == 0)
+            {
+                SetStatus(Loc("Str_Cmt_NoChange"));
+                return;
+            }
+
+            MarkDirty(true);
+            // The page raster carries the annotations, so it has to be redrawn for the edit to be
+            // visible rather than only stored.
+            SaveTempAndReload(keepAnnotations: true);
+            SetStatus(string.Format(Loc("Str_Cmt_Applied"), edited, removed));
+            Scalpel.Services.Logger.Info("Tools", "comments.edited", "Comments edited",
+                                         new { edited, removed });
+        }
+
+        /// <summary>
+        /// Tools > Preflight: checks the open document for the things that go wrong once it
+        /// leaves this machine - pages other readers refuse, images that will print blurry,
+        /// fonts the recipient does not have - and shows the findings.
+        /// </summary>
+        private void ToolsPreflight_Click(object sender, RoutedEventArgs e)
+        {
+            if (!RequireOpenDoc()) return;
+
+            // Preflight reads from disk, so make sure what is on disk matches what is on screen.
+            CommitActiveTextBox();
+            string target;
+            try
+            {
+                target = App.MakeTempFile("preflight", _s.Id);
+                WriteFormValuesToDocument();
+                Scalpel.Services.PdfSaveGuard.Save(_doc!, target);
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Tools", "preflight.snapshot.fail", ex.Message, ex);
+                ScalpelDialog.Show(this, string.Format(Loc("Str_Preflight_Failed"), ex.Message),
+                                   Loc("Str_Tool_Preflight"), MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            Scalpel.Services.PreflightReport report;
+            try
+            {
+                SetStatus(Loc("Str_Preflight_Running"));
+                report = Scalpel.Services.PreflightService.Inspect(target);
+            }
+            catch (Exception ex)
+            {
+                Scalpel.Services.Logger.Error("Tools", "preflight.fail", ex.Message, ex);
+                ScalpelDialog.Show(this, string.Format(Loc("Str_Preflight_Failed"), ex.Message),
+                                   Loc("Str_Tool_Preflight"), MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            SetStatus(string.Format(Loc("Str_Preflight_Done"), report.ProblemCount, report.WarningCount));
+            ScalpelDialog.Show(this, FormatPreflight(report), Loc("Str_Tool_Preflight"),
+                               MessageBoxButton.OK,
+                               report.ProblemCount > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+        }
+
+        /// <summary>Renders a preflight report as the plain text the dialog shows.</summary>
+        private string FormatPreflight(Scalpel.Services.PreflightReport report)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine(string.Format(Loc("Str_Preflight_Summary"),
+                report.PageCount, report.ProblemCount, report.WarningCount));
+
+            if (report.Findings.Count == 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine(Loc("Str_Preflight_Clean"));
+                return sb.ToString();
+            }
+
+            // Worst first, so the things that actually break are read before the notes.
+            foreach (var group in report.Findings
+                         .OrderByDescending(f => (int)f.Severity)
+                         .GroupBy(f => f.Severity))
+            {
+                sb.AppendLine();
+                sb.AppendLine(group.Key switch
+                {
+                    Scalpel.Services.PreflightSeverity.Problem => Loc("Str_Preflight_Problems"),
+                    Scalpel.Services.PreflightSeverity.Warning => Loc("Str_Preflight_Warnings"),
+                    _ => Loc("Str_Preflight_Notes"),
+                });
+                foreach (var f in group)
+                {
+                    sb.Append("  - [").Append(f.Category).Append("] ").Append(f.Message);
+                    if (f.Pages.Count > 0)
+                    {
+                        sb.Append("  (").Append(Loc("Str_Preflight_PagesLabel")).Append(' ');
+                        sb.Append(string.Join(", ", f.Pages.Take(12)));
+                        if (f.Pages.Count > 12) sb.Append(", ...");
+                        sb.Append(')');
+                    }
+                    sb.AppendLine();
+                }
+            }
+            return sb.ToString();
         }
 
         private async void ToolsRedact_Click(object sender, RoutedEventArgs e)
@@ -943,17 +1244,22 @@ namespace Scalpel
             // instead of an unhandled exception (which would crash the app). NOTE: a true native
             // AccessViolation inside pdfium still can't be caught here (see App.xaml.cs crash notes),
             // but capping the render size keeps memory bounded so we don't provoke one.
-            string outPath = App.MakeTempFile("redacted");
+            // Pinned before the first await: the result must land back in the document that
+            // started the redaction even though tab switching is refused for the whole run.
+            var session = _s;
+            using var op = _longOps.Begin();
+
+            string outPath = App.MakeTempFile("redacted", session.Id);
             SetStatus("Redacting…");
             try
             {
-                string src = BuildWorkingSourceFile();
+                string src = BuildWorkingSourceFile(session.Id);
                 await Task.Run(() =>
                 {
                     using var rasterizer = new DocnetPageRasterizer(src, 2200);
                     RedactionService.Redact(src, rasterizer, rects, outPath);
                 });
-                AdoptTransformedFile(outPath,
+                AdoptTransformedFile(session, outPath,
                     $"Redacted {rects.Count} area(s) — affected pages are now flattened images.");
             }
             catch (Exception ex)

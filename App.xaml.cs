@@ -84,7 +84,10 @@ namespace Scalpel
 
             base.OnStartup(e);
 
+            Scalpel.Services.StartupTrace.Mark("startup.begin");
+
             if (!CheckPdfiumIntegrity()) { Shutdown(2); return; }
+            Scalpel.Services.StartupTrace.Mark("pdfium.verified");
 
             // Handle uninstall flag (called by Add/Remove Programs). Check the full raw
             // command line (not just e.Args[0]) so it works regardless of how the shell
@@ -148,8 +151,10 @@ namespace Scalpel
                 }
             }
 
+            Scalpel.Services.StartupTrace.Mark("single-instance.resolved");
             ShutdownMode = ShutdownMode.OnLastWindowClose;
             CleanupStaleTemps();
+            Scalpel.Services.StartupTrace.Mark("temps.swept");
 
             // Logging is on by default; "0" disables it.
             bool loggingEnabled = GetSetting("LoggingEnabled") != "0";
@@ -166,7 +171,25 @@ namespace Scalpel
                 new { packaged = IsPackaged() });
 
             ThemeManager.Initialize();
+            // --lang-file <path> runs the app against a translation file on disk, so a translator
+            // can see their strings in place without a rebuild. Read before Initialize, which is
+            // what applies the dictionaries.
+            try
+            {
+                var cmdArgs = Environment.GetCommandLineArgs();
+                for (int i = 1; i < cmdArgs.Length - 1; i++)
+                {
+                    if (!cmdArgs[i].Equals("--lang-file", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (!LocaleManager.TrySetOverrideFile(cmdArgs[i + 1]))
+                        Scalpel.Services.Logger.Warn("Locale", "langfile.missing",
+                            "--lang-file path could not be read", new { path = cmdArgs[i + 1] });
+                    break;
+                }
+            }
+            catch { }   // never let a command-line quirk stop startup
+
             LocaleManager.Initialize();
+            Scalpel.Services.StartupTrace.Mark("theme+locale.applied");
             RegisterPdfFonts();
             new MainWindow().Show();
         }
@@ -288,18 +311,49 @@ namespace Scalpel
         // NOTE: AccessViolationException is not catchable on .NET 4.8 without
         // [HandleProcessCorruptedStateExceptions], which we deliberately omit.
 
+        /// <summary>Guards against stacking dialogs when a fault repeats every render pass.</summary>
+        private int _recoverableDialogOpen;
+
         private void OnDispatcherException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             Scalpel.Services.Logger.Error("Error", "crash.dispatcher", e.Exception.Message, e.Exception);
             Scalpel.Services.Logger.Flush();
             var logPath = CrashReporter.Capture(e.Exception, "Dispatcher");
-            bool cont   = ShowCrashDialog(e.Exception, logPath, isFatal: false);
-            e.Handled   = true; // always handle; we manage the exit ourselves
-            if (!cont)
+            e.Handled = true; // always handle; we manage the exit ourselves
+            QueueRecoverableCrashDialog(e.Exception, logPath);
+        }
+
+        /// <summary>
+        /// Shows the recoverable crash dialog once the dispatcher is idle, and only one at a
+        /// time. A fault that repeats on every render used to open a dialog per occurrence,
+        /// burying the window under prompts the user could not dismiss fast enough.
+        /// </summary>
+        private void QueueRecoverableCrashDialog(Exception ex, string? logPath)
+        {
+            if (System.Threading.Interlocked.Exchange(ref _recoverableDialogOpen, 1) == 1) return;
+            try
             {
-                CleanupSessionTemps();
-                Shutdown(1);
+                if (Dispatcher is null || Dispatcher.HasShutdownStarted)
+                {
+                    System.Threading.Interlocked.Exchange(ref _recoverableDialogOpen, 0);
+                    return;
+                }
+                Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+                {
+                    try
+                    {
+                        bool cont = ShowCrashDialog(ex, logPath, isFatal: false);
+                        if (!cont)
+                        {
+                            CleanupSessionTemps();
+                            Shutdown(1);
+                        }
+                    }
+                    catch { }
+                    finally { System.Threading.Interlocked.Exchange(ref _recoverableDialogOpen, 0); }
+                }));
             }
+            catch { System.Threading.Interlocked.Exchange(ref _recoverableDialogOpen, 0); }
         }
 
         private void OnDomainException(object sender, UnhandledExceptionEventArgs e)
@@ -325,18 +379,15 @@ namespace Scalpel
 
         private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
         {
+            // A background task fault that nobody awaited. The app is still healthy - the work
+            // simply never completed - so this is logged for diagnostics but never surfaced as a
+            // crash dialog: there is no operation left for a Continue/Quit choice to recover, and
+            // a repeating fault (e.g. a render loop) would otherwise stack dialogs at the user.
             e.SetObserved(); // prevent process teardown
-            Scalpel.Services.Logger.Error("Error", "crash.task", e.Exception.Message, e.Exception);
+            var flat = e.Exception.Flatten();
+            Scalpel.Services.Logger.Error("Error", "crash.task.observed", flat.Message, flat);
             Scalpel.Services.Logger.Flush();
-            var logPath = CrashReporter.Capture(e.Exception, "TaskScheduler");
-
-            try
-            {
-                if (Dispatcher != null && !Dispatcher.HasShutdownStarted)
-                    Dispatcher.BeginInvoke(new Action(
-                        () => ShowCrashDialog(e.Exception, logPath, isFatal: false)));
-            }
-            catch { /* best-effort */ }
+            CrashReporter.Capture(flat, "TaskScheduler (observed background fault)");
         }
 
         /// <summary>
@@ -763,6 +814,12 @@ namespace Scalpel
 
         private static readonly List<string> _sessionTemps = [];
 
+        /// <summary>Per-tab ownership of temp files, keyed by <c>DocumentSession.Id</c>. A tab's
+        /// files are deleted immediately when it closes (<see cref="ReleaseTempFiles"/>) instead of
+        /// waiting for exit; the exit sweep in <see cref="CleanupSessionTemps"/> stays as the
+        /// backstop for anything left un-owned (see R14 in the task-9 report).</summary>
+        private static readonly System.Collections.Generic.Dictionary<Guid, List<string>> _ownedTemps = [];
+
         /// <summary>
         /// Creates a tracked temp path of the form scalpel_&lt;tag&gt;_&lt;guid&gt;.pdf
         /// under %LOCALAPPDATA%\Scalpel\Temp\.
@@ -776,6 +833,35 @@ namespace Scalpel
             var path = Path.Combine(TempDir, Scalpel.Services.TempSweep.MakeName(Process.GetCurrentProcess().Id, tag, Guid.NewGuid()));
             lock (_sessionTemps) _sessionTemps.Add(path);
             return path;
+        }
+
+        /// <summary>Same as <see cref="MakeTempFile(string)"/>, but the file is also recorded as
+        /// owned by <paramref name="owner"/> (a tab's <c>DocumentSession.Id</c>) so it can be
+        /// deleted the moment that tab closes instead of waiting for the exit sweep.</summary>
+        internal static string MakeTempFile(string tag, Guid owner)
+        {
+            var path = MakeTempFile(tag);
+            lock (_sessionTemps)
+            {
+                if (!_ownedTemps.TryGetValue(owner, out var list)) _ownedTemps[owner] = list = [];
+                list.Add(path);
+            }
+            return path;
+        }
+
+        /// <summary>Deletes the temp files a closed tab created (best-effort) and stops tracking
+        /// them for the exit sweep. Call once a tab's <c>Doc</c> has already been closed - never
+        /// delete a temp file that is still some other live session's WorkingPath.</summary>
+        internal static void ReleaseTempFiles(Guid owner)
+        {
+            List<string>? list;
+            lock (_sessionTemps)
+            {
+                if (!_ownedTemps.TryGetValue(owner, out list)) return;
+                _ownedTemps.Remove(owner);
+                foreach (var f in list) _sessionTemps.Remove(f);
+            }
+            foreach (var f in list) { try { File.Delete(f); } catch { } }
         }
 
         /// <summary>Deletes all temp files registered this session (best-effort).</summary>
@@ -846,8 +932,17 @@ namespace Scalpel
         internal static System.Collections.Generic.List<string> GetRecentFiles() =>
             Scalpel.Services.RecentFiles.Parse(GetSetting("RecentFiles"));
 
+        /// <summary>Setting name for the recent-files privacy toggle.</summary>
+        internal const string NoRecentFilesSetting = "NoRecentFiles";
+
+        /// <summary>True when the user has asked Scalpel not to remember opened documents.</summary>
+        internal static bool RecentFilesDisabled => GetSetting(NoRecentFilesSetting) == "1";
+
         internal static void AddRecentFile(string path)
         {
+            // On a shared machine the list of documents someone opened is itself sensitive, so
+            // this is an explicit opt-out rather than something buried in a history file.
+            if (RecentFilesDisabled) return;
             try { SetSetting("RecentFiles", Scalpel.Services.RecentFiles.Serialize(
                 Scalpel.Services.RecentFiles.Add(GetRecentFiles(), path))); }
             catch { }

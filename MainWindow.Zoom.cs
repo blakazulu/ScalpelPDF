@@ -26,6 +26,66 @@ namespace Scalpel
         // Zoom
         // ============================================================
 
+        // ── Touch pinch zoom ────────────────────────────────────────────────
+        //
+        // Touchscreens and precision touchpads raise manipulation events rather than wheel
+        // events, so pinching used to do nothing at all. The maths (clamp the zoom first, then
+        // offset by the scale actually applied, so hitting a zoom limit never makes the page
+        // jump) lives in Services/PinchZoomMath.cs.
+
+        private void PagePreview_ManipulationStarting(object sender, ManipulationStartingEventArgs e)
+        {
+            // Report deltas against the viewport, which is the frame the scroll offsets use.
+            e.ManipulationContainer = PagePreviewPanel;
+            e.Mode = ManipulationModes.Scale | ManipulationModes.Translate;
+            e.Handled = true;
+        }
+
+        private void PagePreview_ManipulationDelta(object sender, ManipulationDeltaEventArgs e)
+        {
+            try
+            {
+                double scale = e.DeltaManipulation.Scale.X;
+                if (scale <= 0 || Math.Abs(scale - 1.0) < 0.0001)
+                {
+                    // A pure drag: pan the page instead of fighting the ScrollViewer for it.
+                    var t = e.DeltaManipulation.Translation;
+                    if (Math.Abs(t.X) > 0.01 || Math.Abs(t.Y) > 0.01)
+                    {
+                        PagePreviewPanel.ScrollToHorizontalOffset(
+                            Math.Max(0, PagePreviewPanel.HorizontalOffset - t.X));
+                        PagePreviewPanel.ScrollToVerticalOffset(
+                            Math.Max(0, PagePreviewPanel.VerticalOffset - t.Y));
+                        e.Handled = true;
+                    }
+                    return;
+                }
+
+                e.Handled = true;
+                if (_viewMode == ViewMode.Grid) { GridZoomStep(scale < 1); return; }
+
+                Point origin = e.ManipulationOrigin;
+                var result = Scalpel.Services.PinchZoomMath.Apply(
+                    _zoomLevel, scale, ZoomMin, ZoomMax,
+                    PagePreviewPanel.HorizontalOffset, PagePreviewPanel.VerticalOffset,
+                    origin.X, origin.Y);
+
+                SetZoom(result.Zoom);
+                int restore = _zoomRestoreGate.Begin();
+                int gen = _sessionGeneration;
+                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)(() =>
+                {
+                    if (IsStale(gen)) return;   // another document is shown now
+                    // A newer pinch step supersedes this one; applying a stale offset would
+                    // snap the page back mid-gesture.
+                    if (!_zoomRestoreGate.IsCurrent(restore)) return;
+                    PagePreviewPanel.ScrollToHorizontalOffset(result.HorizontalOffset);
+                    PagePreviewPanel.ScrollToVerticalOffset(result.VerticalOffset);
+                }));
+            }
+            catch { }   // a gesture must never take the window down
+        }
+
         private void PagePreview_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -40,18 +100,41 @@ namespace Scalpel
                 double oldHOff = PagePreviewPanel.HorizontalOffset;
                 double oldVOff = PagePreviewPanel.VerticalOffset;
 
-                SetZoom(e.Delta > 0 ? _zoomLevel + ZoomStep : _zoomLevel - ZoomStep);
+                // One geared notch (120) is a constant 10% ratio, so zooming in then out returns
+                // to the original level. Precision touchpads send small deltas: those accumulate
+                // so the view glides proportionally instead of jumping a whole notch each event.
+                _zoomWheelRemainder += e.Delta / 120.0;
+                double notches = _zoomWheelRemainder;
+                if (Math.Abs(notches) < 0.01) return;
+                _zoomWheelRemainder = 0;
+                SetZoom(_zoomLevel * Math.Pow(1.10, notches));
 
                 // After layout settles, reposition the scroll so the cursor point stays fixed.
                 // Formula: newOffset = (oldOffset + cursorPos) * (newZoom / oldZoom) - cursorPos
                 double ratio   = _zoomLevel / oldZoom;
                 double newHOff = (oldHOff + cursorInViewport.X) * ratio - cursorInViewport.X;
                 double newVOff = (oldVOff + cursorInViewport.Y) * ratio - cursorInViewport.Y;
+                int restoreGen = _zoomRestoreGate.Begin();
+                int gen = _sessionGeneration;
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)(() =>
                 {
+                    if (IsStale(gen)) return;   // another document is shown now
+                    // Spinning the wheel fast queues several of these; only the last is right.
+                    if (!_zoomRestoreGate.IsCurrent(restoreGen)) return;
                     PagePreviewPanel.ScrollToHorizontalOffset(Math.Max(0, newHOff));
                     PagePreviewPanel.ScrollToVerticalOffset(Math.Max(0, newVOff));
                 }));
+                return;
+            }
+
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                // Shift+wheel scrolls a wide (zoomed) page sideways, the same gesture every
+                // browser and viewer uses.
+                e.Handled = true;
+                double step = -e.Delta / 120.0 * WheelScrollAmount();
+                PagePreviewPanel.ScrollToHorizontalOffset(
+                    Math.Max(0, PagePreviewPanel.HorizontalOffset + step));
                 return;
             }
 
@@ -64,7 +147,15 @@ namespace Scalpel
             if (PagePreviewPanel.ScrollableHeight <= 0 && _viewMode != ViewMode.Continuous)
             {
                 e.Handled = true;
-                NavigatePageByWheel(e.Delta);
+                // A page change needs one deliberate notch. Momentum left over from a fast scroll
+                // that just ran into the page edge must not fan through several pages.
+                if (_wheelFlipGate.TryConfirm(e.Delta, DateTime.UtcNow))
+                    NavigatePageByWheel(e.Delta);
+            }
+            else
+            {
+                // Real content scrolling: start the quiet period the gate honours.
+                _wheelFlipGate.NoteContentScroll(DateTime.UtcNow);
             }
             // Otherwise let the ScrollViewer scroll naturally.
         }
@@ -92,8 +183,11 @@ namespace Scalpel
             // calls ClearSecondaryPages (which wipes them).
             int applyIdx = PageList.SelectedIndex;
             if (applyIdx >= 0)
+            {
+                int gen = _sessionGeneration;
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                    () => RefreshPageView(applyIdx));
+                    () => { if (!IsStale(gen)) RefreshPageView(applyIdx); });
+            }
 
             // If the user has zoomed in far enough that the current bitmap would be
             // upscaled by more than 20%, queue a deferred re-render at higher resolution.
@@ -165,7 +259,8 @@ namespace Scalpel
             if (idx < 0 || idx >= _doc.PageCount) return 1.0;
             if (!_renderDims.TryGetValue(idx, out var d) || d.w <= 0) return 1.0;
             double wpt = _doc.Pages[idx].Width.Point, hpt = _doc.Pages[idx].Height.Point;
-            if (_pageRotations.TryGetValue(idx, out int r) && (r == 90 || r == 270)) wpt = hpt;
+            int r = RotationOf(idx);
+            if (r is 90 or 270) wpt = hpt;
             double naturalW = wpt * 96.0 / 72.0;
             if (naturalW <= 0) return 1.0;
             return d.w / naturalW;
@@ -180,6 +275,19 @@ namespace Scalpel
             SyncZoomBox();
             if (_doc != null && PageList.SelectedIndex >= 0)
                 SetStatus($"Page {PageList.SelectedIndex + 1} of {_doc.PageCount} - {DisplayZoomPct():F0}%");
+        }
+
+        /// <summary>
+        /// Sets a true 100% (Ctrl+0). The internal zoom scales the layout box, which
+        /// outside Continuous view is the render bitmap rather than the page's natural width, so
+        /// asking for 1.0 directly lands near 200%. Converting through DisplayZoomFactor makes
+        /// 100% mean 100% in Single, Two-Page and Grid as well.
+        /// </summary>
+        private void ZoomToActualSize()
+        {
+            if (_viewMode == ViewMode.Grid) { SetZoom(GridZoomForN(1)); return; }
+            double f = DisplayZoomFactor();
+            SetZoom(f > 0 ? 1.0 / f : 1.0);
         }
 
         private void ZoomIn_Click(object sender, RoutedEventArgs e)  { if (_viewMode == ViewMode.Grid) GridZoomStep(false); else SetZoom(_zoomLevel + ZoomStep); }

@@ -204,15 +204,32 @@ namespace Scalpel
             return false;
         }
 
+        /// <summary>
+        /// Removes an overlay from the canvas that actually holds it. <c>_activeCanvas</c> moves
+        /// as the user clicks between pages, so removing from it strands the visual on the page
+        /// where it was drawn - it then stayed on screen until the app was restarted.
+        /// </summary>
+        private static void RemoveFromOwner(UIElement? element)
+        {
+            if (element is null) return;
+            if (VisualTreeHelper.GetParent(element) is Canvas owner)
+            {
+                owner.Children.Remove(element);
+                return;
+            }
+            if (LogicalTreeHelper.GetParent(element) is Canvas logicalOwner)
+                logicalOwner.Children.Remove(element);
+        }
+
         private void ClearSelection()
         {
             if (_selectionBorder is not null)
             {
-                _activeCanvas.Children.Remove(_selectionBorder);
+                RemoveFromOwner(_selectionBorder);
                 _selectionBorder = null;
             }
             foreach (var hd in _resizeHandles)
-                _activeCanvas.Children.Remove(hd);
+                RemoveFromOwner(hd);
             _resizeHandles.Clear();
             _isResizingSig = false;
             _resizeSigAnnot = null;
@@ -289,7 +306,9 @@ namespace Scalpel
         {
             if (_selectRect is not null)
             {
-                _activeCanvas.Children.Remove(_selectRect);
+                // Added to _annotationCanvas by SelectAllText but to the page canvas by a drag,
+                // so it must be removed from whichever one owns it.
+                RemoveFromOwner(_selectRect);
                 _selectRect = null;
             }
             _selectedText = null;

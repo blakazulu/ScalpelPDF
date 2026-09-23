@@ -36,23 +36,32 @@ namespace Scalpel.Services
         }
 
         /// <summary>
+        /// Every argument that is an existing file, in order and without duplicates, plus whether
+        /// <c>/edit</c> appears anywhere. Each file opens as its own tab.
+        /// </summary>
+        public static (IReadOnlyList<string> files, bool edit) PickLaunchTargets(
+            IEnumerable<string> args, Func<string, bool> fileExists)
+        {
+            var files = new List<string>();
+            bool edit = false;
+            foreach (var a in args)
+            {
+                if (string.Equals(a, "/edit", StringComparison.OrdinalIgnoreCase)) { edit = true; continue; }
+                bool exists = false;
+                try { exists = fileExists(a); } catch { }
+                if (exists && !files.Exists(f => DocumentPath.Same(f, a))) files.Add(a);
+            }
+            return (files, edit);
+        }
+
+        /// <summary>
         /// Same rule the main window applies to its own command line: the first argument that
         /// is an existing file is the document to open; <c>/edit</c> anywhere requests Edit mode.
         /// </summary>
         public static (string? file, bool edit) PickLaunchTarget(IEnumerable<string> args, Func<string, bool> fileExists)
         {
-            string? file = null; bool edit = false;
-            foreach (var a in args)
-            {
-                if (string.Equals(a, "/edit", StringComparison.OrdinalIgnoreCase)) edit = true;
-                else if (file is null)
-                {
-                    bool exists = false;
-                    try { exists = fileExists(a); } catch { }
-                    if (exists) file = a;
-                }
-            }
-            return (file, edit);
+            var (files, edit) = PickLaunchTargets(args, fileExists);
+            return (files.Count > 0 ? files[0] : null, edit);
         }
     }
 

@@ -37,8 +37,9 @@ namespace Scalpel
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
-                if (files.Length > 0 && files[0].EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-                    OpenFile(files[0]);
+                // Non-PDF entries (including a folder dropped alongside files) are ignored by
+                // OpenManyInTabs's own filter; each remaining PDF gets its own tab.
+                OpenManyInTabs(files);
             }
         }
 

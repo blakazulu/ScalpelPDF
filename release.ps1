@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     Scalpel release script: build → sign → verify → hash → update BuildInfo → publish summary.
@@ -112,6 +112,7 @@ if ($SkipSign) {
     Write-Host "    SkipSign: BuildInfo.cs will keep all-zeros (check disabled)." -ForegroundColor Yellow
 }
 
+$releaseDate = [DateTime]::UtcNow.ToString("yyyy-MM-dd")
 Write-Host "`n==> Writing BuildInfo.cs..." -ForegroundColor Cyan
 $buildInfoContent = @"
 namespace Scalpel
@@ -129,6 +130,12 @@ namespace Scalpel
         internal const string PdfiumSha256 = "$pdfiumHash";
 
         internal const string PdfiumSha256Disabled = "0000000000000000000000000000000000000000000000000000000000000000";
+
+        /// <summary>
+        /// The release date (yyyy-MM-dd, UTC), written by release.ps1. Empty in a dev build, in
+        /// which case About falls back to the executable's own timestamp.
+        /// </summary>
+        internal const string ReleaseDate = "$releaseDate";
     }
 }
 "@

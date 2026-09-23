@@ -152,6 +152,34 @@ namespace Scalpel.Services
             ("ara",     "Arabic"),
             ("heb",     "Hebrew"),
             ("hin",     "Hindi"),
+            ("ben",     "Bengali"),
+            ("tur",     "Turkish"),
+            ("ces",     "Czech"),
+            ("hun",     "Hungarian"),
+            ("kaz",     "Kazakh"),
+            ("pol",     "Polish"),
         };
+
+        /// <summary>
+        /// Interface locale to OCR model. Every language Scalpel's UI ships in has a matching
+        /// recognition model, so a user who reads the app in their language can also OCR in it.
+        /// </summary>
+        public static readonly System.Collections.Generic.Dictionary<string, string> LocaleToCode =
+            new(System.StringComparer.OrdinalIgnoreCase)
+            {
+                ["en-US"] = "eng",
+                ["es"]    = "spa",
+                ["zh-TW"] = "chi_tra",
+                ["zh-CN"] = "chi_sim",
+                ["bn"]    = "ben",
+                ["tr-TR"] = "tur",
+                ["he"]    = "heb",
+                ["ar"]    = "ara",
+                ["ru"]    = "rus",
+            };
+
+        /// <summary>The OCR model that matches an interface locale, or English.</summary>
+        public static string CodeForLocale(string? localeTag)
+            => localeTag is not null && LocaleToCode.TryGetValue(localeTag, out var code) ? code : "eng";
     }
 }

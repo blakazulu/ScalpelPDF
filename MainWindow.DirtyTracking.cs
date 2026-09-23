@@ -28,6 +28,7 @@ namespace Scalpel
 
         private void MarkDirty(bool dirty = true)
         {
+            bool changed = _isDirty != dirty;
             _isDirty = dirty;
             if (_saveAsBtnRef != null)
             {
@@ -35,44 +36,29 @@ namespace Scalpel
                     ? new SolidColorBrush(Color.FromRgb(0xff, 0xa5, 0x00)) // orange = unsaved
                     : (SolidColorBrush)FindResource("Accent");
             }
+            // The active tab's unsaved marker follows the document live.
+            if (changed) RefreshTabStrip();
         }
 
         // ============================================================
-        // Close file (Ctrl+W) — returns to drop-zone state
+        // Close file (Ctrl+W) - closes the active tab (MainWindow.Tabs.cs:CloseSession)
         // ============================================================
 
         private void CloseFile()
         {
             if (_doc is null) return;
-            // With multiple tabs open, the Close button / Ctrl+W closes just the active tab and
-            // moves to an adjacent one (CloseTab reuses this same method for the last tab). With
-            // 0 or 1 tab this guard is skipped, so single-document behavior is unchanged.
-            if (_openTabs.Count > 1 && _originalFile != null && _openTabs.Any(p => PathEq(p, _originalFile)))
-            {
-                CloseTab(_originalFile);
-                return;
-            }
-            if (_isDirty)
-            {
-                var res = ScalpelDialog.Show(this,
-                    Loc("Str_Dlg_UnsavedClose"),
-                    "Scalpel", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (res != MessageBoxResult.Yes) return;
-            }
-            _doc.Close();
-            _doc = null;
-            _currentFile = null;
+            CloseSession(_s);
+        }
+
+        /// <summary>
+        /// The window with no document: drop zone and recent list, every canvas, label and
+        /// sidebar cleared. UI only - the session model is owned by the tab list.
+        /// </summary>
+        private void ShowEmptyState()
+        {
+            _bindingSession = false;
             _activeTextBox = null;   // cancel any in-progress typewriter edit before canvas clear
-            _annotations.Clear();
-            _undoStack.Clear();
-            _renderDims.Clear();
-            _formTextValues.Clear();
-            _formCheckValues.Clear();
-            _formRadioValues.Clear();
-            _allSearchRects.Clear();
-            _searchResultPages.Clear();
-            _searchPageCursor = -1;
-            _thumbCts?.Cancel();
+            try { _thumbCts?.Cancel(); } catch { }
             PageList.ItemsSource = null;
             if (FindName("PageImage") is System.Windows.Controls.Image img) img.Source = null;
             _annotationCanvas.Children.Clear();
@@ -88,6 +74,8 @@ namespace Scalpel
             if (_closeFileBtnRef != null) _closeFileBtnRef.IsEnabled = false;
             _pageJumpBox.IsEnabled = false;
             _continuousRenderCts?.Cancel();
+            _secondaryRenderCts?.Cancel();
+            ClearSecondaryPages();
             _continuousPanel.Children.Clear();
             _continuousTops.Clear();
             _pageJumpBox.Text = "";
@@ -96,7 +84,6 @@ namespace Scalpel
             SidebarOutlinesTab.IsEnabled = false;
             if (_sidebarShowingOutlines) SwitchSidebarToPagesTab();
             MarkDirty(false);
-            _openTabs.Clear();
             RefreshTabStrip();
             SetStatus("Ready");
         }

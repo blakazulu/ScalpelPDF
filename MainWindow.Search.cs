@@ -27,40 +27,17 @@ namespace Scalpel
         // ============================================================
 
         /// <summary>
-        /// Converts a collection of PdfPig words to a properly ordered string.
-        /// Sorts top-to-bottom then left-to-right, groups into lines using a
-        /// dynamic threshold (~40% of average word height) so words at slightly
-        /// different baselines still land on the correct line.
+        /// Converts a collection of PdfPig words into text in reading order.
+        /// <para>Ordering is delegated to <see cref="Scalpel.Services.TextRunService"/>, which
+        /// groups words into lines by vertical overlap, then detects columns and emits one whole
+        /// column at a time. Sorting purely top-to-bottom then left-to-right - the obvious
+        /// approach - interleaves the two columns of a journal or contract line by line, so the
+        /// copied text is unusable. Each line also picks its own direction, so Hebrew and Arabic
+        /// come out in logical order rather than reversed.</para>
         /// </summary>
         private static string WordsToText(IEnumerable<UglyToad.PdfPig.Content.Word> source)
-        {
-            var words = source
-                .OrderByDescending(w => w.BoundingBox.Top)
-                .ThenBy(w => w.BoundingBox.Left)
-                .ToList();
-            if (words.Count == 0) return string.Empty;
-
-            // Dynamic threshold: 40% of average word height, minimum 4 PDF units
-            double avgH   = words.Average(w => w.BoundingBox.Height);
-            double thresh = Math.Max(4.0, avgH * 0.4);
-
-            var lines = new List<List<UglyToad.PdfPig.Content.Word>>();
-            double lineY = double.MaxValue;
-            foreach (var w in words)
-            {
-                if (Math.Abs(w.BoundingBox.Top - lineY) > thresh)
-                {
-                    lines.Add([]);
-                    lineY = w.BoundingBox.Top;
-                }
-                lines[^1].Add(w);
-            }
-
-            // Re-sort each line by X in case the top-Y sort caused any grouping
-            // to pull words into the wrong order within a line.
-            return string.Join("\n", lines.Select(l =>
-                string.Join(" ", l.OrderBy(w => w.BoundingBox.Left).Select(w => w.Text))));
-        }
+            => string.Join("\n", Scalpel.Services.TextRunService.OrderBands(source)
+                   .Select(band => string.Join(" ", band.Words.Select(w => w.Text))));
 
         private void OpenSearch_Click(object sender, RoutedEventArgs e) => ShowSearchBar();
 
@@ -111,7 +88,7 @@ namespace Scalpel
                     Margin = new Thickness(4, 0, 0, 0),
                     Style = (Style)FindResource("ToolbarButton"),
                     FontFamily = (FontFamily)FindResource("FontIcon"),
-                    ToolTip = "Close search (Esc)"
+                    ToolTip = Loc("Str_Search_CloseTT")
                 };
                 closeBtn.Click += (s, e) => CloseSearchBar();
 
@@ -160,7 +137,7 @@ namespace Scalpel
 
             _searchBar.Visibility = Visibility.Visible;
             _searchBox!.Text = "";
-            if (_searchStatus != null) _searchStatus.Text = "Enter = next  Shift+Enter = prev";
+            if (_searchStatus != null) _searchStatus.Text = Loc("Str_Search_Hint");
             _searchBox.Focus();
             Keyboard.Focus(_searchBox);
         }
@@ -228,7 +205,7 @@ namespace Scalpel
 
                 if (_searchResultPages.Count == 0)
                 {
-                    if (_searchStatus != null) _searchStatus.Text = "No matches";
+                    if (_searchStatus != null) _searchStatus.Text = Loc("Str_Search_NoMatches");
                     return;
                 }
 
@@ -237,9 +214,9 @@ namespace Scalpel
                 if (_searchPageCursor < 0) _searchPageCursor = 0;
 
                 if (_searchStatus != null)
-                    _searchStatus.Text = sr.TotalHits == 1
-                        ? $"1 match ({_searchResultPages.Count} page)"
-                        : $"{sr.TotalHits} matches ({_searchResultPages.Count} page{(_searchResultPages.Count != 1 ? "s" : "")})";
+                    _searchStatus.Text = sr.TotalHits == 1 && _searchResultPages.Count == 1
+                        ? Loc("Str_Search_SummaryOne")
+                        : string.Format(Loc("Str_Search_Summary"), sr.TotalHits, _searchResultPages.Count);
 
                 int targetPage = _searchResultPages[_searchPageCursor];
                 if (PageList.SelectedIndex != targetPage)
@@ -249,7 +226,7 @@ namespace Scalpel
             }
             catch
             {
-                if (_searchStatus != null) _searchStatus.Text = "Search error";
+                if (_searchStatus != null) _searchStatus.Text = Loc("Str_Search_Error");
             }
         }
 

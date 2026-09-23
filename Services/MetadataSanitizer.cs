@@ -45,7 +45,7 @@ namespace Scalpel.Services
         {
             using var doc = PdfReader.Open(inputPath, PdfDocumentOpenMode.Modify);
             Sanitize(doc);
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
 
         public static PdfMetadata ReadMetadata(string path)

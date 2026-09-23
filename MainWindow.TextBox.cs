@@ -26,8 +26,59 @@ namespace Scalpel
         // Text box handling
         // ============================================================
 
+        /// <summary>Clears the cached printed-blank geometry (the page raster changed under it).</summary>
+        private void InvalidateBlankCache() => _blankCache.Clear();
+
+        /// <summary>
+        /// The printed blank under <paramref name="pos"/>, in canvas coordinates, or null.
+        /// Lets a click on a dotted line drop the text box onto the line instead of near it.
+        /// </summary>
+        private Rect? FindPrintedBlank(Point pos, int pageIdx)
+        {
+            try
+            {
+                if (_currentFile is null || _doc is null) return null;
+                if (!_renderDims.TryGetValue(pageIdx, out var dims) || dims.w <= 0 || dims.h <= 0)
+                    return null;
+
+                if (!_blankCache.TryGetValue(pageIdx, out var candidates))
+                {
+                    candidates = [];
+                    var page = _doc.Pages[pageIdx];
+                    double pw = page.Width.Point, ph = page.Height.Point;
+                    _pageRotations.TryGetValue(pageIdx, out int rot);
+
+                    using (var pig = UglyToad.PdfPig.PdfDocument.Open(_currentFile))
+                    {
+                        if (pageIdx < pig.NumberOfPages)
+                        {
+                            foreach (var w in pig.GetPage(pageIdx + 1).GetWords())
+                            {
+                                if (!Scalpel.Services.TextEntryPlaceholder.IsPlaceholder(w.Text)) continue;
+                                var bb = w.BoundingBox;
+                                var r = Scalpel.Services.PageSpaceMap.ToCanvas(
+                                            bb.Left, bb.Bottom, bb.Right, bb.Top,
+                                            pw, ph, dims.w, dims.h, rot);
+                                candidates.Add(new Scalpel.Services.TextEntryPlaceholder.Candidate(
+                                    w.Text, new Rect(r.X, r.Y, r.W, r.H)));
+                            }
+                        }
+                    }
+                    _blankCache[pageIdx] = candidates;
+                }
+
+                return candidates.Count == 0
+                    ? null
+                    : Scalpel.Services.TextEntryPlaceholder.FindNearest(candidates, pos);
+            }
+            catch { return null; }   // a convenience must never block placing a text box
+        }
+
         private void PlaceTextBox(Point pos, int pageIdx)
         {
+            // On a flattened form the user aims at the dotted line, not at a pixel. Snap the box
+            // onto the blank they clicked so the typed text sits on the rule instead of beside it.
+            Rect? blank = FindPrintedBlank(pos, pageIdx);
             // _textFontSize is a point size; convert to the page's canvas (render-dim) units so
             // it renders and exports as real points. DrawAnnotationsOnDocument multiplies by
             // sy = page.Height.Point / renderH, so dividing by sy here makes "14" export as 14pt.
@@ -51,8 +102,21 @@ namespace Scalpel
                 AcceptsReturn = true,
                 Tag = pageIdx
             };
-            Canvas.SetLeft(tb, pos.X);
-            Canvas.SetTop(tb, pos.Y);
+            if (blank is Rect b)
+            {
+                // Match the blank's width and sit the box on the rule, growing upward when the
+                // box is taller than the printed line so the text lands on it rather than below.
+                double w = Math.Max(40, b.Width);
+                tb.MinWidth = w;
+                tb.Width = w;
+                Canvas.SetLeft(tb, b.Left);
+                Canvas.SetTop(tb, b.Top - Math.Max(0, tb.MinHeight - b.Height));
+            }
+            else
+            {
+                Canvas.SetLeft(tb, pos.X);
+                Canvas.SetTop(tb, pos.Y);
+            }
             _activeCanvas.Children.Add(tb);
             _activeTextBox = tb;
             tb.TextChanged += (s, e) =>
@@ -143,7 +207,11 @@ namespace Scalpel
                     PageIndex = pageIdx,
                     Position = new Point(x, y),
                     Content = content,
-                    FontSize = tb.FontSize
+                    FontSize = tb.FontSize,
+                    // Carry the styling the user applied with Ctrl+B / I / U while typing.
+                    Bold = tb.FontWeight == FontWeights.Bold,
+                    Italic = tb.FontStyle == FontStyles.Italic,
+                    Underline = tb.TextDecorations is not null && tb.TextDecorations.Count > 0,
                 };
                 ta.SetColor(tb.Foreground is SolidColorBrush scb ? scb.Color : Colors.Black);
                 AddAnnotation(ta);

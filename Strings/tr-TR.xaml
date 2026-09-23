@@ -128,13 +128,13 @@
 
     <!-- ── İletişim kutusu metinleri ────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">Scalpel'i Yükle</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">Scalpel kullanıcı profilinize yüklensin mi?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">Scalpel kullanıcı profilinize yüklensin mi?
 
 Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Menüsü kısayolu oluşturur.
 İstediğiniz zaman Program Ekle/Kaldır üzerinden kaldırabilirsiniz.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">Kaydedilmemiş değişiklikleriniz var. Bu dosya kaydedilmeden kapatılsın mı?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">Kaydedilmemiş değişiklikleriniz var. Scalpel kaydedilmeden kapatılsın mı?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">PDF açılamadı:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">PDF açılamadı:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Recent_Remove">Son kullanılanlardan kaldır</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">Dosya bulunamadı — Son kullanılanlardan kaldırıldı</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">Sekmeyi kapat</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">Kapatmadan önce {0} dosyasındaki değişiklikler kaydedilsin mi?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} zaten açık.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">{0} yeniden açılamadı.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">Belge değiştirmeden önce geçerli işlemi bitirin veya iptal edin.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">{0} dosya ayrı sekmeler olarak açılsın mı?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">Kapat</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">Diğer sekmeleri kapat</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">Sağdaki sekmeleri kapat</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">İçeren klasörü aç</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">Yolu kopyala</sys:String>
+    <sys:String x:Key="Str_Tab_New">Yeni sekme (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">Tüm sekmeler</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">SEKMELER</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">Yeni sekme</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">Sonraki / önceki sekme</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">1 ile 8 arasındaki sekmeye git</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">Son sekmeye git</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Bir renk seçin</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Özel renk…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Ekranın herhangi bir yerinden renk seçin</sys:String>
@@ -324,4 +341,96 @@ Bu işlem uygulamayı %LocalAppData%\Scalpel konumuna kopyalar ve bir Başlat Me
     <sys:String x:Key="Str_Ocr_Progress_Starting">Hazırlanıyor…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">Sayfa {0}/{1} tanınıyor…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">İptal</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">Bağlantı güvenlik nedeniyle engellendi - yalnızca web ve e-posta bağlantıları açılabilir</sys:String>
+    <sys:String x:Key="Str_PageN">Sayfa {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">Parola gerekli</sys:String>
+    <sys:String x:Key="Str_St_FileSize">Dosya boyutu: {0} ({1} bayt)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">Diğer sekmeleri kapat</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">Genişliğe sığdır</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">Sayfaya sığdır</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">İlk / son sayfa</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">Dosya boyutunu göster</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">Numarayla araçlar</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">Parolayı kaldır</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">Bu belge, parola koruması olmadan özgün dosyanın üzerine kaydedilsin mi?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">Parola koruması olmadan kaydedildi</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">Bu belge parola korumalı değil</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">Kaydedildi - parola koruması kaldırıldı</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">Önce bir PDF açın.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">Kaydedilemedi: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">Son açılan dosyaları hatırlama</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">Aramayı kapat (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = sonraki  Shift+Enter = önceki</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">Eşleşme yok</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{1} sayfada {0} eşleşme</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1 sayfada 1 eşleşme</sys:String>
+    <sys:String x:Key="Str_Search_Error">Arama hatası</sys:String>
+    <sys:String x:Key="Str_St_Undid">Son açıklama geri alındı</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">Belge değişikliği geri alındı</sys:String>
+    <sys:String x:Key="Str_St_Redid">Son açıklama yinelendi</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">Belge değişikliği yinelendi</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">Yinelenecek bir şey yok</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">Geri alınacak bir şey yok</sys:String>
+    <sys:String x:Key="Str_KS_Redo">Yinele</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">Ön kontrol</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">Belge denetleniyor…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">Ön kontrol bitti: {0} sorun, {1} uyarı</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">{0} sayfa denetlendi. {1} sorun, {2} uyarı.</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">Bildirilecek bir şey yok - belge gönderilmeye hazır görünüyor.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">Sorunlar (diğer yazılımlar bunları reddeder veya yanlış gösterir):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">Uyarılar (yanlış görünebilir):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">Notlar:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">sayfa</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">Ön kontrol tamamlanamadı: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">Yorumlar</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">Okumak icin bir yorum secin. Metni duzeltebilir, kimden geldigini degistirebilir veya kaldirabilirsiniz. Kaydet secilene kadar hicbir sey yazilmaz ve sonrasinda belgenin yine de kaydedilmesi gerekir.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">Gonderen</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">Yorum</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">Bu yorumu sil</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">Bu yorumu koru</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">Degisiklikleri kaydet</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">Hicbir yorum degistirilmedi</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">{0} yorum duzenlendi, {1} kaldirildi</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">Yazarken kalin / italik / alti cizili</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">Form alanlarini OCR ile doldur</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">Bu sayfada doldurulabilir metin veya secim alani yok.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">{0} alan okunuyor...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">{1} alandan {0}. okunuyor...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">Sayfadan {0} alan dolduruldu</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">Alanlarda okunabilir bir sey bulunamadi</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">Alanlar okunamadi: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">Fotografi cekilmis sayfayi duzelt</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">Sayfayi duzelt</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">Dort tutamaci fotograftaki sayfanin koselerine surukleyin, sonra Duzelt secin.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">Duzelt</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">Sayfa {0} duzeltildi</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">Sayfa duzeltilemedi: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">Mesafe olc</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">Olcmek icin sayfa uzerinde surukleyin. Duz tutmak icin Shift basili tutun; durdurmak icin Esc.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} mm  /  {1} inc  /  {2} nk</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">Baska bir PDF ile karsilastir</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">Karsilastirilacak PDF dosyasini secin</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">Belgeler karsilastiriliyor...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">Karsilastirma tamamlandi</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">Karsilastirma basarisiz: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">{0} ile {1} karsilastiriliyor</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">Sayfa sayilari farkli: {0} ve {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">Iki belge ayni.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">Ortak olan her sayfa ayni.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{1} ortak sayfadan {0} tanesi farkli:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  Sayfa {0}: sayfanin %{1} kadari degisti, {2} alanda</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">Sayfalari resim olarak disa aktar</sys:String>
+    <sys:String x:Key="Str_Exp_Format">Bicim</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">Renk</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">Renkli</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">Gri tonlama</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">Siyah beyaz</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">Cozunurluk</sys:String>
+    <sys:String x:Key="Str_Exp_Export">Disa aktar</sys:String>
+    <sys:String x:Key="Str_Exp_Note">{0} sayfa yazilacak, her sayfa icin bir resim dosyasi.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">{0} sayfa disa aktariliyor...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">{0} resim {1} konumuna aktarildi</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">Disa aktarma basarisiz: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">Bu belgede yorum yok.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">Bu belgede {0} yorum var.</sys:String>
 </ResourceDictionary>

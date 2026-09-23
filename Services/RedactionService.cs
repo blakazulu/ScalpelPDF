@@ -83,7 +83,7 @@ namespace Scalpel.Services
                     }
                 }
 
-                outDoc.Save(outputPath);
+                PdfSaveGuard.Save(outDoc, outputPath);
             }
             finally { input?.Dispose(); }
         }

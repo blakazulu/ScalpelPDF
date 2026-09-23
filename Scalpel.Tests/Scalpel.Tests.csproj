@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
@@ -26,8 +26,9 @@
     </PackageReference>
     <PackageReference Include="PdfPig" Version="0.1.14" />
     <PackageReference Include="PdfSharpCore" Version="1.3.67" />
+    <PackageReference Include="Docnet.Core" Version="2.6.0" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 
@@ -77,6 +78,46 @@
     <Compile Include="..\Services\LineSnap.cs" Link="Services\LineSnap.cs" />
     <Compile Include="..\Services\OcrTextJoiner.cs" Link="Services\OcrTextJoiner.cs" />
     <Compile Include="..\Services\ColorConvert.cs" Link="Services\ColorConvert.cs" />
+    <Compile Include="..\Services\ViewerRenderResolution.cs" Link="Services\ViewerRenderResolution.cs" />
+    <Compile Include="..\Services\LinkTargetPolicy.cs" Link="Services\LinkTargetPolicy.cs" />
+    <Compile Include="..\Services\FormAppearance.cs" Link="Services\FormAppearance.cs" />
+    <Compile Include="..\Services\PrintPageRange.cs" Link="Services\PrintPageRange.cs" />
+    <Compile Include="..\Services\OcrAssets.cs" Link="Services\OcrAssets.cs" />
+    <Compile Include="..\Services\LastFolders.cs" Link="Services\LastFolders.cs" />
+    <Compile Include="..\Services\BurnRotation.cs" Link="Services\BurnRotation.cs" />
+    <Compile Include="..\Services\PageSpaceMap.cs" Link="Services\PageSpaceMap.cs" />
+    <Compile Include="..\Services\ContentTextRemover.cs" Link="Services\ContentTextRemover.cs" />
+    <Compile Include="..\Services\PdfToUnicodeMap.cs" Link="Services\PdfToUnicodeMap.cs" />
+    <Compile Include="..\Services\AnnotationRenderPolicy.cs" Link="Services\AnnotationRenderPolicy.cs" />
+    <Compile Include="..\Services\PreflightService.cs" Link="Services\PreflightService.cs" />
+    <Compile Include="..\Services\PdfComments.cs" Link="Services\PdfComments.cs" />
+    <Compile Include="..\Services\PdfiumGate.cs" Link="Services\PdfiumGate.cs" />
+    <Compile Include="..\Services\PinnedDocReader.cs" Link="Services\PinnedDocReader.cs" />
+    <Compile Include="..\Services\DocnetPageRasterizer.cs" Link="Services\DocnetPageRasterizer.cs" />
+    <Compile Include="..\Services\DeferredActionGate.cs" Link="Services\DeferredActionGate.cs" />
+    <Compile Include="..\Services\StartupTrace.cs" Link="Services\StartupTrace.cs" />
+    <Compile Include="..\Services\TextEntryPlaceholder.cs" Link="Services\TextEntryPlaceholder.cs" />
+    <Compile Include="..\Services\CombFieldLayout.cs" Link="Services\CombFieldLayout.cs" />
+    <Compile Include="..\Services\PageQualityConverter.cs" Link="Services\PageQualityConverter.cs" />
+    <Compile Include="..\Services\MeasurementCalculator.cs" Link="Services\MeasurementCalculator.cs" />
+    <Compile Include="..\Services\PdfPageDifference.cs" Link="Services\PdfPageDifference.cs" />
+    <Compile Include="..\Services\PinchZoomMath.cs" Link="Services\PinchZoomMath.cs" />
+    <Compile Include="..\Services\AnnotationRotate.cs" Link="Services\AnnotationRotate.cs" />
+    <Compile Include="..\Services\UndoHistoryBudget.cs" Link="Services\UndoHistoryBudget.cs" />
+    <Compile Include="..\Services\WheelPageFlipGate.cs" Link="Services\WheelPageFlipGate.cs" />
+    <Compile Include="..\Services\KeyLayout.cs" Link="Services\KeyLayout.cs" />
+    <Compile Include="..\Services\EditableTextShortcutPolicy.cs" Link="Services\EditableTextShortcutPolicy.cs" />
+    <Compile Include="..\Services\PrintColorConverter.cs" Link="Services\PrintColorConverter.cs" />
+    <Compile Include="..\Services\SaveFileNamePolicy.cs" Link="Services\SaveFileNamePolicy.cs" />
+    <Compile Include="..\Services\PerspectiveWarp.cs" Link="Services\PerspectiveWarp.cs" />
+    <Compile Include="..\Services\FormOcrPolicy.cs" Link="Services\FormOcrPolicy.cs" />
+    <Compile Include="..\Services\TextRunService.cs" Link="Services\TextRunService.cs" />
+    <Compile Include="..\Services\TabListModel.cs" Link="Services\TabListModel.cs" />
+    <Compile Include="..\Services\DocumentPath.cs" Link="Services\DocumentPath.cs" />
+    <Compile Include="..\Services\LongOperationGate.cs" Link="Services\LongOperationGate.cs" />
+    <Compile Include="..\Services\UndoBudgetCoordinator.cs" Link="Services\UndoBudgetCoordinator.cs" />
+    <Compile Include="..\Services\OpenTabsSetting.cs" Link="Services\OpenTabsSetting.cs" />
+    <Compile Include="..\Services\StartupOpenPolicy.cs" Link="Services\StartupOpenPolicy.cs" />
   </ItemGroup>
 
 </Project>

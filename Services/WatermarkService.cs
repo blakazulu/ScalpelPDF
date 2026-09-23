@@ -91,7 +91,7 @@ namespace Scalpel.Services
         {
             using var doc = PdfReader.Open(inputPath, PdfDocumentOpenMode.Modify);
             Apply(doc, opts);
-            doc.Save(outputPath);
+            PdfSaveGuard.Save(doc, outputPath);
         }
 
         private static void DrawText(XGraphics gfx, WatermarkOptions opts, double pw, double ph)
@@ -177,16 +177,21 @@ namespace Scalpel.Services
             else
             {
                 using var image = Image.Load<Rgba32>(File.ReadAllBytes(path));
-                for (int y = 0; y < image.Height; y++)
+                // ImageSharp 2.x replaced Image.GetPixelRowSpan(y) with ProcessPixelRows, which
+                // hands out the buffer under a lock instead of exposing raw row spans.
+                image.ProcessPixelRows(accessor =>
                 {
-                    var row = image.GetPixelRowSpan(y);
-                    for (int x = 0; x < row.Length; x++)
+                    for (int y = 0; y < accessor.Height; y++)
                     {
-                        var px = row[x];
-                        px.A = (byte)Math.Round(px.A * opacity);
-                        row[x] = px;
+                        var row = accessor.GetRowSpan(y);
+                        for (int x = 0; x < row.Length; x++)
+                        {
+                            var px = row[x];
+                            px.A = (byte)Math.Round(px.A * opacity);
+                            row[x] = px;
+                        }
                     }
-                }
+                });
                 using var ms = new MemoryStream();
                 image.SaveAsPng(ms);
                 bytes = ms.ToArray();

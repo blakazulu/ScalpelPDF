@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">Install Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">Install Scalpel to your user profile?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">Install Scalpel to your user profile?
 
 This will copy the app to %LocalAppData%\Scalpel and create a Start Menu shortcut.
 You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">You have unsaved changes. Close this file without saving?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">You have unsaved changes. Close Scalpel without saving?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">Failed to open PDF:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">Failed to open PDF:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Recent_Remove">Remove from recent</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">File not found — removed from Recent</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">Close tab</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">Save changes to {0} before closing?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} is already open.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">Could not reopen {0}.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">Finish or cancel the current operation before switching documents.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">Open {0} files as tabs?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">Close</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">Close other tabs</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">Close tabs to the right</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">Open containing folder</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">Copy path</sys:String>
+    <sys:String x:Key="Str_Tab_New">New tab (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">All tabs</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">TABS</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">New tab</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">Next / previous tab</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">Go to tab 1 to 8</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">Go to the last tab</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Pick a color</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Custom color…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Pick a color from anywhere on screen</sys:String>
@@ -324,4 +341,96 @@ You can uninstall via Add/Remove Programs at any time.</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Starting">Preparing…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">Recognizing page {0} of {1}…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">Cancel</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">Link blocked for safety - only web and email links can be opened</sys:String>
+    <sys:String x:Key="Str_PageN">Page {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">Password Required</sys:String>
+    <sys:String x:Key="Str_St_FileSize">File size: {0} ({1} bytes)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">Close other tabs</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">Fit width</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">Fit page</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">First / last page</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">Show file size</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">Tools by number</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">Remove password</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">Save this document back over the original without its password protection?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">Saved without password protection</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">This document is not password protected</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">Saved - password protection was removed</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">Open a PDF first.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">Save failed: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">Don't remember recently opened files</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">Close search (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = next  Shift+Enter = prev</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">No matches</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{0} matches on {1} pages</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1 match on 1 page</sys:String>
+    <sys:String x:Key="Str_Search_Error">Search error</sys:String>
+    <sys:String x:Key="Str_St_Undid">Undid last annotation</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">Undid document change</sys:String>
+    <sys:String x:Key="Str_St_Redid">Redid last annotation</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">Redid document change</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">Nothing to redo</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">Nothing to undo</sys:String>
+    <sys:String x:Key="Str_KS_Redo">Redo</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">Preflight check</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">Checking the document...</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">Preflight finished: {0} problem(s), {1} warning(s)</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">{0} page(s) checked. {1} problem(s), {2} warning(s).</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">Nothing to report - the document looks ready to send.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">Problems (other software will reject or misrender these):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">Warnings (likely to look wrong):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">Notes:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">pages</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">The preflight check could not complete: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">Comments</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">Pick a comment to read it. You can correct the text, change who it is from, or remove it. Nothing is written until you choose Save, and the document still has to be saved afterwards.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">From</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">Comment</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">Delete this comment</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">Keep this comment</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">Save changes</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">No comments were changed</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">{0} comment(s) edited, {1} removed</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">Bold / italic / underline while typing</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">Fill form fields by OCR</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">This page has no fillable text or choice fields.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">Reading {0} field(s)...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">Reading field {0} of {1}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">Filled {0} field(s) from the page</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">Nothing readable was found in the fields</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">Could not read the fields: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">Straighten photographed page</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">Straighten page</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">Drag the four handles onto the corners of the page in the photo, then choose Straighten.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">Straighten</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">Page {0} straightened</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">Could not straighten the page: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">Measure distance</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">Drag across the page to measure. Hold Shift to keep it straight; Esc to stop.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} mm  /  {1} in  /  {2} pt</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">Compare with another PDF</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">Choose the PDF to compare against</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">Comparing documents...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">Comparison finished</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">Comparison failed: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">Comparing {0} with {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">Page counts differ: {0} against {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">The two documents are identical.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">Every page they have in common is identical.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{0} of {1} shared page(s) differ:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  Page {0}: {1}% of the page changed, in {2} area(s)</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">Export pages as images</sys:String>
+    <sys:String x:Key="Str_Exp_Format">Format</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">Colour</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">Colour</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">Grayscale</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">Black and white</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">Resolution</sys:String>
+    <sys:String x:Key="Str_Exp_Export">Export</sys:String>
+    <sys:String x:Key="Str_Exp_Note">{0} page(s) will be written, one image file per page.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">Exporting {0} page(s)...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">Exported {0} image(s) to {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">Export failed: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">This document has no comments.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">{0} comment(s) in this document.</sys:String>
 </ResourceDictionary>

@@ -77,6 +77,7 @@ namespace Scalpel
             // the reload and stay selectable/movable; they are re-rendered after the doc reopens.
             if (!keepAnnotations) _annotations.Clear();
             _renderDims.Clear();
+            InvalidateBlankCache();
             ClearSelection();
             MarkDirty();
             var doc = _doc;
@@ -96,10 +97,10 @@ namespace Scalpel
                 doc.Pages[i].Rotate = 0;
             }
 
-            var tempPath = App.MakeTempFile("temp");
+            var tempPath = App.MakeTempFile("temp", _s.Id);
             try
             {
-                doc.Save(tempPath);
+                Scalpel.Services.PdfSaveGuard.Save(doc, tempPath);
                 doc.Close();
             }
             catch (Exception saveEx) when (IsXRefException(saveEx))
@@ -128,7 +129,7 @@ namespace Scalpel
             }
             catch (Exception openEx) when (IsXRefException(openEx))
             {
-                var fixedPath = App.MakeTempFile("fixed");
+                var fixedPath = App.MakeTempFile("fixed", _s.Id);
                 if (!TryPdfiumSaveWithZeroRotations(tempPath, fixedPath))
                     throw; // PDFium also failed — re-throw original reopen error
                 tempPath = fixedPath;
@@ -153,8 +154,9 @@ namespace Scalpel
             if (_viewMode == ViewMode.Continuous)
             {
                 int contIdx = PageList.SelectedIndex;
+                int contGen = _sessionGeneration;
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                    (Action)(() => SetupContinuousView(contIdx)));
+                    (Action)(() => { if (!IsStale(contGen)) SetupContinuousView(contIdx); }));
                 return;
             }
 
@@ -163,8 +165,10 @@ namespace Scalpel
             ReapplyGridOrFit();
 
             // Deferred refit after layout settles for accurate ActualWidth.
+            int gen = _sessionGeneration;
             Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, (Action)(() =>
             {
+                if (IsStale(gen)) return;   // another document is shown now
                 PagePreviewPanel.ScrollToHorizontalOffset(0);
                 ReapplyGridOrFit();
             }));

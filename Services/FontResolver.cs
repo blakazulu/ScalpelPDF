@@ -27,6 +27,31 @@ namespace Scalpel.Services
         private static readonly string[] ItalicTokens = { "italic", "oblique" };
         private static readonly string[] PsSuffixes   = { "psmt", "mt", "ps" }; // longest first
 
+        /// <summary>
+        /// PostScript base-font names that do not exist as installed Windows families. Without
+        /// this map "Helvetica", "Courier" and friends resolve to nothing and every edited line
+        /// silently falls back to the UI font, losing the document's typeface.
+        /// </summary>
+        private static readonly Dictionary<string, string> PsNameMap = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["helvetica"]         = "Arial",
+            ["helveticaneue"]     = "Arial",
+            ["arial"]             = "Arial",
+            ["arialmt"]           = "Arial",
+            ["arialnarrow"]       = "Arial Narrow",
+            ["times"]             = "Times New Roman",
+            ["timesnewroman"]     = "Times New Roman",
+            ["timesnewromanps"]   = "Times New Roman",
+            ["timesnewromanpsmt"] = "Times New Roman",
+            ["courier"]           = "Courier New",
+            ["couriernew"]        = "Courier New",
+            ["couriernewps"]      = "Courier New",
+            ["couriernewpsmt"]    = "Courier New",
+            ["symbol"]            = "Symbol",
+            ["zapfdingbats"]      = "Wingdings",
+            ["segoeui"]           = "Segoe UI",
+        };
+
         public static ResolvedFont Resolve(string? rawPdfFontName, IReadOnlyCollection<string> availableFamilies)
         {
             try
@@ -67,13 +92,27 @@ namespace Scalpel.Services
 
                 // 5. Spacify CamelCase ("TimesNewRoman" -> "Times New Roman") so it can match
                 //    WPF family names. Best-effort; leaves already-spaced or single words intact.
-                string display = Spacify(fam.Trim());
+                string famTrimmed = fam.Trim();
+                string display = Spacify(famTrimmed);
                 if (string.IsNullOrWhiteSpace(display))
                     return new ResolvedFont(Fallback, Fallback, isBold, isItalic, true);
 
                 // 6. Availability: case-insensitive match against the supplied set.
                 string? match = availableFamilies?.FirstOrDefault(
                     f => string.Equals(f, display, StringComparison.OrdinalIgnoreCase));
+
+                // 7. Not installed under its own name? Well-known PostScript base fonts have a
+                //    Windows equivalent that carries the same design - Helvetica is Arial, Courier
+                //    is Courier New. Without this the whole line falls back to the UI font and the
+                //    document's typeface is lost. An installed family always wins over the map.
+                if (match is null && PsNameMap.TryGetValue(famTrimmed.Replace(" ", ""), out var mappedFam))
+                {
+                    var mappedMatch = availableFamilies?.FirstOrDefault(
+                        f => string.Equals(f, mappedFam, StringComparison.OrdinalIgnoreCase));
+                    if (mappedMatch is not null)
+                        return new ResolvedFont(mappedMatch, mappedMatch, isBold, isItalic, true);
+                }
+
                 bool installed = match is not null;
                 string family = installed ? match! : Fallback;
 

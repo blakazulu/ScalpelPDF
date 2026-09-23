@@ -1,4 +1,4 @@
-namespace Scalpel
+﻿namespace Scalpel
 {
     /// <summary>
     /// Build-time constants written or verified by release.ps1.
@@ -13,5 +13,11 @@ namespace Scalpel
         internal const string PdfiumSha256 = "BCA96944D731DD72877116D3472083C847FE307FC58CA39BCE16CBE998C478F1";
 
         internal const string PdfiumSha256Disabled = "0000000000000000000000000000000000000000000000000000000000000000";
+
+        /// <summary>
+        /// The release date (yyyy-MM-dd, UTC), written by release.ps1. Empty in a dev build, in
+        /// which case About falls back to the executable's own timestamp.
+        /// </summary>
+        internal const string ReleaseDate = "";
     }
 }

@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">Scalpel ইনস্টল করুন</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">আপনার ব্যবহারকারী প্রোফাইলে Scalpel ইনস্টল করবেন?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">আপনার ব্যবহারকারী প্রোফাইলে Scalpel ইনস্টল করবেন?
 
 এটি অ্যাপটি %LocalAppData%\Scalpel-এ কপি করবে এবং স্টার্ট মেনু শর্টকাট তৈরি করবে।
 যেকোনো সময় Add/Remove Programs-এর মাধ্যমে আনইনস্টল করা যাবে।</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">আপনার অসংরক্ষিত পরিবর্তন রয়েছে। সংরক্ষণ না করে এই ফাইলটি বন্ধ করবেন?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">আপনার অসংরক্ষিত পরিবর্তন রয়েছে। সংরক্ষণ না করে Scalpel বন্ধ করবেন?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">PDF খুলতে ব্যর্থ হয়েছে:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">PDF খুলতে ব্যর্থ হয়েছে:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@
     <sys:String x:Key="Str_Recent_Remove">সাম্প্রতিক থেকে সরান</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">ফাইল পাওয়া যায়নি — সাম্প্রতিক থেকে সরানো হয়েছে</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">ট্যাব বন্ধ করুন</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">বন্ধ করার আগে {0}-এর পরিবর্তনগুলি সংরক্ষণ করবেন?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} ইতিমধ্যে খোলা আছে।</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">{0} আবার খোলা যায়নি।</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">নথি পরিবর্তন করার আগে বর্তমান কাজটি শেষ বা বাতিল করুন।</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">{0}টি ফাইল পৃথক ট্যাব হিসেবে খুলবেন?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">বন্ধ করুন</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">অন্য ট্যাবগুলি বন্ধ করুন</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">ডানদিকের ট্যাবগুলি বন্ধ করুন</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">ধারণকারী ফোল্ডার খুলুন</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">পাথ কপি করুন</sys:String>
+    <sys:String x:Key="Str_Tab_New">নতুন ট্যাব (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">সব ট্যাব</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">ট্যাব</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">নতুন ট্যাব</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">পরের / আগের ট্যাব</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">১ থেকে ৮ নম্বর ট্যাবে যান</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">শেষ ট্যাবে যান</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">একটি রঙ বাছুন</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">কাস্টম রঙ…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">স্ক্রিনের যেকোনো স্থান থেকে রঙ বাছুন</sys:String>
@@ -324,4 +341,96 @@
     <sys:String x:Key="Str_Ocr_Progress_Starting">প্রস্তুত হচ্ছে…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">পৃষ্ঠা {0}/{1} শনাক্ত করা হচ্ছে…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">বাতিল</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">নিরাপত্তার কারণে লিঙ্কটি বন্ধ করা হয়েছে - শুধুমাত্র ওয়েব ও ইমেল লিঙ্ক খোলা যায়</sys:String>
+    <sys:String x:Key="Str_PageN">পৃষ্ঠা {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">পাসওয়ার্ড প্রয়োজন</sys:String>
+    <sys:String x:Key="Str_St_FileSize">ফাইলের আকার: {0} ({1} বাইট)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">অন্য ট্যাবগুলি বন্ধ করুন</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">প্রস্থে ফিট করুন</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">পৃষ্ঠায় ফিট করুন</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">প্রথম / শেষ পৃষ্ঠা</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">ফাইলের আকার দেখান</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">সংখ্যা দিয়ে টুল</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">পাসওয়ার্ড সরান</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">পাসওয়ার্ড সুরক্ষা ছাড়াই এই নথিটি মূল ফাইলের উপরে সংরক্ষণ করবেন?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">পাসওয়ার্ড সুরক্ষা ছাড়াই সংরক্ষিত</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">এই নথিটি পাসওয়ার্ড দিয়ে সুরক্ষিত নয়</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">সংরক্ষিত - পাসওয়ার্ড সুরক্ষা সরানো হয়েছে</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">প্রথমে একটি PDF খুলুন।</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">সংরক্ষণ ব্যর্থ: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">সম্প্রতি খোলা ফাইল মনে রাখবেন না</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">অনুসন্ধান বন্ধ করুন (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = পরবর্তী  Shift+Enter = পূর্ববর্তী</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">কোনো মিল নেই</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{1} পৃষ্ঠায় {0}টি মিল</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1টি পৃষ্ঠায় 1টি মিল</sys:String>
+    <sys:String x:Key="Str_Search_Error">অনুসন্ধানে ত্রুটি</sys:String>
+    <sys:String x:Key="Str_St_Undid">শেষ টীকা পূর্বাবস্থায় ফেরানো হয়েছে</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">নথির পরিবর্তন পূর্বাবস্থায় ফেরানো হয়েছে</sys:String>
+    <sys:String x:Key="Str_St_Redid">শেষ টীকা পুনরায় করা হয়েছে</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">নথির পরিবর্তন পুনরায় করা হয়েছে</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">পুনরায় করার কিছু নেই</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">পূর্বাবস্থায় ফেরানোর কিছু নেই</sys:String>
+    <sys:String x:Key="Str_KS_Redo">পুনরায় করুন</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">প্রিফ্লাইট পরীক্ষা</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">নথি পরীক্ষা করা হচ্ছে…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">প্রিফ্লাইট সম্পন্ন: {0}টি সমস্যা, {1}টি সতর্কতা</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">{0}টি পৃষ্ঠা পরীক্ষা করা হয়েছে। {1}টি সমস্যা, {2}টি সতর্কতা।</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">রিপোর্ট করার কিছু নেই - নথিটি পাঠানোর জন্য প্রস্তুত।</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">সমস্যা (অন্য সফটওয়্যার এগুলি বাতিল বা ভুলভাবে দেখাবে):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">সতর্কতা (ভুল দেখাতে পারে):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">নোট:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">পৃষ্ঠা</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">প্রিফ্লাইট পরীক্ষা সম্পূর্ণ করা যায়নি: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">মন্তব্য</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">পড়তে একটি মন্তব্য বেছে নিন। আপনি লেখা সংশোধন করতে, লেখক পরিবর্তন করতে বা এটি মুছে ফেলতে পারেন। সংরক্ষণ না বাছাই করা পর্যন্ত কিছুই লেখা হয় না, এবং পরে নথিটি সংরক্ষণ করতে হবে।</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">থেকে</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">মন্তব্য</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">এই মন্তব্যটি মুছুন</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">এই মন্তব্যটি রাখুন</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">পরিবর্তন সংরক্ষণ করুন</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">কোনো মন্তব্য পরিবর্তিত হয়নি</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">{0}টি মন্তব্য সম্পাদিত, {1}টি মুছে ফেলা হয়েছে</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">টাইপ করার সময় বোল্ড / ইটালিক / আন্ডারলাইন</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">OCR দিয়ে ফর্ম ফিল্ড পূরণ করুন</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">এই পৃষ্ঠায় পূরণযোগ্য কোনো টেক্সট বা পছন্দ ফিল্ড নেই।</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">{0}টি ফিল্ড পড়া হচ্ছে...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">{1}টির মধ্যে {0} নম্বর ফিল্ড পড়া হচ্ছে...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">পৃষ্ঠা থেকে {0}টি ফিল্ড পূরণ করা হয়েছে</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">ফিল্ডগুলিতে পাঠযোগ্য কিছু পাওয়া যায়নি</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">ফিল্ডগুলি পড়া যায়নি: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">তোলা ছবির পৃষ্ঠা সোজা করুন</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">পৃষ্ঠা সোজা করুন</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">ছবিতে পৃষ্ঠার চার কোণে চারটি হ্যান্ডেল টেনে আনুন, তারপর সোজা করুন বেছে নিন।</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">সোজা করুন</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">পৃষ্ঠা {0} সোজা করা হয়েছে</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">পৃষ্ঠা সোজা করা যায়নি: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">দূরত্ব পরিমাপ করুন</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">পরিমাপ করতে পৃষ্ঠা জুড়ে টানুন। সোজা রাখতে Shift ধরে রাখুন; থামাতে Esc।</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} মিমি  /  {1} ইঞ্চি  /  {2} পয়েন্ট</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">অন্য একটি PDF-এর সাথে তুলনা করুন</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">তুলনা করার জন্য PDF বেছে নিন</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">নথি তুলনা করা হচ্ছে...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">তুলনা সম্পন্ন</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">তুলনা ব্যর্থ: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">{0} এবং {1} তুলনা করা হচ্ছে</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">পৃষ্ঠা সংখ্যা ভিন্ন: {0} বনাম {1}।</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">নথি দুটি অভিন্ন।</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">তাদের সাধারণ প্রতিটি পৃষ্ঠা অভিন্ন।</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{1}টি সাধারণ পৃষ্ঠার মধ্যে {0}টি ভিন্ন:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  পৃষ্ঠা {0}: পৃষ্ঠার {1}% পরিবর্তিত, {2}টি এলাকায়</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">পৃষ্ঠাগুলি ছবি হিসেবে রপ্তানি করুন</sys:String>
+    <sys:String x:Key="Str_Exp_Format">ফরম্যাট</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">রঙ</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">রঙিন</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">ধূসর</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">সাদা-কালো</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">রেজোলিউশন</sys:String>
+    <sys:String x:Key="Str_Exp_Export">রপ্তানি</sys:String>
+    <sys:String x:Key="Str_Exp_Note">{0}টি পৃষ্ঠা লেখা হবে, প্রতি পৃষ্ঠায় একটি ছবি ফাইল।</sys:String>
+    <sys:String x:Key="Str_Exp_Working">{0}টি পৃষ্ঠা রপ্তানি করা হচ্ছে...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">{1}-এ {0}টি ছবি রপ্তানি করা হয়েছে</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">রপ্তানি ব্যর্থ: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">এই নথিতে কোনো মন্তব্য নেই।</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">এই নথিতে {0}টি মন্তব্য।</sys:String>
 </ResourceDictionary>

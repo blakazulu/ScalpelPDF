@@ -1,8 +1,8 @@
-namespace Scalpel.E2E;
+﻿namespace Scalpel.E2E;
 
 public enum Surface
 {
-    AlwaysVisible, ViewMode, EditMode, PagesMode, SignMode, SettingsOverlay
+    AlwaysVisible, ViewMode, EditMode, PagesMode, SignMode, SettingsOverlay, ToolsMenu
 }
 
 public sealed record ControlSpec(

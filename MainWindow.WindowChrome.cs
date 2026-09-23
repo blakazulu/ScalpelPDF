@@ -63,18 +63,39 @@ namespace Scalpel
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            if (_isDirty)
+            // A long operation (compress, OCR, ...) is writing into its session; closing now
+            // would tear the document out from under it. Same toast as a blocked tab switch.
+            if (_longOps.IsBusy) { ShowToast(Loc("Str_Tab_Busy")); e.Cancel = true; return; }
+            // Recorded before the dirty-prompt loop below switches `_s` from tab to tab while
+            // asking about each one, so the OpenTabs setting remembers the tab the user was
+            // actually looking at when they chose to close, not whichever one was asked about last.
+            var activeBeforeClose = _s;
+            // Text still being typed on the shown tab counts as an unsaved change. (Only the text
+            // box is committed: a full DeactivateSession would cancel the shown tab's renders,
+            // leaving it half drawn if the user then cancels the close.)
+            try { CommitActiveTextBox(); } catch { }
+            // Ask about every unsaved tab: the one being looked at first, then left to right.
+            var dirty = TabCloseOrder.DirtyFirstActive(_tabs.Items, _s, t => t.IsDirty);
+            foreach (var s in dirty)
             {
+                if (_tabs.IndexOf(s) < 0 || !s.IsDirty) continue;
+                SwitchTo(s);
+                // SwitchTo swallows failures and can refuse; never prompt about (or save) a tab
+                // that is not the one shown - Save acts on `_s`.
+                if (!ReferenceEquals(_s, s)) { e.Cancel = true; return; }
                 var res = ScalpelDialog.Show(this,
-                    Loc("Str_Dlg_UnsavedExit"),
-                    Loc("Str_Dlg_AppTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (res != MessageBoxResult.Yes)
+                    string.Format(Loc("Str_Tab_SavePrompt"), s.DisplayName),
+                    Loc("Str_Dlg_AppTitle"), MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                if (res == MessageBoxResult.Cancel || res == MessageBoxResult.None) { e.Cancel = true; return; }
+                if (res == MessageBoxResult.Yes)
                 {
-                    e.Cancel = true;
-                    return;
+                    if (!ReferenceEquals(_s, s)) SwitchTo(s);   // Save acts on the shown tab
+                    if (!ReferenceEquals(_s, s)) { e.Cancel = true; return; }
+                    SaveInPlace();
+                    if (s.IsDirty) { e.Cancel = true; return; }   // save failed or Save As cancelled
                 }
             }
-            SaveWindowSettings();
+            SaveWindowSettings(activeBeforeClose);
             base.OnClosing(e);
         }
 

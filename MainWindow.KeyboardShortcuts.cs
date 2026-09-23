@@ -22,6 +22,30 @@ namespace Scalpel
 {
     public partial class MainWindow
     {
+
+        /// <summary>
+        /// Labels the zoom shortcut with the characters this keyboard actually types. Advertising
+        /// "Ctrl+=" on a layout where "=" needs Shift is simply untrue, so the label follows the
+        /// active layout (German prints Ctrl++, US keeps Ctrl+=).
+        /// </summary>
+        private void SyncZoomShortcutLabel()
+        {
+            try
+            {
+                if (ZoomShortcutLabel is null) return;
+                ZoomShortcutLabel.Text =
+                    $"Ctrl+{Scalpel.Services.KeyLayout.ZoomInChar()} / Ctrl+{Scalpel.Services.KeyLayout.ZoomOutChar()}";
+            }
+            catch { }   // a label is never worth an exception
+        }
+        /// <summary>1..9 for the digit keys (top row or number pad), else 0.</summary>
+        private static int TabNumberForKey(Key key) => key switch
+        {
+            >= Key.D1 and <= Key.D9 => key - Key.D1 + 1,
+            >= Key.NumPad1 and <= Key.NumPad9 => key - Key.NumPad1 + 1,
+            _ => 0
+        };
+
         // ============================================================
         // Keyboard shortcuts
         // ============================================================
@@ -30,9 +54,40 @@ namespace Scalpel
         {
             base.OnPreviewKeyDown(e);
 
-            // Don't intercept keys when typing in any TextBox (typewriter tool or form field)
-            if (e.OriginalSource is TextBox) return;
-            if (_activeTextBox is not null && _activeTextBox.IsFocused) return;
+            // While a TextBox has focus (typewriter tool or a fillable form field), typing and the
+            // standard text-editing chords stay inside the field - but application shortcuts such
+            // as Ctrl+S, Ctrl+P, Ctrl+F, Ctrl+Tab and the function keys must keep working, or the
+            // whole app goes dead the moment a form field is clicked.
+            bool inTextBox = e.OriginalSource is TextBox
+                             || (_activeTextBox is not null && _activeTextBox.IsFocused);
+            if (inTextBox &&
+                Scalpel.Services.EditableTextShortcutPolicy.KeepInTextBox(e.Key, Keyboard.Modifiers, e.SystemKey))
+                return;
+
+            // Ctrl+B / I / U style the text box being typed in. Handled before the generic
+            // text-box guard would otherwise pass them through as plain typing.
+            if (_activeTextBox is not null && Keyboard.Modifiers == ModifierKeys.Control
+                && e.Key is Key.B or Key.I or Key.U)
+            {
+                var box = _activeTextBox;
+                switch (e.Key)
+                {
+                    case Key.B:
+                        box.FontWeight = box.FontWeight == FontWeights.Bold
+                            ? FontWeights.Normal : FontWeights.Bold;
+                        break;
+                    case Key.I:
+                        box.FontStyle = box.FontStyle == FontStyles.Italic
+                            ? FontStyles.Normal : FontStyles.Italic;
+                        break;
+                    default:
+                        box.TextDecorations = box.TextDecorations is { Count: > 0 }
+                            ? null : TextDecorations.Underline;
+                        break;
+                }
+                e.Handled = true;
+                return;
+            }
 
             if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control)
             {
@@ -74,8 +129,12 @@ namespace Scalpel
                 CloseSearchBar();
                 e.Handled = true;
             }
-            else if (e.Key == Key.OemQuestion && Keyboard.Modifiers == ModifierKeys.Control)
+            // Matched by the character the key TYPES, not its position: on a German keyboard "?"
+            // is Shift+ss, so a virtual-key test for OemQuestion never fires and the exact
+            // modifier comparison fails again because Shift is down. See Services/KeyLayout.cs.
+            else if (Scalpel.Services.KeyLayout.IsCtrlChar(e.Key, '?'))
             {
+                SyncZoomShortcutLabel();
                 ShortcutOverlay.Visibility = ShortcutOverlay.Visibility == Visibility.Visible
                     ? Visibility.Collapsed : Visibility.Visible;
                 e.Handled = true;
@@ -90,9 +149,19 @@ namespace Scalpel
                 DeleteSelected();
                 e.Handled = true;
             }
+            else if (e.Key == Key.Z && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                Redo_Click(this, e);
+                e.Handled = true;
+            }
             else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control)
             {
                 Undo_Click(this, e);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Redo_Click(this, e);
                 e.Handled = true;
             }
             else if (e.Key == Key.S && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
@@ -105,9 +174,14 @@ namespace Scalpel
                 SaveInPlace();
                 e.Handled = true;
             }
+            else if (e.Key == Key.W && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                CloseOtherTabs();
+                e.Handled = true;
+            }
             else if (e.Key == Key.W && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                CloseFile();
+                CloseSession(_s);
                 e.Handled = true;
             }
             else if (e.Key == Key.O && Keyboard.Modifiers == ModifierKeys.Control)
@@ -115,19 +189,20 @@ namespace Scalpel
                 Open_Click(this, e);
                 e.Handled = true;
             }
-            else if (e.Key == Key.Tab && Keyboard.Modifiers == ModifierKeys.Control && _openTabs.Count > 1)
+            else if ((e.Key == Key.Tab || e.Key == Key.PageDown) && Keyboard.Modifiers == ModifierKeys.Control && _tabs.Count > 1)
             {
                 CycleTab(true);
                 e.Handled = true;
             }
-            else if (e.Key == Key.Tab && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift) && _openTabs.Count > 1)
+            else if (((e.Key == Key.Tab && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+                      || (e.Key == Key.PageUp && Keyboard.Modifiers == ModifierKeys.Control)) && _tabs.Count > 1)
             {
                 CycleTab(false);
                 e.Handled = true;
             }
-            else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+            else if ((e.Key is Key.N or Key.T) && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                NewDocument();
+                NewDocument();   // Ctrl+N and Ctrl+T both: a blank document in a new tab
                 e.Handled = true;
             }
             else if ((e.Key == Key.Left || e.Key == Key.Up) && Keyboard.Modifiers == ModifierKeys.None)
@@ -146,35 +221,100 @@ namespace Scalpel
                     e.Handled = true;
                 }
             }
-            else if ((e.Key == Key.OemPlus || e.Key == Key.Add) && Keyboard.Modifiers == ModifierKeys.Control)
+            // Ctrl+1..Ctrl+8 go to that tab, Ctrl+9 to the last one (top-row or numpad digits).
+            // This is matched by the KEY, before the layout-aware zoom checks below, on purpose:
+            // on AZERTY the digit keys type "-" (6) and "_" (8), and on Czech/Slovak the 1 key
+            // types "+", so a character match would turn Ctrl+6 / Ctrl+8 / Ctrl+1 into zoom.
+            // The user decided Ctrl+digit belongs to the tabs (ruling R17); zoom stays reachable
+            // on those layouts via the dedicated +/- keys, the numpad +/-, Ctrl+wheel and Ctrl+0.
+            // Only Ctrl alone: Ctrl+Shift+digit is left to the zoom presets and character matches.
+            else if (Keyboard.Modifiers == ModifierKeys.Control && TabNumberForKey(e.Key) is int tabNo and > 0)
+            {
+                var t = _tabs.ByNumber(tabNo);
+                // A deferred tab (startup-restored, not yet loaded) is a real tab too - Ctrl+digit
+                // materializes it like clicking its chip would.
+                if (t is not null && (t.Doc is not null || t.DeferredPath is not null)) SwitchTo(t);
+                e.Handled = true;
+            }
+            else if (Scalpel.Services.KeyLayout.IsCtrlChar(e.Key, '+', '=')
+                     || (e.Key == Key.Add && Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (_viewMode == ViewMode.Grid) GridZoomStep(false); else SetZoom(_zoomLevel + ZoomStep);
                 e.Handled = true;
             }
-            else if ((e.Key == Key.OemMinus || e.Key == Key.Subtract) && Keyboard.Modifiers == ModifierKeys.Control)
+            else if (Scalpel.Services.KeyLayout.IsCtrlChar(e.Key, '-', '_')
+                     || (e.Key == Key.Subtract && Keyboard.Modifiers == ModifierKeys.Control))
             {
                 if (_viewMode == ViewMode.Grid) GridZoomStep(true); else SetZoom(_zoomLevel - ZoomStep);
                 e.Handled = true;
             }
-            else if (e.Key == Key.D0 && Keyboard.Modifiers == ModifierKeys.Control)
+            // Zoom presets: Ctrl+0 actual size, Ctrl+Shift+2 fit width, Ctrl+Shift+3 fit page.
+            // Plain Ctrl+1..9 belong to the tabs (above), as in every browser.
+            else if ((e.Key == Key.D0 || e.Key == Key.NumPad0) && Keyboard.Modifiers == ModifierKeys.Control)
             {
-                SetZoom(1.0);
+                ZoomToActualSize();
                 e.Handled = true;
             }
-            else if (e.Key == Key.F12)
+            else if ((e.Key == Key.D2 || e.Key == Key.NumPad2)
+                     && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                FitToWidth();
+                e.Handled = true;
+            }
+            else if ((e.Key == Key.D3 || e.Key == Key.NumPad3)
+                     && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift))
+            {
+                FitToPage();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Home && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                if (_doc is not null && _doc.PageCount > 0) { PageList.SelectedIndex = 0; e.Handled = true; }
+            }
+            else if (e.Key == Key.End && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                if (_doc is not null && _doc.PageCount > 0)
+                {
+                    PageList.SelectedIndex = _doc.PageCount - 1;
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == Key.F4 && Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                ShowFileSizeStatus();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F3)
+            {
+                if (_searchBar is null || _searchBar.Visibility != Visibility.Visible) ToggleSearchBar();
+                else if (Keyboard.Modifiers == ModifierKeys.Shift) SearchPrevResult();
+                else SearchNextResult();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F4 && Keyboard.Modifiers == ModifierKeys.None)
             {
                 ShowDocumentInfo();
                 e.Handled = true;
             }
+            else if (e.Key == Key.D && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                ShowDocumentInfo();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.F12)
+            {
+                ShowAboutOverlay();
+                e.Handled = true;
+            }
             else if (e.Key == Key.F11) { ToggleFullScreen(); e.Handled = true; }
-            else if (e.Key == Key.F1)  { ShortcutOverlay.Visibility = ShortcutOverlay.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible; e.Handled = true; }
-            else if (e.Key == Key.F2)  { ShowAboutOverlay(); e.Handled = true; }
+            else if (e.Key == Key.F1)  { SyncZoomShortcutLabel(); ShortcutOverlay.Visibility = ShortcutOverlay.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible; e.Handled = true; }
             else if (e.Key == Key.F5)  { SetViewMode(ViewMode.Single);     e.Handled = true; }
             else if (e.Key == Key.F6)  { SetViewMode(ViewMode.Continuous); e.Handled = true; }
             else if (e.Key == Key.F7)  { SetViewMode(ViewMode.TwoPage);    e.Handled = true; }
             else if (e.Key == Key.F8)  { SetViewMode(ViewMode.Grid);       e.Handled = true; }
             else if (Keyboard.Modifiers == ModifierKeys.None &&
-                     (e.Key == Key.V || e.Key == Key.T || e.Key == Key.H || e.Key == Key.D || e.Key == Key.L || e.Key == Key.I))
+                     (e.Key == Key.V || e.Key == Key.T || e.Key == Key.H || e.Key == Key.D
+                      || e.Key == Key.L || e.Key == Key.I || e.Key == Key.C || e.Key == Key.G))
             {
                 SetMode(AppMode.Edit);
                 SetTool(e.Key switch
@@ -184,14 +324,41 @@ namespace Scalpel
                     Key.H => EditTool.Highlight,
                     Key.D => EditTool.Draw,
                     Key.L => EditTool.Line,
+                    Key.C => EditTool.Crop,
+                    Key.G => EditTool.Signature,
                     _     => EditTool.Image,   // Key.I
+                });
+                e.Handled = true;
+            }
+            // Digits mirror the toolbar left to right, matching the convention upstream settled on.
+            else if (Keyboard.Modifiers == ModifierKeys.None &&
+                     e.Key is Key.D1 or Key.D2 or Key.D3 or Key.D5 or Key.D6 or Key.D7 or Key.D8)
+            {
+                SetMode(AppMode.Edit);
+                SetTool(e.Key switch
+                {
+                    Key.D1 => EditTool.Text,
+                    Key.D2 => EditTool.Highlight,
+                    Key.D3 => EditTool.Line,
+                    Key.D5 => EditTool.Draw,
+                    Key.D6 => EditTool.Image,
+                    Key.D7 => EditTool.Signature,
+                    _      => EditTool.Crop,   // Key.D8
                 });
                 e.Handled = true;
             }
             else if (e.Key == Key.Escape)
             {
                 if (_fullScreen) { ApplyFullScreen(false); e.Handled = true; return; }
-                // No overlay active — ESC exits the app
+                // Esc steps down rather than straight out: first it returns to the Select tool
+                // (the convention every large viewer uses), and only a second Esc closes the app.
+                if (_currentTool != EditTool.Select)
+                {
+                    SetMode(AppMode.Edit);
+                    SetTool(EditTool.Select);
+                    e.Handled = true;
+                    return;
+                }
                 Close();
                 e.Handled = true;
             }

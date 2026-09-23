@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">Instalar Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">¿Instalar Scalpel en su perfil de usuario?
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">¿Instalar Scalpel en su perfil de usuario?
 
 Esto copiará la aplicación a %LocalAppData%\Scalpel y creará un acceso directo en el menú Inicio.
 Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">Tiene cambios sin guardar. ¿Cerrar este archivo sin guardar?</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">Tiene cambios sin guardar. ¿Cerrar Scalpel sin guardar?</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">Error al abrir PDF:
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">Error al abrir PDF:
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Recent_Remove">Quitar de recientes</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">Archivo no encontrado: eliminado de Recientes</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">Cerrar pestaña</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">¿Guardar los cambios en {0} antes de cerrar?</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} ya está abierto.</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">No se pudo volver a abrir {0}.</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">Termine o cancele la operación actual antes de cambiar de documento.</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">¿Abrir {0} archivos como pestañas?</sys:String>
+    <sys:String x:Key="Str_Tab_Close">Cerrar</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">Cerrar las demás pestañas</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">Cerrar las pestañas de la derecha</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">Abrir la carpeta contenedora</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">Copiar la ruta</sys:String>
+    <sys:String x:Key="Str_Tab_New">Nueva pestaña (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">Todas las pestañas</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">PESTAÑAS</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">Nueva pestaña</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">Pestaña siguiente / anterior</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">Ir a la pestaña 1 a 8</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">Ir a la última pestaña</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">Elegir un color</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">Color personalizado…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">Elige un color de cualquier parte de la pantalla</sys:String>
@@ -324,4 +341,96 @@ Puede desinstalarla en cualquier momento desde Agregar o quitar programas.</sys:
     <sys:String x:Key="Str_Ocr_Progress_Starting">Preparando…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">Reconociendo página {0} de {1}…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">Cancelar</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">Enlace bloqueado por seguridad: solo se pueden abrir enlaces web y de correo</sys:String>
+    <sys:String x:Key="Str_PageN">Página {0}</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">Se requiere contraseña</sys:String>
+    <sys:String x:Key="Str_St_FileSize">Tamaño del archivo: {0} ({1} bytes)</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">Cerrar las demás pestañas</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">Ajustar al ancho</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">Ajustar a la página</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">Primera / última página</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">Mostrar el tamaño del archivo</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">Herramientas por número</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">Quitar la contraseña</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">¿Guardar este documento sobre el original sin su protección con contraseña?</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">Guardado sin protección con contraseña</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">Este documento no está protegido con contraseña</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">Guardado: se quitó la protección con contraseña</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">Abre primero un PDF.</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">No se pudo guardar: {0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">No recordar los archivos abiertos recientemente</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">Cerrar la búsqueda (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Intro = siguiente  Mayús+Intro = anterior</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">Sin coincidencias</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{0} coincidencias en {1} páginas</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1 coincidencia en 1 página</sys:String>
+    <sys:String x:Key="Str_Search_Error">Error de búsqueda</sys:String>
+    <sys:String x:Key="Str_St_Undid">Se deshizo la última anotación</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">Se deshizo el cambio del documento</sys:String>
+    <sys:String x:Key="Str_St_Redid">Se rehízo la última anotación</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">Se rehízo el cambio del documento</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">No hay nada que rehacer</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">No hay nada que deshacer</sys:String>
+    <sys:String x:Key="Str_KS_Redo">Rehacer</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">Comprobación preflight</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">Comprobando el documento...</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">Preflight finalizado: {0} problema(s), {1} advertencia(s)</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">{0} página(s) comprobada(s). {1} problema(s), {2} advertencia(s).</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">Nada que informar: el documento parece listo para enviarse.</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">Problemas (otro software los rechazará o los mostrará mal):</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">Advertencias (probablemente se vean mal):</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">Notas:</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">páginas</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">No se pudo completar la comprobación preflight: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">Comentarios</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">Elija un comentario para leerlo. Puede corregir el texto, cambiar su autor o eliminarlo. Nada se escribe hasta que elija Guardar, y despues hay que guardar el documento.</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">De</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">Comentario</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">Eliminar este comentario</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">Conservar este comentario</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">Guardar cambios</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">No se cambio ningun comentario</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">{0} comentario(s) editado(s), {1} eliminado(s)</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">Negrita / cursiva / subrayado al escribir</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">Rellenar campos con OCR</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">Esta pagina no tiene campos de texto ni de eleccion rellenables.</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">Leyendo {0} campo(s)...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">Leyendo campo {0} de {1}...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">{0} campo(s) rellenado(s) desde la pagina</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">No se encontro nada legible en los campos</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">No se pudieron leer los campos: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">Enderezar pagina fotografiada</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">Enderezar pagina</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">Arrastre los cuatro controles a las esquinas de la pagina en la foto y elija Enderezar.</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">Enderezar</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">Pagina {0} enderezada</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">No se pudo enderezar la pagina: {0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">Medir distancia</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">Arrastre sobre la pagina para medir. Mantenga Shift para mantenerlo recto; Esc para parar.</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} mm  /  {1} pulg  /  {2} pt</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">Comparar con otro PDF</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">Elija el PDF con el que comparar</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">Comparando documentos...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">Comparacion finalizada</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">Fallo la comparacion: {0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">Comparando {0} con {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">El numero de paginas difiere: {0} frente a {1}.</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">Los dos documentos son identicos.</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">Todas las paginas en comun son identicas.</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{0} de {1} pagina(s) comunes difieren:</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  Pagina {0}: cambio el {1}% de la pagina, en {2} area(s)</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">Exportar paginas como imagenes</sys:String>
+    <sys:String x:Key="Str_Exp_Format">Formato</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">Color</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">Color</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">Escala de grises</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">Blanco y negro</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">Resolucion</sys:String>
+    <sys:String x:Key="Str_Exp_Export">Exportar</sys:String>
+    <sys:String x:Key="Str_Exp_Note">Se escribiran {0} pagina(s), un archivo de imagen por pagina.</sys:String>
+    <sys:String x:Key="Str_Exp_Working">Exportando {0} pagina(s)...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">{0} imagen(es) exportada(s) a {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">Fallo la exportacion: {0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">Este documento no tiene comentarios.</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">{0} comentario(s) en este documento.</sys:String>
 </ResourceDictionary>

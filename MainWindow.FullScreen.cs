@@ -23,6 +23,18 @@ namespace Scalpel
 
         private void ToggleFullScreen() => ApplyFullScreen(!_fullScreen);
 
+        // Full screen owns Topmost only while Scalpel is the active window, so switching to another
+        // app (Alt+Tab, clicking its taskbar button) does not leave the page floating over it.
+        private void FsYieldTopmost(object? sender, EventArgs e)
+        {
+            if (_fullScreen) Topmost = false;
+        }
+
+        private void FsReassertTopmost(object? sender, EventArgs e)
+        {
+            if (_fullScreen) Topmost = true;
+        }
+
         private void ApplyFullScreen(bool entering)
         {
             _fullScreen = entering;
@@ -31,6 +43,7 @@ namespace Scalpel
             TitleBarBorder.Visibility   = v;
             RibbonTabBorder.Visibility  = v;
             RibbonBandBorder.Visibility = v;
+            TabStripHost.Visibility     = v;
             StatusBarBorder.Visibility  = v;
 
             if (entering)
@@ -64,7 +77,12 @@ namespace Scalpel
                 _fsPrevLeft = Left; _fsPrevTop = Top; _fsPrevW = Width; _fsPrevH = Height;
 
                 var b = CurrentMonitorBoundsDip();
+                // Topmost keeps the full-screen page above the taskbar, but it must not sit over
+                // OTHER applications once the user switches away - so it is yielded on deactivate
+                // and re-asserted when Scalpel comes back to the front.
                 Topmost = true;
+                Deactivated += FsYieldTopmost;
+                Activated   += FsReassertTopmost;
                 ResizeMode = ResizeMode.NoResize;
                 Left = b.Left; Top = b.Top; Width = b.Width; Height = b.Height;
                 if (WindowState == WindowState.Maximized) WindowState = WindowState.Normal;
@@ -85,6 +103,8 @@ namespace Scalpel
                 SidebarSplitter.Visibility = _fsSplitterVis;
                 PagePreviewPanel.Background = Brushes.Transparent;
 
+                Deactivated -= FsYieldTopmost;
+                Activated   -= FsReassertTopmost;
                 Topmost = _fsPrevTopmost;
                 ResizeMode = _fsPrevResize;
                 WindowState = WindowState.Normal;

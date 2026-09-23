@@ -37,6 +37,7 @@ namespace Scalpel
             EditTool.Signature => Cursors.Pen,
             EditTool.Image => Cursors.Hand,
             EditTool.Crop => Cursors.Cross,
+            EditTool.Measure => Cursors.Cross,
             _ => Cursors.Arrow
         };
 
@@ -45,6 +46,8 @@ namespace Scalpel
             // Continuous view now supports annotation tools inline via per-page overlays.
             CommitActiveTextBox();
             ClearTextSelection();
+            // A measurement rubber band belongs to the measure tool; leaving the tool clears it.
+            if (tool != EditTool.Measure) ClearMeasureOverlay();
             _currentTool = tool;
 
             var map = new (Button btn, EditTool t)[]

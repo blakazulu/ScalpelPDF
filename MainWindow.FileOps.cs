@@ -26,8 +26,38 @@ namespace Scalpel
         // File operations
         // ============================================================
 
+        /// <summary>
+        /// The path chosen in a Save dialog, with the expected extension guaranteed.
+        /// <para>A Save dialog only appends its default extension when the typed name has none at
+        /// all, so "report.final" was written as a file Windows then treats as a .final document -
+        /// it will not reopen in Scalpel and does not show a PDF icon. When
+        /// <paramref name="requireExtension"/> is set, anything not already ending in the wanted
+        /// extension gets it appended.</para>
+        /// </summary>
+        private static string ChosenPath(Microsoft.Win32.FileDialog dlg, string extension,
+                                         bool requireExtension = true)
+            => Scalpel.Services.SaveFileNamePolicy.ApplyExtension(
+                   dlg.FileName, extension, addExtension: true, requireExtension: requireExtension);
+
         private void OpenFile(string path)
         {
+            // Any render still streaming tiles for the document being replaced must stop before
+            // the new one loads, or its pages arrive late and paint into the wrong document.
+            try
+            {
+                _continuousRenderCts?.Cancel();
+                _secondaryRenderCts?.Cancel();
+            }
+            catch { }
+
+            // OpenFile always writes into the ACTIVE session `_s`. OpenInTab makes that a fresh
+            // (or the empty placeholder) session first, so `_doc` here is null and nothing another
+            // tab owns is ever touched; OpenInTab also defers any open that arrives while this one
+            // is still running (e.g. inside a password prompt), so `_s` cannot change under us.
+            // The only caller that opens into a session that already holds a document is the
+            // SaveInPlace recovery reload, which is replacing that session's own copy.
+            DiscardAttempt();
+
             // Files on UNC / network shares - notably the WSL \\wsl$ 9P filesystem - can hand
             // back partial reads, making the PDF parser see a truncated file ("Unexpected EOF").
             // Copy such files to a local temp via File.ReadAllBytes (which reads to EOF) and open
@@ -37,7 +67,7 @@ namespace Scalpel
             {
                 try
                 {
-                    var localCopy = App.MakeTempFile("netopen");
+                    var localCopy = App.MakeTempFile("netopen", _s.Id);
                     File.WriteAllBytes(localCopy, File.ReadAllBytes(path));
                     srcPath = localCopy;
                 }
@@ -46,7 +76,6 @@ namespace Scalpel
 
             try
             {
-                if (_doc is not null) { _doc.Close(); _doc = null; }
                 _doc = PdfReader.Open(srcPath, PdfDocumentOpenMode.Modify);
                 // PdfSharp cannot save modified encrypted PDFs — it copies unmodified encrypted
                 // stream bytes verbatim but fails when it has to re-serialize a dirty object.
@@ -56,7 +85,7 @@ namespace Scalpel
                     // PdfSharp can read encrypted PDFs but cannot re-save them once modified.
                     // Strip encryption now via PDFium (lossless), falling back to Import mode.
                     _doc.Close(); _doc = null;
-                    var repairedPath = App.MakeTempFile("repaired");
+                    var repairedPath = App.MakeTempFile("repaired", _s.Id);
                     bool ok = TryPdfiumStripEncryption(srcPath, repairedPath)
                            || TryImportRepairToPath(srcPath, repairedPath);
                     if (!ok) { TryRepairAndOpen(srcPath); return; }
@@ -75,10 +104,11 @@ namespace Scalpel
                 // open read-only so the user can still view and print it.
                 try
                 {
-                    if (_doc is not null) { _doc.Close(); _doc = null; }
+                    DiscardAttempt();
                     _doc = PdfReader.Open(srcPath, PdfDocumentOpenMode.ReadOnly);
                     _currentFile = srcPath;
                     FinishOpenFile(path, srcPath);
+                    _openedProtected = true;
                     SetStatus(string.Format(Loc("Str_OpenedReadOnly"), System.IO.Path.GetFileName(path), _doc.PageCount));
                 }
                 catch (Exception ex2)
@@ -92,15 +122,19 @@ namespace Scalpel
                 if (pw is null) return;
                 try
                 {
-                    if (_doc is not null) { _doc.Close(); _doc = null; }
+                    DiscardAttempt();
                     _doc = PdfReader.Open(srcPath, pw, PdfDocumentOpenMode.Modify);
                     // Save a decrypted temp copy so Docnet can render without needing the password
-                    var tempDec = App.MakeTempFile("dec");
-                    _doc.Save(tempDec);
+                    var tempDec = App.MakeTempFile("dec", _s.Id);
+                    Scalpel.Services.PdfSaveGuard.Save(_doc, tempDec);
                     _doc.Close();
                     _doc = PdfReader.Open(tempDec, PdfDocumentOpenMode.Modify);
                     _currentFile = tempDec;
                     FinishOpenFile(path, tempDec);
+                    // Scalpel decrypts to a working copy at open time, so every later save writes
+                    // an unprotected PDF. Remember that so the user can be told, and so "Remove
+                    // password" can present it as a deliberate action.
+                    _openedProtected = true;
                 }
                 catch (Exception ex2)
                 {
@@ -115,8 +149,8 @@ namespace Scalpel
                 // full editing; _originalFile stays the user's path so Save writes back there.
                 try
                 {
-                    if (_doc is not null) { _doc.Close(); _doc = null; }
-                    var recovered = App.MakeTempFile("recovered");
+                    DiscardAttempt();
+                    var recovered = App.MakeTempFile("recovered", _s.Id);
                     if (TryPdfiumStripEncryption(srcPath, recovered))
                     {
                         _doc = PdfReader.Open(recovered, PdfDocumentOpenMode.Modify);
@@ -131,14 +165,14 @@ namespace Scalpel
                 catch (Exception rex)
                 {
                     Scalpel.Services.Logger.Warn("File", "open.recover.fail", rex.Message, new { path });
-                    if (_doc is not null) { try { _doc.Close(); } catch { } _doc = null; }
+                    DiscardAttempt();
                 }
 
                 // Some PDFs have malformed or non-standard XRef tables that PdfSharp can't
                 // open in Modify mode. Fall back to ReadOnly; if that also fails, offer repair.
                 try
                 {
-                    if (_doc is not null) { _doc.Close(); _doc = null; }
+                    DiscardAttempt();
                     _doc = PdfReader.Open(srcPath, PdfDocumentOpenMode.ReadOnly);
                     _currentFile = srcPath;
                     FinishOpenFile(path, srcPath);
@@ -170,8 +204,8 @@ namespace Scalpel
                 // import repair, then to a rasterize repair as a last resort.
                 try
                 {
-                    if (_doc is not null) { _doc.Close(); _doc = null; }
-                    var repairedPath = App.MakeTempFile("repaired");
+                    DiscardAttempt();
+                    var repairedPath = App.MakeTempFile("repaired", _s.Id);
                     bool ok = TryPdfiumStripEncryption(srcPath, repairedPath)
                            || TryImportRepairToPath(srcPath, repairedPath);
                     if (!ok) { TryRepairAndOpen(srcPath); return; }
@@ -196,17 +230,33 @@ namespace Scalpel
         }
 
         /// <summary>
+        /// Disposes the document of the session being opened into: the previous copy of the same
+        /// session (a reload) or a failed attempt from an earlier step of the fallback chain.
+        /// Never another tab's document - see the note at the top of OpenFile.
+        /// </summary>
+        private void DiscardAttempt()
+        {
+            if (_doc is null) return;
+            try { _doc.Close(); } catch { }
+            _doc = null;
+        }
+
+        /// <summary>
         /// Log a failed open (with the exception that ended the fallback chain and, when the
         /// failure happened inside a fallback, the original exception that triggered it) and
         /// show the standard "could not open" dialog.
         /// </summary>
         private void ReportOpenFailure(string path, Exception ex, Exception? trigger = null)
         {
+            DiscardAttempt();   // a half-finished attempt must not be left as the tab's document
             Scalpel.Services.Logger.Error("File", "open.fail", "Could not open PDF", ex, new
             {
                 path,
                 trigger = trigger is null ? null : new { type = trigger.GetType().Name, message = trigger.Message },
             });
+            // The session has no document now, so it must not keep the file's identity either
+            // (it would block reopening the file as "already open").
+            ForgetPaths(_s);
             ScalpelDialog.Show(this, string.Format(Loc("Str_Dlg_FailedOpen"), ex.Message), Loc("Str_Dlg_AppTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -330,7 +380,9 @@ namespace Scalpel
             {
                 // Ensure PDFium is initialised — Docnet does this lazily on first use,
                 // so force it now before we call PDFium P/Invoke directly.
-                try { _ = DocLib.Instance; } catch { }
+                // Warm PDFium on its own thread, so its one-time init never happens
+                // on whichever thread happens to render first.
+                try { Scalpel.Services.PdfiumGate.Run(() => { _ = DocLib.Instance; }); } catch { }
 
                 var doc = FPDF_LoadDocument(sourcePath, null);
                 if (doc == IntPtr.Zero) return false;
@@ -451,7 +503,7 @@ namespace Scalpel
                 if (stripRotations)
                     for (int i = 0; i < cleanDoc.PageCount; i++)
                         cleanDoc.Pages[i].Rotate = 0;
-                cleanDoc.Save(destPath);
+                Scalpel.Services.PdfSaveGuard.Save(cleanDoc, destPath);
                 cleanDoc.Close();
                 return true;
             }
@@ -464,7 +516,7 @@ namespace Scalpel
             // Works when the XRef is partially corrupt but the object data is intact.
             try
             {
-                if (_doc is not null) { _doc.Close(); _doc = null; }
+                DiscardAttempt();
                 PdfDocument repairedDoc;
                 using (var importDoc = PdfReader.Open(path, PdfDocumentOpenMode.Import))
                 {
@@ -472,8 +524,8 @@ namespace Scalpel
                     for (int i = 0; i < importDoc.PageCount; i++)
                         repairedDoc.Pages.Add(importDoc.Pages[i]);
                 }
-                var repairedPath = App.MakeTempFile("repaired");
-                repairedDoc.Save(repairedPath);
+                var repairedPath = App.MakeTempFile("repaired", _s.Id);
+                Scalpel.Services.PdfSaveGuard.Save(repairedDoc, repairedPath);
                 repairedDoc.Close();
                 _doc = PdfReader.Open(repairedPath, PdfDocumentOpenMode.Modify);
                 _currentFile = repairedPath;
@@ -498,6 +550,7 @@ namespace Scalpel
             }
             catch { }
 
+            DiscardAttempt();
             ScalpelDialog.Show(this,
                 "Repair failed — the file is too severely damaged to recover.\n\nTry opening the original in a different application (Adobe Acrobat, browsers) which may have additional recovery options.",
                 "Scalpel", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -512,20 +565,27 @@ namespace Scalpel
         {
             const int RenderPx = 2048;
 
-            using var docReader = DocLib.Instance.GetDocReader(path, new PageDimensions(RenderPx, RenderPx));
-            int pageCount = docReader.GetPageCount();
+            // PDFium runs on its own thread; the PDF assembly below stays on this one.
+            var docReader = Scalpel.Services.PdfiumGate.Run(
+                () => Scalpel.Services.PinnedDocReader.Open(path, new PageDimensions(RenderPx, RenderPx)));
+            try
+            {
+            int pageCount = Scalpel.Services.PdfiumGate.Run(() => docReader.GetPageCount());
             if (pageCount <= 0) throw new InvalidOperationException("PDFium could not read any pages.");
 
             var newDoc = new PdfDocument();
 
             for (int i = 0; i < pageCount; i++)
             {
-                using var pr = docReader.GetPageReader(i);
-                int bw = pr.GetPageWidth();
-                int bh = pr.GetPageHeight();
+                int page_i = i;
+                var (raw, bw, bh) = Scalpel.Services.PdfiumGate.Run(() =>
+                {
+                    using var pr = docReader.GetPageReader(page_i);
+                    return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                        Scalpel.Services.AnnotationRenderPolicy.ForOutput()),
+                            pr.GetPageWidth(), pr.GetPageHeight());
+                });
                 if (bw <= 0 || bh <= 0) continue;
-
-                var raw = pr.GetImage();
                 if (raw is null || raw.Length == 0) continue;
 
                 // Encode the raw BGRA frame as PNG via WPF BitmapEncoder (UI thread is fine here).
@@ -558,16 +618,18 @@ namespace Scalpel
             if (newDoc.PageCount == 0)
                 throw new InvalidOperationException("PDFium rendered 0 usable pages.");
 
-            var repairedPath = App.MakeTempFile("repaired");
-            newDoc.Save(repairedPath);
+            var repairedPath = App.MakeTempFile("repaired", _s.Id);
+            Scalpel.Services.PdfSaveGuard.Save(newDoc, repairedPath);
             newDoc.Close();
 
-            if (_doc is not null) { _doc.Close(); _doc = null; }
+            DiscardAttempt();
             _doc = PdfReader.Open(repairedPath, PdfDocumentOpenMode.Modify);
             _currentFile = repairedPath;
             FinishOpenFile(path, repairedPath);
             MarkDirty(true); // repaired copy lives in temp — user must Save As
             SetStatus(string.Format(Loc("Str_OpenedRasterRepair"), System.IO.Path.GetFileName(path), _doc.PageCount));
+            }
+            finally { Scalpel.Services.PdfiumGate.Run(() => docReader.Dispose()); }
             ScalpelDialog.Show(this,
                 $"\"{System.IO.Path.GetFileName(path)}\" was repaired by rasterizing through PDFium.\n\nText is not selectable in the repaired copy. Use Save As to write it to a new location.",
                 "Scalpel", MessageBoxButton.OK, MessageBoxImage.None);
@@ -577,61 +639,20 @@ namespace Scalpel
             ex.Message.IndexOf("owner", StringComparison.OrdinalIgnoreCase) >= 0 &&
             ex.Message.IndexOf("password", StringComparison.OrdinalIgnoreCase) >= 0;
 
-        private void FinishOpenFile(string displayPath, string workingPath)
+        /// <param name="displayPath">The user's real file, or null for a new untitled document
+        /// (shown as "Untitled.pdf"; Save then goes through Save As).</param>
+        private void FinishOpenFile(string? displayPath, string workingPath)
         {
-            try { if (System.IO.File.Exists(displayPath)) App.AddRecentFile(displayPath); } catch { }
+            try { if (displayPath is not null && System.IO.File.Exists(displayPath)) App.AddRecentFile(displayPath); } catch { }
             _currentFile = workingPath;
             _originalFile = displayPath;
-            FileNameLabel.Text = System.IO.Path.GetFileName(displayPath);
-            _annotations.Clear();
-            _undoStack.Clear();
-            _renderDims.Clear();
-            _formTextValues.Clear();
-            _formCheckValues.Clear();
-            _formRadioValues.Clear();
-            _allSearchRects.Clear();
-            _searchResultPages.Clear();
-            _searchPageCursor = -1;
-            ClearSecondaryPages();
-            ClearSelection();
-            RefreshPageList();
-            LoadOutlines();
-            DropZone.Visibility = Visibility.Collapsed;
-            PagePreviewPanel.Visibility = Visibility.Visible;
-            if (_closeFileBtnRef != null) _closeFileBtnRef.IsEnabled = true;
-            _pageJumpBox.IsEnabled = true;
-            _pageTotalLabel.Text = $"/ {_doc!.PageCount}";
-            MarkDirty(false);
-            if (_doc!.PageCount > 0)
-            {
-                PageList.SelectedIndex = 0;
-                // If Continuous mode is persisted from a previous session, SelectionChanged
-                // returns early (no RenderPage call), so we have to bootstrap the panels here.
-                if (_viewMode == ViewMode.Continuous)
-                {
-                    _pageContentPanel.Visibility = Visibility.Collapsed;
-                    _continuousPanel.Visibility  = Visibility.Visible;
-                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded,
-                        () => SetupContinuousView(0));
-                }
-                // Auto-fit to width once the first page has rendered and layout has settled.
-                // DispatcherPriority.Background is lower than Loaded, so this fires after
-                // all pending RenderPage / RefreshPageView callbacks have completed.
-                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background,
-                    (Action)(() =>
-                    {
-                        // Grid opens to its 3-across default; other modes fit to width. Background
-                        // runs after every Loaded callback, so this is the final word on open and
-                        // must be view-aware or it collapses the grid back to a single page.
-                        if (_viewMode == ViewMode.Grid)
-                            SetZoom(GridZoomForN(Math.Min(_doc?.PageCount ?? 1, 3)));
-                        else
-                            FitToWidth();  // Single, Two-Page, and Continuous open fit-to-width
-                    }));
-            }
-            SetStatus(string.Format(Loc("Str_Opened"), System.IO.Path.GetFileName(displayPath), _doc.PageCount));
-            Scalpel.Services.Logger.Info("File", "open.success", "PDF opened", new { path = displayPath, pages = _doc.PageCount });
-            AddTab(_originalFile); // register/refresh the document tab (no-op for non-disk paths)
+            // Model first (no UI), then the UI is bound to the session. A tab switch reuses the
+            // bind half without the reset (MainWindow.Tabs.cs).
+            ResetSessionContent(_s);
+            _docHasFormFields = DocumentHasFormFields();
+            BindSessionToUi(_s, newContent: true);
+            Scalpel.Services.Logger.Info("File", "open.success", "PDF opened", new { path = displayPath ?? _s.DisplayName, pages = _doc!.PageCount });
+            RefreshTabStrip();   // the tab now shows this document's name
         }
 
         private static bool IsPasswordException(Exception ex) =>
@@ -652,7 +673,7 @@ namespace Scalpel
 
             var win = new Window
             {
-                Title = "Password Required",
+                Title = Loc("Str_Pwd_Title"),
                 Width = 360,
                 SizeToContent = SizeToContent.Height,
                 WindowStyle = WindowStyle.None,
@@ -689,7 +710,7 @@ namespace Scalpel
             titleGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             titleGrid.Children.Add(new TextBlock
             {
-                Text       = "Password Required",
+                Text       = Loc("Str_Pwd_Title"),
                 Foreground = fgPri,
                 FontWeight = FontWeights.SemiBold,
                 FontSize   = (double)Application.Current.FindResource("FsDialogTitle"),
@@ -757,8 +778,7 @@ namespace Scalpel
             return win.ShowDialog() == true ? result : null;
         }
 
-        // Cancels the previous thumbnail background load when the file changes.
-        private System.Threading.CancellationTokenSource? _thumbCts;
+        // _thumbCts (the in-flight thumbnail load) lives on the session: MainWindow.DocumentSession.cs.
 
         private void RefreshPageList()
         {
@@ -770,6 +790,8 @@ namespace Scalpel
             if (_doc is null || _currentFile is null)
             {
                 PageList.ItemsSource = null;
+                _s.Thumbs = null;
+                _s.ThumbsForPath = null;
                 return;
             }
 
@@ -782,7 +804,15 @@ namespace Scalpel
             // Carry forward any existing thumbnails so the list never flashes blank
             // during reload (e.g. after a rotation).  New thumbnails replace them as
             // the background loader finishes each page.
-            var oldItems = PageList.ItemsSource is PageThumbnailVm[] oi ? oi : null;
+            //
+            // Only THIS session's own thumbnails may seed the list. They used to be read back from
+            // PageList.ItemsSource, which after opening another file still held the previous
+            // document's pages, so the sidebar briefly showed the wrong document. The session's
+            // Thumbs are cleared by ResetSessionContent whenever its content is replaced, so a
+            // non-null ThumbsForPath means "same document, reloaded" (a temp reload after a rotate
+            // or crop moves to a new working file, which is why this is not a path comparison).
+            bool sameSource = _s.Thumbs is not null && _s.ThumbsForPath is not null;
+            var oldItems = sameSource ? _s.Thumbs : null;
 
             var items = new PageThumbnailVm[pageCount];
             for (int i = 0; i < pageCount; i++)
@@ -797,22 +827,32 @@ namespace Scalpel
                 }
             }
             PageList.ItemsSource = items;
+            _s.Thumbs = items;
+            _s.ThumbsForPath = _currentFile;
 
             // Load thumbnails sequentially on a background thread via a single doc reader.
             _ = System.Threading.Tasks.Task.Run(() =>
             {
                 try
                 {
-                    using var docReader = DocLib.Instance.GetDocReader(filePath, new PageDimensions(128, 256));
+                    // PDFium runs on its own thread; only the native calls are marshalled.
+                    var docReader = Scalpel.Services.PdfiumGate.Run(
+                        () => Scalpel.Services.PinnedDocReader.Open(filePath, new PageDimensions(128, 256)));
+                    try
+                    {
                     for (int i = 0; i < pageCount; i++)
                     {
                         if (ct.IsCancellationRequested) return;
                         try
                         {
-                            using var pr  = docReader.GetPageReader(i);
-                            int tw  = pr.GetPageWidth();
-                            int th  = pr.GetPageHeight();
-                            var raw = pr.GetImage();
+                            int page = i;
+                            var (raw, tw, th) = Scalpel.Services.PdfiumGate.Run(() =>
+                            {
+                                using var pr = docReader.GetPageReader(page);
+                                return (pr.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                    Scalpel.Services.AnnotationRenderPolicy.ForOutput()),
+                                        pr.GetPageWidth(), pr.GetPageHeight());
+                            });
                             if (tw <= 0 || th <= 0 || raw == null || raw.Length < tw * th * 4)
                                 continue;
                             rotSnap.TryGetValue(i, out int rot);
@@ -824,6 +864,8 @@ namespace Scalpel
                         }
                         catch { /* skip failed thumbnail; item shows label-only */ }
                     }
+                    }
+                    finally { Scalpel.Services.PdfiumGate.Run(() => docReader.Dispose()); }
                 }
                 catch { /* docReader open failed; all items remain label-only */ }
             }, ct);
@@ -841,16 +883,21 @@ namespace Scalpel
                 var dpiInfo = VisualTreeHelper.GetDpi(this);
                 double dpiScaleX = dpiInfo.DpiScaleX;
                 double dpiScaleY = dpiInfo.DpiScaleY;
-                int scaledMax = (int)Math.Min(6144,
-                    2048 * Math.Max(dpiScaleX, dpiScaleY) * Math.Max(1.0, _zoomLevel));
+                int scaledMax = Scalpel.Services.ViewerRenderResolution.Primary(
+                    dpiScaleX, dpiScaleY, _zoomLevel);
                 _lastRenderZoom = _zoomLevel;
 
-                using var docReader = DocLib.Instance.GetDocReader(_currentFile, new PageDimensions(scaledMax, scaledMax));
-                using var pageReader = docReader.GetPageReader(pageIndex);
-
-                int width = pageReader.GetPageWidth();
-                int height = pageReader.GetPageHeight();
-                var rawBytes = pageReader.GetImage();
+                // PDFium runs on its own thread. This whole read is one short marshalled call.
+                string renderFile = _currentFile;
+                bool hasForms = _docHasFormFields;
+                var (rawBytes, width, height) = Scalpel.Services.PdfiumGate.Run(() =>
+                {
+                    using var docReader = Scalpel.Services.PinnedDocReader.Open(renderFile, new PageDimensions(scaledMax, scaledMax));
+                    using var pageReader = docReader.GetPageReader(pageIndex);
+                    return (pageReader.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                Scalpel.Services.AnnotationRenderPolicy.ForViewer(hasForms)),
+                            pageReader.GetPageWidth(), pageReader.GetPageHeight());
+                });
 
                 // Apply rotation: the temp file has /Rotate stripped so Docnet renders
                 // unrotated (no clipping); rotate the pixel buffer to match the visual.
@@ -895,8 +942,10 @@ namespace Scalpel
                 // Defer additional pages until layout has settled so ActualWidth is valid.
                 // RenderPageLinks runs AFTER RenderAdditionalPages so ClearSecondaryPages
                 // inside RenderAdditionalPages doesn't wipe the overlays we just added.
+                int gen = _sessionGeneration;
                 Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, () =>
                 {
+                    if (IsStale(gen)) return;   // another document is shown now
                     RenderAdditionalPages(pageIndex);
                     RenderPageLinks(pageIndex, dipW, dipH);
                 });
@@ -971,7 +1020,12 @@ namespace Scalpel
             var cts = _secondaryRenderCts;
 
             // Secondary pages: fixed 1536 px cap regardless of DPI/zoom.
-            const int SecondaryMax = 1536;
+            // In two-page view the facing page is as prominent as the primary one, so it gets
+            // the same pixel budget instead of the smaller neighbour budget - that mismatch is
+            // why the right-hand page looked soft next to the left one.
+            var secondaryDpi = VisualTreeHelper.GetDpi(this);
+            int SecondaryMax = Scalpel.Services.ViewerRenderResolution.Secondary(
+                _viewMode == ViewMode.TwoPage, secondaryDpi.DpiScaleX, secondaryDpi.DpiScaleY, _zoomLevel);
             // Grid shows the whole document; Two-Page shows one secondary; other modes peek ahead.
             int limit = _viewMode == ViewMode.Grid
                 ? _doc.PageCount
@@ -998,14 +1052,26 @@ namespace Scalpel
             {
                 await System.Threading.Tasks.Task.Run(() =>
                 {
-                    using var docReader = DocLib.Instance.GetDocReader(currentFile, new PageDimensions(SecondaryMax, SecondaryMax));
+                    // Only the native calls go to the PDFium thread. The Dispatcher.Invoke below
+                    // stays on this task's thread - running it on the PDFium thread would block
+                    // that thread on the UI while the UI could be waiting for PDFium work of its
+                    // own, which is a deadlock.
+                    bool hasForms = _docHasFormFields;
+                    var docReader = Scalpel.Services.PdfiumGate.Run(
+                        () => Scalpel.Services.PinnedDocReader.Open(currentFile, new PageDimensions(SecondaryMax, SecondaryMax)));
+                    try
+                    {
                     for (int i = primaryPageIdx + 1; i < limit; i++)
                     {
                         if (cts.IsCancellationRequested) break;
-                        using var pageReader = docReader.GetPageReader(i);
-                        int w = pageReader.GetPageWidth();
-                        int h = pageReader.GetPageHeight();
-                        var rawBytes = pageReader.GetImage();
+                        int page = i;
+                        var (rawBytes, w, h) = Scalpel.Services.PdfiumGate.Run(() =>
+                        {
+                            using var pageReader = docReader.GetPageReader(page);
+                            return (pageReader.GetImage(new Docnet.Core.Converters.NaiveTransparencyRemover(),
+                                                        Scalpel.Services.AnnotationRenderPolicy.ForViewer(hasForms)),
+                                    pageReader.GetPageWidth(), pageReader.GetPageHeight());
+                        });
                         if (w <= 0 || h <= 0 || rawBytes is null) continue;
                         if (secRotations.TryGetValue(i, out int rot))
                             (rawBytes, w, h) = RotateBitmap(rawBytes, w, h, rot);
@@ -1016,9 +1082,14 @@ namespace Scalpel
                         {
                             if (cts.IsCancellationRequested || _doc is null) return;
                             if (_viewMode != ViewMode.Grid && _viewMode != ViewMode.TwoPage) return;
+                            // A render started for the previous document must never paint into
+                            // the one that has since been opened in its place.
+                            if (!PathEq(currentFile, _currentFile)) return;
                             AddSecondaryTile(pi, pw, ph, bytes, primaryDipW);
                         });
                     }
+                    }
+                    finally { Scalpel.Services.PdfiumGate.Run(() => docReader.Dispose()); }
                 }, cts.Token);
             }
             catch { return; }
@@ -1052,7 +1123,7 @@ namespace Scalpel
                 Background = Brushes.Transparent,
                 Cursor = CursorForTool(_currentTool),
                 Tag = pi,
-                ToolTip = $"Page {pi + 1}"
+                ToolTip = string.Format(Loc("Str_PageN"), pi + 1)
             };
             int capturedPi = pi;
             overlay.PreviewMouseLeftButtonDown += (s, ev) =>
@@ -1087,6 +1158,29 @@ namespace Scalpel
             RenderAllAnnotations(pi);
         }
 
+        /// <summary>
+        /// True when the document declares at least one AcroForm field. Read defensively: a
+        /// malformed form dictionary must not stop the document opening.
+        /// </summary>
+        private bool DocumentHasFormFields() => DocumentHasFormFieldsIn(_doc);
+
+        /// <summary>
+        /// True when <paramref name="doc"/> declares at least one AcroForm field. Read defensively:
+        /// a malformed form dictionary must not stop the document opening. Takes the document
+        /// explicitly (rather than the <c>_doc</c> shim) so a long operation adopting its result
+        /// into a pinned session - not necessarily the active one - checks the right document.
+        /// </summary>
+        private static bool DocumentHasFormFieldsIn(PdfDocument? doc)
+        {
+            try
+            {
+                var acro = doc?.Internals.Catalog.Elements.GetDictionary("/AcroForm");
+                var fields = acro?.Elements.GetArray("/Fields");
+                return fields is not null && fields.Elements.Count > 0;
+            }
+            catch { return false; }
+        }
+
         /// <summary>Look up a localized string. Falls back to the key name if missing.</summary>
         private string Loc(string key)
             => Application.Current.TryFindResource(key) as string ?? key;
@@ -1095,6 +1189,69 @@ namespace Scalpel
         {
             StatusText.Text = text;
             CrashReporter.PushStatusMessage(text);
+        }
+
+        /// <summary>Clicking the status line shows the open file's size, like Shift+F4.</summary>
+        private void StatusText_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => ShowFileSizeStatus();
+
+        /// <summary>Starts a picker in the folder last used for that kind of file.</summary>
+        private static void SeedPickerFolder(Microsoft.Win32.FileDialog dlg, string purpose)
+        {
+            var dir = Scalpel.Services.LastFolders.Resolve(
+                App.GetSetting(Scalpel.Services.LastFolders.SettingName(purpose)));
+            if (dir is not null) dlg.InitialDirectory = dir;
+        }
+
+        /// <summary>Records the folder a file was just picked from, per kind of picker.</summary>
+        private static void RememberPickerFolder(string purpose, string? pickedPath)
+        {
+            var dir = Scalpel.Services.LastFolders.FromPickedPath(pickedPath);
+            if (dir is not null)
+                App.SetSetting(Scalpel.Services.LastFolders.SettingName(purpose), dir);
+        }
+
+        private System.Windows.Threading.DispatcherTimer? _fileSizeTimer;
+
+        /// <summary>
+        /// Shift+F4 (or a click on the status text): shows the open file's size for a few seconds
+        /// and then restores whatever the status line was showing before.
+        /// </summary>
+        private void ShowFileSizeStatus()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_currentFile) || !System.IO.File.Exists(_currentFile)) return;
+                long bytes = new System.IO.FileInfo(_currentFile!).Length;
+                string previous = StatusText.Text;
+                SetStatus(string.Format(Loc("Str_St_FileSize"), FormatBytes(bytes), bytes.ToString("N0")));
+
+                _fileSizeTimer?.Stop();
+                _fileSizeTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = System.TimeSpan.FromSeconds(4)
+                };
+                _fileSizeTimer.Tick += (_, _) =>
+                {
+                    _fileSizeTimer?.Stop();
+                    _fileSizeTimer = null;
+                    // Only restore if nothing else has written a status in the meantime.
+                    if (StatusText.Text.StartsWith(FormatBytes(bytes), System.StringComparison.Ordinal))
+                        SetStatus(previous);
+                };
+                _fileSizeTimer.Start();
+            }
+            catch { /* a status readout must never break anything */ }
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes < 1024) return bytes + " B";
+            double kb = bytes / 1024.0;
+            if (kb < 1024) return kb.ToString("0.#") + " KB";
+            double mb = kb / 1024.0;
+            if (mb < 1024) return mb.ToString("0.#") + " MB";
+            return (mb / 1024.0).ToString("0.##") + " GB";
         }
 
         private System.Windows.Threading.DispatcherTimer? _toastTimer;

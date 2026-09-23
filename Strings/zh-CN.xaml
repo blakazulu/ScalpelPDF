@@ -128,13 +128,13 @@
 
     <!-- ── Dialog strings ───────────────────────────────────────────── -->
     <sys:String x:Key="Str_Dlg_InstallTitle">安装 Scalpel</sys:String>
-    <sys:String x:Key="Str_Dlg_InstallMsg">要将 Scalpel 安装到您的用户配置文件吗？
+    <sys:String x:Key="Str_Dlg_InstallMsg" xml:space="preserve">要将 Scalpel 安装到您的用户配置文件吗？
 
 这会将应用程序复制到 %LocalAppData%\Scalpel 并创建开始菜单快捷方式。
 您可以随时通过添加或删除程序来卸载。</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedClose">您有未保存的更改。要在不保存的情况下关闭此文件吗？</sys:String>
     <sys:String x:Key="Str_Dlg_UnsavedExit">您有未保存的更改。要在不保存的情况下关闭 Scalpel 吗？</sys:String>
-    <sys:String x:Key="Str_Dlg_FailedOpen">无法打开 PDF：
+    <sys:String x:Key="Str_Dlg_FailedOpen" xml:space="preserve">无法打开 PDF：
 {0}</sys:String>
     <sys:String x:Key="Str_Dlg_AppTitle">Scalpel</sys:String>
 
@@ -317,6 +317,23 @@
     <sys:String x:Key="Str_Recent_Remove">从最近移除</sys:String>
     <sys:String x:Key="Str_Recent_NotFound">找不到文件 — 已从最近移除</sys:String>
     <sys:String x:Key="Str_TT_CloseTab">关闭标签页</sys:String>
+    <sys:String x:Key="Str_Tab_SavePrompt">关闭前要保存对 {0} 的更改吗？</sys:String>
+    <sys:String x:Key="Str_Tab_AlreadyOpen">{0} 已经打开。</sys:String>
+    <sys:String x:Key="Str_Tab_DeferredFailed">无法重新打开 {0}。</sys:String>
+    <sys:String x:Key="Str_Tab_Busy">请先完成或取消当前操作，再切换文档。</sys:String>
+    <sys:String x:Key="Str_Tab_OpenMany">要将这 {0} 个文件以标签页打开吗？</sys:String>
+    <sys:String x:Key="Str_Tab_Close">关闭</sys:String>
+    <sys:String x:Key="Str_Tab_CloseOthers">关闭其他标签页</sys:String>
+    <sys:String x:Key="Str_Tab_CloseRight">关闭右侧标签页</sys:String>
+    <sys:String x:Key="Str_Tab_OpenFolder">打开所在文件夹</sys:String>
+    <sys:String x:Key="Str_Tab_CopyPath">复制路径</sys:String>
+    <sys:String x:Key="Str_Tab_New">新建标签页 (Ctrl+T)</sys:String>
+    <sys:String x:Key="Str_Tab_AllTabs">所有标签页</sys:String>
+    <sys:String x:Key="Str_KS_Tabs">标签页</sys:String>
+    <sys:String x:Key="Str_KS_NewTab">新建标签页</sys:String>
+    <sys:String x:Key="Str_KS_NextPrevTab">下一个 / 上一个标签页</sys:String>
+    <sys:String x:Key="Str_KS_GoToTab">转到第 1 到 8 个标签页</sys:String>
+    <sys:String x:Key="Str_KS_LastTab">转到最后一个标签页</sys:String>
     <sys:String x:Key="Str_ColorPicker_Title">选择颜色</sys:String>
     <sys:String x:Key="Str_ColorPicker_Custom">自定义颜色…</sys:String>
     <sys:String x:Key="Str_ColorPicker_Eyedropper">从屏幕上任何位置拾取颜色</sys:String>
@@ -324,4 +341,96 @@
     <sys:String x:Key="Str_Ocr_Progress_Starting">准备中…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Page">正在识别第 {0} 页，共 {1} 页…</sys:String>
     <sys:String x:Key="Str_Ocr_Progress_Cancel">取消</sys:String>
+    <sys:String x:Key="Str_St_LinkBlocked">出于安全考虑已阻止此链接 - 仅可打开网页和电子邮件链接</sys:String>
+    <sys:String x:Key="Str_PageN">第 {0} 页</sys:String>
+    <sys:String x:Key="Str_Pwd_Title">需要密码</sys:String>
+    <sys:String x:Key="Str_St_FileSize">文件大小：{0}（{1} 字节）</sys:String>
+    <sys:String x:Key="Str_KS_CloseOthers">关闭其他标签页</sys:String>
+    <sys:String x:Key="Str_KS_FitWidth">适合宽度</sys:String>
+    <sys:String x:Key="Str_KS_FitPage">适合页面</sys:String>
+    <sys:String x:Key="Str_KS_HomeEnd">第一页 / 最后一页</sys:String>
+    <sys:String x:Key="Str_KS_FileSize">显示文件大小</sys:String>
+    <sys:String x:Key="Str_KS_ToolDigits">用数字选择工具</sys:String>
+    <sys:String x:Key="Str_Lbl_RemovePassword">移除密码</sys:String>
+    <sys:String x:Key="Str_Dlg_RemovePasswordMsg">要将此文档保存回原文件并移除密码保护吗？</sys:String>
+    <sys:String x:Key="Str_St_PasswordRemoved">已保存，未加密码保护</sys:String>
+    <sys:String x:Key="Str_St_NotProtected">此文档未设置密码保护</sys:String>
+    <sys:String x:Key="Str_St_SavedUnprotected">已保存 - 已移除密码保护</sys:String>
+    <sys:String x:Key="Str_Dlg_OpenPdfFirst">请先打开 PDF。</sys:String>
+    <sys:String x:Key="Str_Dlg_SaveFailed">保存失败：{0}</sys:String>
+    <sys:String x:Key="Str_Settings_NoRecentFiles">不记住最近打开的文件</sys:String>
+    <sys:String x:Key="Str_Search_CloseTT">关闭搜索 (Esc)</sys:String>
+    <sys:String x:Key="Str_Search_Hint">Enter = 下一个  Shift+Enter = 上一个</sys:String>
+    <sys:String x:Key="Str_Search_NoMatches">没有匹配项</sys:String>
+    <sys:String x:Key="Str_Search_Summary">{1} 页中有 {0} 个匹配项</sys:String>
+    <sys:String x:Key="Str_Search_SummaryOne">1 页中有 1 个匹配项</sys:String>
+    <sys:String x:Key="Str_Search_Error">搜索出错</sys:String>
+    <sys:String x:Key="Str_St_Undid">已撤销上一个批注</sys:String>
+    <sys:String x:Key="Str_St_UndidDoc">已撤销文档更改</sys:String>
+    <sys:String x:Key="Str_St_Redid">已重做上一个批注</sys:String>
+    <sys:String x:Key="Str_St_RedidDoc">已重做文档更改</sys:String>
+    <sys:String x:Key="Str_St_NothingToRedo">没有可重做的操作</sys:String>
+    <sys:String x:Key="Str_St_NothingToUndo">没有可撤销的操作</sys:String>
+    <sys:String x:Key="Str_KS_Redo">重做</sys:String>
+    <sys:String x:Key="Str_Tool_Preflight">印前检查</sys:String>
+    <sys:String x:Key="Str_Preflight_Running">正在检查文档…</sys:String>
+    <sys:String x:Key="Str_Preflight_Done">印前检查完成：{0} 个问题，{1} 个警告</sys:String>
+    <sys:String x:Key="Str_Preflight_Summary">已检查 {0} 页。{1} 个问题，{2} 个警告。</sys:String>
+    <sys:String x:Key="Str_Preflight_Clean">没有问题，文档可以发送。</sys:String>
+    <sys:String x:Key="Str_Preflight_Problems">问题（其他软件会拒绝或显示错误）：</sys:String>
+    <sys:String x:Key="Str_Preflight_Warnings">警告（可能显示异常）：</sys:String>
+    <sys:String x:Key="Str_Preflight_Notes">备注：</sys:String>
+    <sys:String x:Key="Str_Preflight_PagesLabel">页</sys:String>
+    <sys:String x:Key="Str_Preflight_Failed">印前检查无法完成：{0}</sys:String>
+    <sys:String x:Key="Str_Tool_Comments">批注</sys:String>
+    <sys:String x:Key="Str_Cmt_Hint">选择一条批注以阅读。您可以修改文字、更改作者或删除它。在选择保存之前不会写入任何内容，之后仍需保存文档。</sys:String>
+    <sys:String x:Key="Str_Cmt_Author">来自</sys:String>
+    <sys:String x:Key="Str_Cmt_Text">批注</sys:String>
+    <sys:String x:Key="Str_Cmt_Delete">删除此批注</sys:String>
+    <sys:String x:Key="Str_Cmt_Restore">保留此批注</sys:String>
+    <sys:String x:Key="Str_Cmt_Save">保存更改</sys:String>
+    <sys:String x:Key="Str_Cmt_NoChange">未更改任何批注</sys:String>
+    <sys:String x:Key="Str_Cmt_Applied">已编辑 {0} 条批注，删除 {1} 条</sys:String>
+    <sys:String x:Key="Str_KS_TextStyle">输入时应用粗体／斜体／下划线</sys:String>
+    <sys:String x:Key="Str_Tool_FormOcr">用 OCR 填写表单字段</sys:String>
+    <sys:String x:Key="Str_FormOcr_NoFields">此页没有可填写的文本或选择字段。</sys:String>
+    <sys:String x:Key="Str_FormOcr_Running">正在读取 {0} 个字段...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Progress">正在读取第 {0} 个字段，共 {1} 个...</sys:String>
+    <sys:String x:Key="Str_FormOcr_Done">已从页面填入 {0} 个字段</sys:String>
+    <sys:String x:Key="Str_FormOcr_Empty">字段中找不到可识别的内容</sys:String>
+    <sys:String x:Key="Str_FormOcr_Failed">无法读取字段：{0}</sys:String>
+    <sys:String x:Key="Str_Tool_Straighten">校正拍摄的页面</sys:String>
+    <sys:String x:Key="Str_Straighten_Title">校正页面</sys:String>
+    <sys:String x:Key="Str_Straighten_Hint">将四个控点拖动到照片中页面的四角，然后选择校正。</sys:String>
+    <sys:String x:Key="Str_Straighten_Apply">校正</sys:String>
+    <sys:String x:Key="Str_Straighten_Done">已校正第 {0} 页</sys:String>
+    <sys:String x:Key="Str_Straighten_Failed">无法校正页面：{0}</sys:String>
+    <sys:String x:Key="Str_Tool_Measure">测量距离</sys:String>
+    <sys:String x:Key="Str_Measure_Hint">在页面上拖动以测量。按住 Shift 保持笔直；按 Esc 停止。</sys:String>
+    <sys:String x:Key="Str_Measure_Reading">{0} 毫米  /  {1} 英寸  /  {2} 点</sys:String>
+    <sys:String x:Key="Str_Tool_Compare">与另一个 PDF 比较</sys:String>
+    <sys:String x:Key="Str_Cmp_Pick">选择要比较的 PDF</sys:String>
+    <sys:String x:Key="Str_Cmp_Running">正在比较文档...</sys:String>
+    <sys:String x:Key="Str_Cmp_Done">比较完成</sys:String>
+    <sys:String x:Key="Str_Cmp_Failed">比较失败：{0}</sys:String>
+    <sys:String x:Key="Str_Cmp_Header">正在比较 {0} 与 {1}</sys:String>
+    <sys:String x:Key="Str_Cmp_PageCount">页数不同：{0} 对 {1}。</sys:String>
+    <sys:String x:Key="Str_Cmp_Identical">两个文档完全相同。</sys:String>
+    <sys:String x:Key="Str_Cmp_SharedIdentical">共有的每一页都相同。</sys:String>
+    <sys:String x:Key="Str_Cmp_Summary">{1} 个共有页面中有 {0} 页不同：</sys:String>
+    <sys:String x:Key="Str_Cmp_Page">  第 {0} 页：{1}% 的页面有变更，共 {2} 个区域</sys:String>
+    <sys:String x:Key="Str_Tool_ExportImages">将页面导出为图片</sys:String>
+    <sys:String x:Key="Str_Exp_Format">格式</sys:String>
+    <sys:String x:Key="Str_Exp_Colour">颜色</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Color">彩色</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Gray">灰度</sys:String>
+    <sys:String x:Key="Str_Exp_Colour_Bw">黑白</sys:String>
+    <sys:String x:Key="Str_Exp_Resolution">分辨率</sys:String>
+    <sys:String x:Key="Str_Exp_Export">导出</sys:String>
+    <sys:String x:Key="Str_Exp_Note">将写入 {0} 页，每页一个图片文件。</sys:String>
+    <sys:String x:Key="Str_Exp_Working">正在导出 {0} 页...</sys:String>
+    <sys:String x:Key="Str_Exp_Done">已导出 {0} 张图片到 {1}</sys:String>
+    <sys:String x:Key="Str_Exp_Failed">导出失败：{0}</sys:String>
+    <sys:String x:Key="Str_Comments_None">此文档没有批注。</sys:String>
+    <sys:String x:Key="Str_Comments_Summary">此文档中有 {0} 条批注。</sys:String>
 </ResourceDictionary>

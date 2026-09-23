@@ -10,6 +10,9 @@
     <SolidColorBrush x:Key="BgSidebar"     Color="#ECEEF1" po:Freeze="True"/>
     <SolidColorBrush x:Key="BgModal"       Color="#FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="BgHover"       Color="#E4E8EC" po:Freeze="True"/>
+    <!-- Hover circle of a document tab's close button: one step past BgHover, because the chip
+         under it is already BgHover (or AccentDim when active). -->
+    <SolidColorBrush x:Key="TabCloseHover" Color="#D3D9E0" po:Freeze="True"/>
     <SolidColorBrush x:Key="BgControl"     Color="#EEF0F3" po:Freeze="True"/>
     <SolidColorBrush x:Key="BorderDim"     Color="#E0E3E8" po:Freeze="True"/>
     <SolidColorBrush x:Key="Accent"        Color="#F2A93B" po:Freeze="True"/>

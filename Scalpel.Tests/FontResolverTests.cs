@@ -61,5 +61,34 @@ namespace Scalpel.Tests
             Assert.False(r.IsItalic);
             Assert.True(r.IsInstalled);  // no spurious toast for unknown fonts
         }
+
+        [Theory]
+        [InlineData("Helvetica", "Arial")]
+        [InlineData("Helvetica-Bold", "Arial")]
+        [InlineData("HelveticaNeue", "Arial")]
+        [InlineData("Courier", "Courier New")]
+        [InlineData("CourierNewPSMT", "Courier New")]
+        [InlineData("Times", "Times New Roman")]
+        [InlineData("TimesNewRomanPSMT", "Times New Roman")]
+        [InlineData("ZapfDingbats", "Wingdings")]
+        [InlineData("ABCDEF+Helvetica", "Arial")]
+        public void Resolve_MapsPostScriptBaseNamesToWindowsFamilies(string raw, string expected)
+        {
+            // These PostScript names have no installed Windows family of their own, so without the
+            // map every edited line of Helvetica or Courier text fell back to the UI font.
+            var r = FontResolver.Resolve(raw, [expected]);
+            Assert.Equal(expected, r.DisplayName);
+            Assert.Equal(expected, r.FamilyName);
+            Assert.True(r.IsInstalled);
+        }
+
+        [Fact]
+        public void Resolve_MappedNameKeepsDetectedStyle()
+        {
+            var r = FontResolver.Resolve("Helvetica-BoldOblique", ["Arial"]);
+            Assert.Equal("Arial", r.FamilyName);
+            Assert.True(r.IsBold);
+            Assert.True(r.IsItalic);
+        }
     }
 }
