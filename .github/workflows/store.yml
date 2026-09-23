@@ -1,0 +1,42 @@
+# Builds the Microsoft Store MSIX (unsigned, Partner Center identity) on a Windows runner.
+# Manual only: Actions > store > Run workflow. Nothing is uploaded to the Store from here;
+# download the store-msix artifact and upload it in Partner Center yourself.
+name: store
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  msix:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build Store MSIX
+        shell: pwsh
+        run: ./packaging/build-msix.ps1 -Store
+
+      - name: Show package identity
+        shell: pwsh
+        run: |
+          $msix = Get-ChildItem packaging/out/Scalpel_*_x64.msix | Select-Object -First 1
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $z = [IO.Compression.ZipFile]::OpenRead($msix.FullName)
+          $e = $z.Entries | Where-Object { $_.FullName -eq 'AppxManifest.xml' }
+          $r = New-Object IO.StreamReader($e.Open()); $m = [xml]$r.ReadToEnd(); $r.Dispose(); $z.Dispose()
+          $m.Package.Identity | Format-List Name, Publisher, Version, ProcessorArchitecture
+          "PublisherDisplayName: $($m.Package.Properties.PublisherDisplayName)"
+          "File: $($msix.Name)  Size: $([math]::Round($msix.Length / 1MB, 1)) MB"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-msix
+          path: packaging/out/Scalpel_*_x64.msix
+          if-no-files-found: error
