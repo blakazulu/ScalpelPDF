@@ -57,7 +57,7 @@ test.describe('Scalpel marketing site', () => {
       await expect(page.locator(id)).toBeVisible()
     }
     await expect(page.locator('.footer')).toBeVisible()
-    await expect(page.locator('#tools .tool')).toHaveCount(6)
+    await expect(page.locator('#tools .tool')).toHaveCount(9)
   })
 
   test('hero Lottie animation mounts and renders geometry', async ({ page }) => {

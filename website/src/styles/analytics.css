@@ -1,0 +1,11 @@
+/* Consent controls use the marketing site's Clinical theme. */
+.sp-consent[hidden]{display:none!important}
+.sp-consent{position:fixed;z-index:1200;inset-inline:16px;bottom:16px;max-width:760px;margin-inline:auto;padding:20px;background:var(--bg-panel);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);font:15px/1.6 var(--font-ui);max-height:75vh;overflow:auto}
+.sp-consent strong{font-size:18px}.sp-consent p{margin:8px 0 14px}.sp-consent-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.sp-consent button,.sp-consent-settings{font:inherit;font-weight:600;cursor:pointer;background:var(--bg-control);color:var(--text);border:1px solid var(--border-strong);border-radius:var(--radius);padding:10px 14px;min-height:44px}
+.sp-consent button[data-choice=granted]{background:var(--accent-strong);color:white;border-color:var(--accent-strong)}
+.sp-consent a{color:var(--accent-text);padding:10px}
+.sp-consent button:focus-visible,.sp-consent a:focus-visible,.sp-consent-settings:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.sp-consent-settings{position:fixed;bottom:10px;inset-inline-start:10px;z-index:1100;font:12px var(--font-ui);padding:6px 10px}
+.website-privacy{border-top:1px solid var(--border);padding-block:2rem}.website-privacy p{max-width:75ch;color:var(--text-dim);margin-block:1rem}
+@media(max-width:520px){.sp-consent{bottom:10px;inset-inline:10px;padding:16px;font-size:14px}.sp-consent-actions button{flex:1 1 100%}}

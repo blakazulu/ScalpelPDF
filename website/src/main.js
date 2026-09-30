@@ -4,6 +4,8 @@ import '@fontsource-variable/heebo'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/app.css'
+import './styles/analytics.css'
+import { initAnalytics } from './analytics.js'
 
 import { icons } from './icons.js'
 import { applyTheme, detectTheme, toggleTheme } from './theme.js'
@@ -71,6 +73,7 @@ function setupMarquee() {
 function init() {
   injectIcons()
   setupTheme()
+  initAnalytics()
   setupLang()
   setupReveal()
   setupMarquee()

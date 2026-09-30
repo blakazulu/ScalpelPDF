@@ -89,3 +89,7 @@ website/
 ├── netlify.toml
 └── playwright.config.js
 ```
+
+## Optional website analytics
+
+GA4 `G-R0T70Y3E1N` and Clarity `yqlz27igm4` load only on the production marketing host after explicit opt-in. Refusal is equally available; Privacy preferences permits withdrawal and clears accessible first-party analytics cookies. Ad consent is denied, Google signals/ad personalization are disabled, and inputs/forms (including dynamically inserted fields) are masked. Scroll-depth events cover 25/50/75/100 percent. The bilingual website privacy section distinguishes this collection from the desktop app, whose no-telemetry behavior and promises are unchanged. No paid plan or billing change. The module adapts esekpo commit d96b0d2f25162ac87d2f7ae8d96e0670c10762d9.

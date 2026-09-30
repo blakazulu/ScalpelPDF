@@ -176,4 +176,16 @@ export default {
   'footer.l.store': 'Microsoft Store',
   'footer.legal': '© 2026 Liraz Amir · GPLv3 · No telemetry',
   'footer.version': 'v1.8.0 · x64 · Windows 10/11',
+
+  "consent.title": "Website analytics, only if you agree",
+  "consent.body": "Google Analytics and Microsoft Clarity measure visits, clicks and scrolling, and record how this website is used. They use cookies; input fields are masked. This does not affect the offline desktop app. You can refuse or change your choice at any time.",
+  "consent.accept": "Allow analytics and recordings",
+  "consent.reject": "Refuse analytics",
+  "consent.policy": "Website privacy",
+  "consent.settings": "Privacy preferences",
+  "websitePrivacy.title": "Website privacy",
+  "websitePrivacy.app": "The Scalpel desktop app stays local-only: no analytics, telemetry, crash beacons or document uploads. The optional analytics described here apply only to this marketing website, not to the app or your PDFs.",
+  "websitePrivacy.analytics": "Only after you opt in, this website loads Google Analytics 4 and Microsoft Clarity. Google Analytics measures visits, pages, traffic sources, approximate location, device type and scrolling. Clarity records website interactions for session recordings and heatmaps. Both receive technical browser and network data and can use analytics cookies. Inputs and forms are masked in Clarity. Do not enter personal or confidential information on this website.",
+  "websitePrivacy.controls": "Before consent, or after refusal, neither tool loads. Advertising consent is denied and Google signals and ad personalization are disabled. Your choice is saved in this browser. Use Privacy preferences to withdraw consent at any time; this stops further optional collection and clears accessible first-party analytics cookies. Withdrawal does not delete data already sent to Google or Microsoft, or cookies on their domains. Browser language and theme preferences are stored separately.",
+  "websitePrivacy.providers": "Google and Microsoft process analytics data under their own privacy policies. Website hosting may also keep operational logs independently of these optional tools.",
 }
