@@ -136,3 +136,16 @@ html[lang='he'] .eyebrow { font-family: var(--font-mono); letter-spacing: 0.12em
   transition: inset-block-start var(--dur-fast);
 }
 .skip-link:focus { inset-block-start: 1rem; }
+
+/* Site-matched native scrollbars. Unsupported browsers keep native controls. */
+* { scrollbar-width: auto; scrollbar-color: var(--accent) var(--bg-page); }
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-track { background: var(--bg-page); }
+*::-webkit-scrollbar-thumb { background: var(--accent); border: 3px solid var(--bg-page); border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--accent-strong); }
+*::-webkit-scrollbar-corner { background: var(--bg-page); }
+@media (forced-colors: active) {
+  * { scrollbar-color: auto; scrollbar-width: auto; }
+  *::-webkit-scrollbar-track, *::-webkit-scrollbar-corner { background: Canvas; }
+  *::-webkit-scrollbar-thumb { background: ButtonText; border-color: Canvas; }
+}

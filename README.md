@@ -127,3 +127,5 @@ See [CHANGELOG.md](CHANGELOG.md), or the in-app **What's New** popup.
 ## License
 
 GPLv3. See [LICENSE](LICENSE). If you fork, modify, or redistribute Scalpel, your version must also be released under GPLv3 with source available. No exceptions for commercial rebrands.
+
+Website rule: native, site-matched cross-browser scrollbars are required on every new site. Floating privacy preferences hide five seconds after opt-in; the privacy policy keeps a permanent reopen control (2026-10-01).

@@ -93,3 +93,9 @@ website/
 ## Optional website analytics
 
 GA4 `G-R0T70Y3E1N` and Clarity `yqlz27igm4` load only on the production marketing host after explicit opt-in. Refusal is equally available; Privacy preferences permits withdrawal and clears accessible first-party analytics cookies. Ad consent is denied, Google signals/ad personalization are disabled, and inputs/forms (including dynamically inserted fields) are masked. Scroll-depth events cover 25/50/75/100 percent. The bilingual website privacy section distinguishes this collection from the desktop app, whose no-telemetry behavior and promises are unchanged. No paid plan or billing change. The module adapts esekpo commit d96b0d2f25162ac87d2f7ae8d96e0670c10762d9.
+
+## Website scrollbar and consent rule (2026-10-01)
+
+Every site we build must have native scrollbars styled to its own palette, including nested scroll areas. Use the standard scrollbar-color/scrollbar-width properties plus WebKit pseudo-elements for older Chromium and Safari, preserving native fallback, keyboard/touch scrolling, forced-colors and platform overlay behavior. Do not replace scrolling with JavaScript, force scrollbar visibility on touch devices, or override intentionally hidden carousel/code scrollbars.
+
+The floating privacy-preferences button stays visible until analytics are accepted, then hides after five seconds, including on returning visits. Reopening preferences cancels the hide timer. The privacy policy retains a permanent preferences control, so consent can always be changed or withdrawn. Analytics remain strictly opt-in; desktop apps and private account/document pages keep their existing no-tracking rules.
