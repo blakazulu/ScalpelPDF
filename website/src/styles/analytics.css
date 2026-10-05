@@ -13,3 +13,5 @@
 .sp-consent-settings[hidden]{display:none!important}
 
 [data-open-privacy-preferences]{font:inherit;color:var(--accent-text);background:transparent;border:0;text-decoration:underline;cursor:pointer;padding:8px;}
+
+.sp-consent-settings{position:static;margin:12px}.sp-consent{right:76px}
